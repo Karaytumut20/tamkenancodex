@@ -57,7 +57,7 @@ export function ServiceShowcase() {
             <h2 className="mt-3 text-[clamp(30px,3.2vw,48px)] font-extrabold leading-none tracking-[-0.045em] text-ink">Geniş güvenlik ürün yelpazemiz</h2>
             <p className="mt-4 max-w-2xl text-sm leading-7 text-ink-muted">Ev ve iş yeriniz için akıllı alarm sistemlerinden yüksek çözünürlüklü kameralara kadar aradığınız tüm ürünler.</p>
           </div>
-          <div className="flex items-center gap-2">
+          <div className="hidden items-center gap-2 md:flex">
             <button aria-label="Önceki ürünler" onClick={() => scroll("left")} className="flex h-10 w-10 items-center justify-center rounded-full border border-border bg-white text-ink transition hover:border-primary-500 hover:text-primary-600">
               <ArrowLeft className="h-4 w-4" />
             </button>
@@ -67,19 +67,21 @@ export function ServiceShowcase() {
           </div>
         </div>
 
-        <div className="mb-6 flex flex-wrap gap-2">
-          {tabs.map((item) => (
-            <button
-              key={item}
-              onClick={() => setTab(item)}
-              className={cn("h-9 shrink-0 rounded-full px-4 text-xs font-extrabold transition", tab === item ? "bg-primary-600 text-white" : "bg-white text-ink-muted hover:bg-primary-500/10 hover:text-primary-600")}
-            >
-              {item}
-            </button>
-          ))}
-          <Link href="/urunler" className="ml-auto inline-flex h-9 items-center gap-1 text-xs font-extrabold text-primary-600 hover:text-primary-500">
-            Tüm Ürünleri Gör <ChevronRight className="h-4 w-4" />
-          </Link>
+        <div className="mb-6">
+          <div className="grid grid-cols-2 gap-2 md:flex md:flex-wrap">
+            {tabs.map((item) => (
+              <button
+                key={item}
+                onClick={() => setTab(item)}
+                className={cn("h-9 rounded-full px-4 text-xs font-extrabold transition whitespace-nowrap", tab === item ? "bg-primary-600 text-white" : "bg-white text-ink-muted hover:bg-primary-500/10 hover:text-primary-600")}
+              >
+                {item}
+              </button>
+            ))}
+            <Link href="/urunler" className="inline-flex h-9 items-center justify-center gap-1 rounded-full bg-white px-4 text-xs font-extrabold text-primary-600 hover:bg-primary-500/10 hover:text-primary-600 md:ml-auto md:bg-transparent">
+              Tüm Ürünleri Gör <ChevronRight className="h-4 w-4" />
+            </Link>
+          </div>
         </div>
 
         <div

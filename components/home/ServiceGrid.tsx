@@ -72,7 +72,43 @@ export function ServiceGrid() {
         </div>
 
         <div className="grid gap-4 xl:grid-cols-[1fr_1fr_330px]">
-          <div className="grid gap-4 md:grid-cols-2 xl:col-span-2 content-start">
+          {/* Mobile: Horizontal Scroll */}
+          <div className="md:hidden -mx-3 px-3 overflow-x-auto">
+            <div className="flex gap-4 pb-4" style={{ scrollSnapType: 'x mandatory' }}>
+              {services.map((service, index) => (
+                <Link
+                  key={service.title}
+                  href={service.href}
+                  className={cn(
+                    "group flex flex-col justify-between min-h-[260px] w-[280px] flex-shrink-0 overflow-hidden rounded-[24px] bg-white p-5 shadow-[0_18px_55px_rgba(15,23,42,0.07)] transition hover:-translate-y-1",
+                    index === 1 ? "bg-[#EEF2FF]" : ""
+                  )}
+                  style={{ scrollSnapAlign: 'start' }}
+                >
+                  <div className="flex items-start justify-between gap-4">
+                    <div>
+                      <p className="text-xs font-bold text-ink-muted">Hizmet</p>
+                      <h3 className="mt-2 max-w-[220px] text-2xl font-black leading-tight tracking-[-0.04em] text-ink">{service.title}</h3>
+                      <p className="mt-3 max-w-[260px] text-sm leading-6 text-ink-muted">{service.description}</p>
+                    </div>
+                    <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-primary-600 text-white">
+                      <ChevronRight className="h-4 w-4" />
+                    </span>
+                  </div>
+                  <div className="relative mt-4 h-24 w-full flex-1">
+                    <Image src={service.image} alt={`${service.title} hizmet görseli`} fill className="object-contain object-right-bottom transition group-hover:scale-105" unoptimized />
+                  </div>
+                  <div className="mt-4 flex items-center gap-2">
+                    <span className="inline-flex h-8 items-center justify-center rounded-full bg-[#111318] px-4 text-xs font-extrabold text-white">İncele</span>
+                    <span className="inline-flex h-8 items-center justify-center rounded-full bg-[#F1F3F6] px-4 text-xs font-extrabold text-ink-muted">Teklif Al</span>
+                  </div>
+                </Link>
+              ))}
+            </div>
+          </div>
+
+          {/* Desktop: Grid */}
+          <div className="hidden md:grid gap-4 md:grid-cols-2 xl:col-span-2 content-start">
             {visible.map((service, index) => {
               if ("placeholder" in service && service.placeholder) {
                 return (

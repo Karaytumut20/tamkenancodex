@@ -122,7 +122,7 @@ export function ProductCarousel() {
           ))}
         </div>
 
-        <div className="mt-6 flex justify-center gap-2">
+        <div className="mt-6 hidden justify-center gap-2 md:flex">
           {slides.map((_, index) => (
             <button key={index} aria-label={`${index + 1}. ürün grubuna git`} onClick={() => { setActive(index); scrollToSlide(index); }} className={`h-2 rounded-full transition ${active === index ? "w-8 bg-primary-600" : "w-2 bg-border-strong"}`} />
           ))}
