@@ -1,0 +1,129 @@
+"use client";
+
+import Image from "next/image";
+import Link from "next/link";
+import { CheckCircle2, ChevronRight, HelpCircle, Plus, Wrench, Shield, HeartHandshake, BadgePercent, Cpu } from "lucide-react";
+import { useState } from "react";
+import { ButtonLink } from "@/components/ui/Button";
+import { cn } from "@/lib/cn";
+import { homeFaqs } from "@/data/faqs";
+import { blogPosts } from "@/data/blog";
+
+const benefitsList = [
+  { title: "Uzman Mühendis Kadrosu", desc: "Alanında deneyimli mühendislerimiz ile mekana en uygun teknik güvenlik planını hazırlıyoruz.", icon: Cpu },
+  { title: "En Yeni Teknoloji Ürünler", desc: "Dünya standartlarında, akıllı ve mobil uyumlu yeni nesil güvenlik donanımları kullanıyoruz.", icon: Shield },
+  { title: "Anahtar Teslim Çözümler", desc: "Keşiften kablolamaya, montajdan mobil kuruluma kadar tüm süreçleri üstleniyoruz.", icon: Wrench },
+  { title: "Uygun Fiyat, Yüksek Kalite", desc: "Maliyeti optimize ederken güvenlik ve ekipman standartlarından asla ödün vermiyoruz.", icon: BadgePercent },
+  { title: "Satış Sonrası Destek", desc: "7/24 kesintisiz teknik destek, arıza müdahale ve periyodik bakım hizmeti sunuyoruz.", icon: HeartHandshake },
+];
+
+export function WhyFaqBlog() {
+  const [openFaq, setOpenFaq] = useState(0);
+  const posts = blogPosts.slice(0, 3);
+
+  return (
+    <>
+      {/* SECTION 1: Neden PrimeSec */}
+      <section className="bg-surface py-16">
+        <div className="container-primesec">
+          <div className="text-center max-w-3xl mx-auto mb-12">
+            <p className="text-sm font-extrabold uppercase tracking-[0.14em] text-primary-600">Neden Biz?</p>
+            <h2 className="mt-3 text-[clamp(30px,3.2vw,48px)] font-extrabold leading-none tracking-[-0.045em] text-ink">Neden PrimeSec Teknoloji?</h2>
+            <p className="mt-4 text-sm leading-7 text-ink-muted">Güvenlik sistemlerini sadece cihaz montajı olarak değil, uzun vadeli bir yaşam ve iş alanı koruma mimarisi olarak görüyoruz.</p>
+          </div>
+
+          <div className="grid gap-5 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
+            {benefitsList.map((item) => (
+              <div key={item.title} className="rounded-2xl border border-border bg-gradient-to-br from-white to-[#F7FAFF] p-6 shadow-sm transition hover:-translate-y-1 hover:border-primary-500/30">
+                <span className="flex h-11 w-11 items-center justify-center rounded-xl bg-primary-500/10 text-primary-600">
+                  <item.icon className="h-5 w-5" />
+                </span>
+                <h3 className="mt-5 text-[17px] font-extrabold text-ink leading-tight">{item.title}</h3>
+                <p className="mt-3 text-xs leading-5 text-[#5D6472]">{item.desc}</p>
+              </div>
+            ))}
+          </div>
+
+          <div className="mt-10 text-center">
+            <ButtonLink href="/hakkimizda" variant="outlineBlue" className="rounded-full px-8">Hakkımızda Daha Fazla Bilgi</ButtonLink>
+          </div>
+        </div>
+      </section>
+
+      {/* SECTION 2: Sıkça Sorulan Sorular */}
+      <section className="bg-surface py-16">
+        <div className="container-primesec grid gap-10 xl:grid-cols-12 xl:items-start">
+          <div className="xl:col-span-5">
+            <p className="text-sm font-extrabold uppercase tracking-[0.14em] text-primary-600">SSS</p>
+            <h2 className="mt-3 text-[clamp(30px,3.2vw,46px)] font-extrabold leading-tight tracking-[-0.045em] text-ink">Sıkça Sorulan Sorular</h2>
+            <p className="mt-4 leading-7 text-ink-muted">Kamera ve alarm sistemlerimizin özellikleri, kurulum süreleri ve destek süreçlerimiz hakkında en çok merak edilen konuları derledik.</p>
+            <div className="mt-8 rounded-2xl border border-primary-500/20 bg-primary-500/5 p-6 flex gap-4">
+              <HelpCircle className="h-8 w-8 text-primary-600 shrink-0" />
+              <div>
+                <h4 className="font-extrabold text-ink">Aradığınız yanıtı bulamadınız mı?</h4>
+                <p className="mt-1 text-xs leading-5 text-ink-muted">Aklınıza takılan her türlü soru için uzman danışmanımızla anında iletişime geçebilirsiniz.</p>
+                <Link href="/iletisim" className="mt-3 inline-flex items-center gap-1 text-xs font-extrabold text-primary-600 hover:text-primary-500">Bize Ulaşın <ChevronRight className="h-3 w-3" /></Link>
+              </div>
+            </div>
+          </div>
+
+          <div className="xl:col-span-7 space-y-3">
+            {homeFaqs.map((faq, index) => (
+              <div key={faq.question} className="rounded-xl border border-border bg-white shadow-sm transition hover:border-primary-500/30">
+                <button onClick={() => setOpenFaq(openFaq === index ? -1 : index)} className="flex w-full items-center justify-between gap-4 p-5 text-left text-[16px] font-extrabold text-ink">
+                  {faq.question}
+                  <span className={cn("flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-[#F7FAFF] text-primary-600 transition-transform duration-200", openFaq === index ? "rotate-45" : "")}>
+                    <Plus className="h-4 w-4" />
+                  </span>
+                </button>
+                {openFaq === index ? (
+                  <div className="px-5 pb-5 border-t border-border/50 pt-3">
+                    <p className="text-sm leading-6 text-ink-muted">{faq.answer}</p>
+                  </div>
+                ) : null}
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* SECTION 3: Son Blog Yazıları */}
+      <section className="bg-surface py-16">
+        <div className="container-primesec">
+          <div className="mb-10 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+            <div>
+              <p className="text-sm font-extrabold uppercase tracking-[0.14em] text-primary-600">Rehberler & Blog</p>
+              <h2 className="mt-3 text-[clamp(30px,3.2vw,46px)] font-extrabold leading-none tracking-[-0.045em] text-ink">Güncel güvenlik ipuçları</h2>
+            </div>
+            <Link href="/blog" className="inline-flex items-center gap-1 text-sm font-extrabold text-primary-600 hover:text-primary-500">
+              Tümünü Gör <ChevronRight className="h-4 w-4" />
+            </Link>
+          </div>
+
+          <div className="grid gap-6 md:grid-cols-3">
+            {posts.map((post) => (
+              <Link href={`/blog/${post.slug}`} key={post.slug} className="group flex flex-col overflow-hidden rounded-2xl border border-border bg-white shadow-sm transition hover:-translate-y-1 hover:border-primary-500">
+                <div className="relative h-48 w-full bg-[#F7FAFF]">
+                  <Image src={post.image} alt={post.date} fill className="object-contain p-6 transition group-hover:scale-105" unoptimized />
+                </div>
+                <div className="flex flex-1 flex-col justify-between p-6">
+                  <div>
+                    <p className="text-xs font-bold text-ink-muted">{post.category} · {new Date(post.date).toLocaleDateString("tr-TR")}</p>
+                    <h3 className="mt-3 text-lg font-extrabold leading-tight text-ink group-hover:text-primary-600">{post.title}</h3>
+                    <p className="mt-2 line-clamp-2 text-sm leading-6 text-ink-muted">{post.description}</p>
+                  </div>
+                  <div className="mt-4 flex items-center justify-between gap-3 pt-4 border-t border-border/50">
+                    <span className="text-xs font-extrabold text-primary-600 transition group-hover:text-primary-500">Oku</span>
+                    <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-[#F7FAFF] text-primary-600 shadow-sm">
+                      <ChevronRight className="h-4 w-4" />
+                    </span>
+                  </div>
+                </div>
+              </Link>
+            ))}
+          </div>
+        </div>
+      </section>
+    </>
+  );
+}

@@ -1,0 +1,36 @@
+<svg width="1200" height="900" viewBox="0 0 1200 900" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <rect width="1200" height="900" fill="none"/>
+  <path d="M224 524L594 222L978 524" stroke="#1683FF" stroke-width="10" stroke-linecap="round" stroke-linejoin="round" opacity=".55"/>
+  <path d="M328 518V770H884V518" stroke="#3BA0FF" stroke-width="8" opacity=".35"/>
+  <ellipse cx="616" cy="784" rx="360" ry="64" stroke="#1683FF" stroke-width="6" opacity=".75"/>
+  <ellipse cx="616" cy="784" rx="280" ry="40" fill="#006BFF" opacity=".12"/>
+  <g filter="url(#glow)">
+    <rect x="476" y="330" width="220" height="360" rx="34" fill="#071B38" stroke="#3BA0FF" stroke-width="5"/>
+    <rect x="504" y="372" width="164" height="214" rx="22" fill="#0B2B5C"/>
+    <circle cx="586" cy="636" r="26" fill="#1683FF"/>
+    <path d="M548 424H624M548 466H646M548 508H610" stroke="#70BDFF" stroke-width="12" stroke-linecap="round"/>
+  </g>
+  <g filter="url(#glow)">
+    <rect x="694" y="430" width="248" height="150" rx="30" fill="#F7FAFF"/>
+    <circle cx="770" cy="505" r="42" fill="#061A35"/>
+    <circle cx="770" cy="505" r="20" fill="#1683FF"/>
+    <rect x="838" y="482" width="56" height="46" rx="14" fill="#1683FF"/>
+    <path d="M942 472L1016 430V580L942 536" fill="#D9ECFF"/>
+  </g>
+  <g filter="url(#glow)">
+    <rect x="276" y="438" width="184" height="230" rx="30" fill="#FFFFFF"/>
+    <rect x="310" y="476" width="116" height="74" rx="18" fill="#E8F3FF"/>
+    <path d="M328 596H408M328 632H384" stroke="#1683FF" stroke-width="14" stroke-linecap="round"/>
+  </g>
+  <circle cx="898" cy="304" r="52" fill="#006BFF" opacity=".18" stroke="#70BDFF" stroke-width="5"/>
+  <path d="M898 274L923 286V313C923 334 908 346 898 350C888 346 873 334 873 313V286L898 274Z" fill="#70BDFF"/>
+  <circle cx="304" cy="300" r="40" fill="#18BFFF" opacity=".18" stroke="#4CD9FF" stroke-width="4"/>
+  <path d="M304 274V326M278 300H330" stroke="#4CD9FF" stroke-width="8" stroke-linecap="round"/>
+  <defs>
+    <filter id="glow" x="160" y="180" width="920" height="650" filterUnits="userSpaceOnUse">
+      <feGaussianBlur stdDeviation="10" result="blur"/>
+      <feColorMatrix in="blur" type="matrix" values="0 0 0 0 0 0 0 0 0 0.42 0 0 0 0 1 0 0 0 .45 0"/>
+      <feBlend in="SourceGraphic"/>
+    </filter>
+  </defs>
+</svg>

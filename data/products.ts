@@ -1,0 +1,163 @@
+export type Product = {
+  slug: string;
+  name: string;
+  code: string;
+  category: string;
+  brand: string;
+  usage: string[];
+  description: string;
+  image: string;
+  tags: string[];
+  features: string[];
+  specs: Record<string, string>;
+  faqs: { question: string; answer: string }[];
+};
+
+export const products: Product[] = [
+  {
+    slug: "primesec-plus-kamerali-alarm-paketi",
+    name: "PrimeSec Plus Kameralı Alarm Paketi",
+    code: "PS-PLUS-001",
+    category: "Alarm Sistemleri",
+    brand: "PrimeSec",
+    usage: ["Ev", "İş Yeri"],
+    description: "Alarm, mobil bildirim ve akıllı video takibini tek pakette birleştiren premium güvenlik çözümü.",
+    image: "/images/alarm-sistemi.svg",
+    tags: ["En Popüler", "Kablosuz", "Mobil Uyumlu"],
+    features: ["Mobil uygulama kontrolü", "Kameralı doğrulama", "Anında bildirim", "Genişletilebilir sensör yapısı"],
+    specs: { Bağlantı: "Wi-Fi / GSM", Garanti: "2 Yıl", Kullanım: "Ev ve iş yeri", Kurulum: "Profesyonel montaj" },
+    faqs: [
+      { question: "PrimeSec Plus internetsiz çalışır mı?", answer: "GSM yedekleme ile kritik bildirimler internet kesintilerinde de sürdürülebilir." },
+      { question: "Paket genişletilebilir mi?", answer: "Evet, manyetik kontak, panik butonu, su baskını ve kamera seçenekleri eklenebilir." },
+    ],
+  },
+  {
+    slug: "hikvision-cctv-kamera-sistemi",
+    name: "Hikvision CCTV Kamera Sistemi",
+    code: "HK-CCTV-4MP",
+    category: "Kamera Sistemleri",
+    brand: "Hikvision",
+    usage: ["Ev", "İş Yeri", "Depo"],
+    description: "Yüksek çözünürlüklü kayıt, gece görüşü ve uzaktan izleme özellikli CCTV kamera sistemi.",
+    image: "/images/kamera-sistemi.svg",
+    tags: ["CCTV Kamera", "Gece Görüşü", "Uzaktan İzleme"],
+    features: ["4MP net görüntü", "NVR/DVR kayıt", "Mobil izleme", "Dış mekan dayanımı"],
+    specs: { Çözünürlük: "4MP", Kayıt: "NVR/DVR", Garanti: "2 Yıl", Marka: "Hikvision" },
+    faqs: [{ question: "CCTV kamera uzaktan izlenebilir mi?", answer: "Evet, mobil uygulama ile canlı ve geçmiş kayıtlar takip edilebilir." }],
+  },
+  {
+    slug: "dahua-ip-kamera-sistemi",
+    name: "Dahua IP Kamera Sistemi",
+    code: "DH-IP-5MP",
+    category: "Kamera Sistemleri",
+    brand: "Dahua",
+    usage: ["İş Yeri", "Site", "Mağaza"],
+    description: "IP tabanlı yüksek çözünürlüklü güvenlik kamerası ve kayıt altyapısı.",
+    image: "/images/kamera-sistemi.svg",
+    tags: ["IP Kamera", "PoE", "Akıllı Analiz"],
+    features: ["PoE ile kolay kurulum", "Hareket algılama", "Yüksek çözünürlük", "Uzaktan kayıt erişimi"],
+    specs: { Çözünürlük: "5MP", Bağlantı: "PoE", Marka: "Dahua", Kullanım: "Profesyonel" },
+    faqs: [{ question: "IP kamera ile CCTV farkı nedir?", answer: "IP kameralar ağ üzerinden çalışır ve esnek kurulum imkanı sunar." }],
+  },
+  {
+    slug: "akilli-video-takip-sistemi",
+    name: "Akıllı Video Takip Sistemi",
+    code: "PS-VIDEO-AI",
+    category: "Akıllı Ev Sistemleri",
+    brand: "PrimeSec",
+    usage: ["Ev", "İş Yeri"],
+    description: "Hareket algılama, akıllı bildirim ve canlı izleme özellikli video güvenlik çözümü.",
+    image: "/images/akilli-ev.svg",
+    tags: ["Akıllı Video", "Anında Bildirim"],
+    features: ["Canlı izleme", "Akıllı hareket analizi", "Bulut uyumlu kayıt", "Mobil bildirim"],
+    specs: { Bağlantı: "Wi-Fi", Bildirim: "Mobil", Garanti: "2 Yıl", Platform: "iOS / Android" },
+    faqs: [{ question: "Akıllı video alarm ile çalışır mı?", answer: "Evet, alarm tetiklerinde video doğrulama için entegre edilebilir." }],
+  },
+  {
+    slug: "akilli-zil",
+    name: "Akıllı Zil",
+    code: "PS-DOORBELL",
+    category: "Akıllı Ev Sistemleri",
+    brand: "PrimeSec",
+    usage: ["Ev", "Ofis"],
+    description: "Kapınıza gelenleri mobil cihazdan görmenizi ve konuşmanızı sağlayan akıllı zil.",
+    image: "/images/akilli-ev.svg",
+    tags: ["Görüntülü", "Mobil"],
+    features: ["Çift yönlü ses", "Gece görüşü", "Hareket algılama", "Mobil bildirim"],
+    specs: { Bağlantı: "Wi-Fi", Ses: "Çift yönlü", Görüntü: "HD", Kullanım: "İç/dış kapı" },
+    faqs: [{ question: "Akıllı zil telefona bildirim gönderir mi?", answer: "Evet, kapı hareketlerinde ve zil çaldığında anlık bildirim gönderir." }],
+  },
+  {
+    slug: "manyetik-kontak-alarm-sensoru",
+    name: "Manyetik Kontak Alarm Sensörü",
+    code: "PS-MAG-01",
+    category: "Alarm Sistemleri",
+    brand: "PrimeSec",
+    usage: ["Kapı", "Pencere"],
+    description: "Kapı ve pencere açılışlarını algılayan kablosuz alarm sensörü.",
+    image: "/images/manyetik-kontak.svg",
+    tags: ["Sensör", "Kablosuz"],
+    features: ["Kolay montaj", "Düşük pil tüketimi", "Anında alarm", "Kapı/pencere uyumu"],
+    specs: { Bağlantı: "Kablosuz", Pil: "Uzun ömürlü", Kullanım: "Kapı/Pencere", Garanti: "2 Yıl" },
+    faqs: [{ question: "Manyetik kontak nereye takılır?", answer: "Kapı ve pencerelerin açılır kanatlarına profesyonel şekilde monte edilir." }],
+  },
+  {
+    slug: "su-baskini-alarmi",
+    name: "Su Baskını Alarmı",
+    code: "PS-WATER-01",
+    category: "Alarm Sistemleri",
+    brand: "PrimeSec",
+    usage: ["Ev", "Mutfak", "Banyo"],
+    description: "Su kaçağı ve baskın riskini erken algılayan akıllı güvenlik sensörü.",
+    image: "/images/alarm-sistemi.svg",
+    tags: ["Su Baskını", "Akıllı Sensör"],
+    features: ["Erken uyarı", "Mobil bildirim", "Kablosuz çalışma", "Alarm entegrasyonu"],
+    specs: { Bağlantı: "Kablosuz", Bildirim: "Mobil", Kullanım: "Islak hacimler", Garanti: "2 Yıl" },
+    faqs: [{ question: "Su baskını alarmı nerede kullanılmalı?", answer: "Banyo, mutfak, kombi ve tesisat riski olan alanlarda önerilir." }],
+  },
+  {
+    slug: "yangin-ihbar-dedektoru",
+    name: "Yangın İhbar Dedektörü",
+    code: "PS-FIRE-01",
+    category: "Yangın İhbar Sistemleri",
+    brand: "Teknim",
+    usage: ["Ev", "İş Yeri", "Depo"],
+    description: "Duman ve yangın risklerini erken algılayan güvenilir yangın ihbar dedektörü.",
+    image: "/images/yangin-alarm.svg",
+    tags: ["Yangın İhbar", "Duman Dedektörü"],
+    features: ["Hızlı algılama", "Alarm paneli uyumu", "Düşük bakım", "Yüksek hassasiyet"],
+    specs: { Tip: "Duman dedektörü", Kullanım: "İç mekan", Garanti: "2 Yıl", Marka: "Teknim" },
+    faqs: [{ question: "Yangın alarmı zorunlu mudur?", answer: "Birçok işletme türünde mevzuat ve sigorta şartları açısından kritik bir güvenlik kalemidir." }],
+  },
+  {
+    slug: "pdks-personel-takip-terminali",
+    name: "PDKS Personel Takip Terminali",
+    code: "PS-PDKS-01",
+    category: "Personel Takip PDKS",
+    brand: "Inox",
+    usage: ["İş Yeri", "Fabrika", "Ofis"],
+    description: "Personel giriş çıkışlarını kart, şifre veya biyometrik doğrulama ile izleyen PDKS çözümü.",
+    image: "/images/pdks.svg",
+    tags: ["PDKS", "Biyometrik", "Raporlama"],
+    features: ["Detaylı rapor", "Kartlı geçiş", "Biyometrik seçenek", "Bordro entegrasyonuna hazır"],
+    specs: { Doğrulama: "Kart / Parmak izi", Rapor: "Var", Kullanım: "İşletme", Garanti: "2 Yıl" },
+    faqs: [{ question: "PDKS bordro ile entegre olur mu?", answer: "Uygun yazılım altyapısı ile bordro süreçlerine veri sağlayabilir." }],
+  },
+  {
+    slug: "network-altyapi-cozumu",
+    name: "Network Altyapı Çözümü",
+    code: "PS-NET-01",
+    category: "Network Çözümleri",
+    brand: "UNV",
+    usage: ["İş Yeri", "Kamera Altyapısı", "Ofis"],
+    description: "Kamera, alarm, POS ve ofis cihazları için güvenilir ağ altyapısı kurulumu.",
+    image: "/images/network.svg",
+    tags: ["Network", "Altyapı", "Kablolama"],
+    features: ["Keşif ve planlama", "Yapısal kablolama", "Switch kurulumu", "Performans testi"],
+    specs: { Kapsam: "Keşif + kurulum", Kullanım: "Kurumsal", Test: "Var", Garanti: "Proje bazlı" },
+    faqs: [{ question: "Kamera sistemi için network gerekir mi?", answer: "IP kamera ve uzaktan izleme altyapılarında doğru network planı performansı doğrudan etkiler." }],
+  },
+];
+
+export const productCategories = Array.from(new Set(products.map((product) => product.category)));
+export const brands = ["Hikvision", "Dahua", "TTEC", "UNV", "Xmeye", "Reolink", "Inox", "Paradox", "DSC", "Teknim", "Ajax"];
