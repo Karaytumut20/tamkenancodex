@@ -46,9 +46,10 @@ export function Header() {
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.35 }}
       onMouseLeave={() => setActiveMenu(null)}
-      className="sticky top-0 z-50 bg-transparent px-2 py-2 lg:px-3 lg:py-3"
+      className="sticky top-0 z-50 bg-white px-0 py-0"
     >
-      <div className="container-primesec flex h-[72px] items-center justify-between gap-5 rounded-[28px] border border-black/5 bg-white px-5 shadow-sm lg:h-[56px]">
+      <div className="flex h-[72px] w-full items-center border-b border-black/5 bg-white shadow-sm lg:h-[56px]">
+        <div className="container-primesec flex w-full items-center justify-between gap-5">
         <Logo dark={false} />
         <nav className="hidden items-center gap-1 lg:flex" aria-label="Ana menü">
           {mainNavigation.map((item) => (
@@ -81,6 +82,7 @@ export function Header() {
           <button className="rounded-full border border-[#D8DDE6] p-3 text-ink lg:hidden" aria-label="Menüyü aç" onClick={() => setMobileOpen(true)}>
             <Menu className="h-5 w-5" />
           </button>
+        </div>
         </div>
       </div>
       {activeMenu ? <MegaMenu menuKey={activeMenu} onNavigate={() => setActiveMenu(null)} /> : null}
