@@ -7,9 +7,9 @@ type Size = "sm" | "md" | "lg" | "xl";
 
 const variants: Record<Variant, string> = {
   primary:
-    "bg-gradient-to-br from-primary-600 to-primary-500 text-white shadow-glow hover:-translate-y-0.5 hover:shadow-[0_18px_54px_rgba(0,107,255,0.34)]",
+    "bg-gradient-to-br from-primary-600 to-primary-500 text-white shadow-glow  (0,107,255,0.34)]",
   secondaryDark:
-    "border border-white/25 bg-white/[0.04] text-white hover:border-primary-400 hover:bg-primary-500/10",
+    "border border-white/25 bg-white/[0.04] text-white  hover:bg-primary-500/10",
   outlineBlue:
     "border border-primary-500 bg-white text-primary-600 hover:bg-primary-600 hover:text-white",
   whatsapp:
@@ -33,7 +33,7 @@ type BaseProps = {
 
 export function Button({ children, variant = "primary", size = "md", className, ...props }: BaseProps & ButtonHTMLAttributes<HTMLButtonElement>) {
   return (
-    <button className={cn("inline-flex items-center justify-center gap-2 rounded-xl font-bold transition", variants[variant], sizes[size], className)} {...props}>
+    <button className={cn("inline-flex items-center justify-center gap-2 rounded-xl font-bold ", variants[variant], sizes[size], className)} {...props}>
       {children}
     </button>
   );
@@ -41,7 +41,7 @@ export function Button({ children, variant = "primary", size = "md", className, 
 
 export function ButtonLink({ children, variant = "primary", size = "md", className, ...props }: BaseProps & AnchorHTMLAttributes<HTMLAnchorElement> & { href: string }) {
   return (
-    <Link className={cn("inline-flex items-center justify-center gap-2 rounded-xl font-bold transition", variants[variant], sizes[size], className)} {...props}>
+    <Link className={cn("inline-flex items-center justify-center gap-2 rounded-xl font-bold ", variants[variant], sizes[size], className)} {...props}>
       {children}
     </Link>
   );

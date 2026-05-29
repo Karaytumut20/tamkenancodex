@@ -100,7 +100,7 @@ export function ProductCarousel() {
               onClick={(event) => {
                 if (drag.current.moved) event.preventDefault();
               }}
-              className="group flex w-[78%] shrink-0 snap-start flex-col overflow-hidden rounded-[24px] bg-white p-4 shadow-[0_18px_55_rgba(15,23,42,0.07)] transition hover:-translate-y-1 md:w-[36%] xl:w-[23.5%]"
+              className="group flex w-[78%] shrink-0 snap-start flex-col overflow-hidden rounded-[24px] bg-white p-4 shadow-[0_18px_55_rgba(15,23,42,0.07)]   md:w-[36%] xl:w-[23.5%]"
             >
               <div className="flex items-center justify-between">
                 <p className="text-sm font-extrabold text-ink">{product.brand}</p>
@@ -110,7 +110,7 @@ export function ProductCarousel() {
               </div>
               <div className="relative mt-4 h-48 w-full rounded-[20px] bg-surface">
                 {index === 1 ? <span className="absolute right-4 top-4 z-10 h-4 w-4 rounded-full bg-primary-600" /> : null}
-                <Image src={product.image} alt={`${product.name} ürün görseli`} fill className="object-contain p-6 transition group-hover:scale-105" unoptimized />
+                <Image src={product.image} alt={`${product.name} ürün görseli`} fill className="object-contain p-6  " unoptimized />
               </div>
               <div className="flex flex-1 flex-col justify-between pt-4">
                 <div>
@@ -124,7 +124,7 @@ export function ProductCarousel() {
 
         <div className="mt-6 hidden justify-center gap-2 md:flex">
           {slides.map((_, index) => (
-            <button key={index} aria-label={`${index + 1}. ürün grubuna git`} onClick={() => { setActive(index); scrollToSlide(index); }} className={`h-2 rounded-full transition ${active === index ? "w-8 bg-primary-600" : "w-2 bg-border-strong"}`} />
+            <button key={index} aria-label={`${index + 1}. ürün grubuna git`} onClick={() => { setActive(index); scrollToSlide(index); }} className={`h-2 rounded-full  ${active === index ? "w-8 bg-primary-600" : "w-2 bg-border-strong"}`} />
           ))}
         </div>
       </div>

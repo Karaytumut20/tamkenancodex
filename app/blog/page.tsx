@@ -35,7 +35,7 @@ export default function BlogPage() {
           </Link>
           <div className="mt-8 grid gap-5 md:grid-cols-2 xl:grid-cols-3">
             {blogPosts.slice(1).map((post) => (
-              <Link key={post.slug} href={`/blog/${post.slug}`} className="group flex flex-col overflow-hidden rounded-2xl border border-border bg-white shadow-card transition hover:-translate-y-1 hover:border-primary-500">
+              <Link key={post.slug} href={`/blog/${post.slug}`} className="group flex flex-col overflow-hidden rounded-2xl border border-border bg-white shadow-card   ">
                 <div className="relative h-48 w-full bg-[#F7FAFF]">
                   <Image src={post.image} alt={post.title} fill className="object-contain p-6" unoptimized />
                 </div>

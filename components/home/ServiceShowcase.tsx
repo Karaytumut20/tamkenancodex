@@ -58,10 +58,10 @@ export function ServiceShowcase() {
             <p className="mt-4 max-w-2xl text-sm leading-7 text-ink-muted">Ev ve iş yeriniz için akıllı alarm sistemlerinden yüksek çözünürlüklü kameralara kadar aradığınız tüm ürünler.</p>
           </div>
           <div className="hidden items-center gap-2 md:flex">
-            <button aria-label="Önceki ürünler" onClick={() => scroll("left")} className="flex h-10 w-10 items-center justify-center rounded-full border border-border bg-white text-ink transition hover:border-primary-500 hover:text-primary-600">
+            <button aria-label="Önceki ürünler" onClick={() => scroll("left")} className="flex h-10 w-10 items-center justify-center rounded-full border border-border bg-white text-ink   hover:text-primary-600">
               <ArrowLeft className="h-4 w-4" />
             </button>
-            <button aria-label="Sonraki ürünler" onClick={() => scroll("right")} className="flex h-10 w-10 items-center justify-center rounded-full bg-primary-600 text-white transition hover:bg-primary-500">
+            <button aria-label="Sonraki ürünler" onClick={() => scroll("right")} className="flex h-10 w-10 items-center justify-center rounded-full bg-primary-600 text-white  hover:bg-primary-500">
               <ArrowRight className="h-4 w-4" />
             </button>
           </div>
@@ -73,7 +73,7 @@ export function ServiceShowcase() {
               <button
                 key={item}
                 onClick={() => setTab(item)}
-                className={cn("h-9 rounded-full px-4 text-xs font-extrabold transition whitespace-nowrap", tab === item ? "bg-primary-600 text-white" : "bg-white text-ink-muted hover:bg-primary-500/10 hover:text-primary-600")}
+                className={cn("h-9 rounded-full px-4 text-xs font-extrabold  whitespace-nowrap", tab === item ? "bg-primary-600 text-white" : "bg-white text-ink-muted hover:bg-primary-500/10 hover:text-primary-600")}
               >
                 {item}
               </button>
@@ -101,10 +101,10 @@ export function ServiceShowcase() {
               onClick={(event) => {
                 if (drag.current.moved) event.preventDefault();
               }}
-              className="group flex w-[280px] shrink-0 snap-start flex-col overflow-hidden rounded-[24px] border border-white bg-white p-4 shadow-[0_18px_55px_rgba(15,23,42,0.06)] transition hover:-translate-y-1 hover:border-primary-500"
+              className="group flex w-[280px] shrink-0 snap-start flex-col overflow-hidden rounded-[24px] border border-white bg-white p-4 shadow-[0_18px_55px_rgba(15,23,42,0.06)]   "
             >
               <div className="relative h-44 w-full overflow-hidden rounded-[20px] bg-surface">
-                <Image src={product.image} alt={product.name} fill className="object-contain p-6 transition group-hover:scale-105" unoptimized />
+                <Image src={product.image} alt={product.name} fill className="object-contain p-6  " unoptimized />
               </div>
               <div className="flex flex-1 flex-col justify-between pt-4">
                 <div>
@@ -112,7 +112,7 @@ export function ServiceShowcase() {
                   <h3 className="mt-2 line-clamp-2 min-h-[44px] text-[15px] font-extrabold leading-tight text-ink group-hover:text-primary-600">{product.name}</h3>
                 </div>
                 <div className="mt-4 flex items-center justify-between gap-3">
-                  <span className="text-xs font-extrabold text-primary-600 transition group-hover:text-primary-500">İncele</span>
+                  <span className="text-xs font-extrabold text-primary-600  group-hover:text-primary-500">İncele</span>
                   <span className="mb-1 flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-surface text-primary-600 shadow-sm">
                     <ChevronRight className="h-4 w-4" />
                   </span>

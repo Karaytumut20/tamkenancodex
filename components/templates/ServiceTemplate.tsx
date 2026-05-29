@@ -157,7 +157,7 @@ export function ServiceTemplate({ page, kind = "service" }: { page: ServicePage;
           <h2 className="mb-5 text-2xl font-extrabold text-ink">İlgili rehberler</h2>
           <div className="grid gap-4 md:grid-cols-3">
             {blogPosts.slice(0, 3).map((post) => (
-              <Link key={post.slug} href={`/blog/${post.slug}`} className="rounded-2xl border border-border bg-white p-5 font-extrabold text-ink shadow-card hover:border-primary-500 hover:text-primary-600">
+              <Link key={post.slug} href={`/blog/${post.slug}`} className="rounded-2xl border border-border bg-white p-5 font-extrabold text-ink shadow-card  hover:text-primary-600">
                 {post.title}
               </Link>
             ))}

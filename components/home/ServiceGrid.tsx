@@ -63,7 +63,7 @@ export function ServiceGrid() {
               <button
                 key={item}
                 onClick={() => setTab(item)}
-                className={cn("h-8 rounded-full px-4 text-xs font-extrabold transition", tab === item ? "bg-[#111318] text-white" : "bg-white text-ink-muted hover:text-ink")}
+                className={cn("h-8 rounded-full px-4 text-xs font-extrabold ", tab === item ? "bg-[#111318] text-white" : "bg-white text-ink-muted hover:text-ink")}
               >
                 {item}
               </button>
@@ -80,7 +80,7 @@ export function ServiceGrid() {
                   key={service.title}
                   href={service.href}
                   className={cn(
-                    "group flex flex-col justify-between min-h-[260px] w-[280px] flex-shrink-0 overflow-hidden rounded-[24px] bg-white p-5 shadow-[0_18px_55px_rgba(15,23,42,0.07)] transition hover:-translate-y-1",
+                    "group flex flex-col justify-between min-h-[260px] w-[280px] flex-shrink-0 overflow-hidden rounded-[24px] bg-white p-5 shadow-[0_18px_55px_rgba(15,23,42,0.07)]  ",
                     index === 1 ? "bg-[#EEF2FF]" : ""
                   )}
                   style={{ scrollSnapAlign: 'start' }}
@@ -96,7 +96,7 @@ export function ServiceGrid() {
                     </span>
                   </div>
                   <div className="relative mt-4 h-24 w-full flex-1">
-                    <Image src={service.image} alt={`${service.title} hizmet görseli`} fill className="object-contain object-right-bottom transition group-hover:scale-105" unoptimized />
+                    <Image src={service.image} alt={`${service.title} hizmet görseli`} fill className="object-contain object-right-bottom  " unoptimized />
                   </div>
                   <div className="mt-4 flex items-center gap-2">
                     <span className="inline-flex h-8 items-center justify-center rounded-full bg-[#111318] px-4 text-xs font-extrabold text-white">İncele</span>
@@ -123,7 +123,7 @@ export function ServiceGrid() {
                   key={service.title}
                   href={service.href}
                   className={cn(
-                    "group flex flex-col justify-between min-h-[260px] overflow-hidden rounded-[24px] bg-white p-5 shadow-[0_18px_55px_rgba(15,23,42,0.07)] transition hover:-translate-y-1",
+                    "group flex flex-col justify-between min-h-[260px] overflow-hidden rounded-[24px] bg-white p-5 shadow-[0_18px_55px_rgba(15,23,42,0.07)]  ",
                     index === 1 ? "bg-[#EEF2FF]" : ""
                   )}
                 >
@@ -138,7 +138,7 @@ export function ServiceGrid() {
                     </span>
                   </div>
                   <div className="relative mt-4 h-24 w-full flex-1">
-                    <Image src={service.image} alt={`${service.title} hizmet görseli`} fill className="object-contain object-right-bottom transition group-hover:scale-105" unoptimized />
+                    <Image src={service.image} alt={`${service.title} hizmet görseli`} fill className="object-contain object-right-bottom  " unoptimized />
                   </div>
                   <div className="mt-4 flex items-center gap-2">
                     <span className="inline-flex h-8 items-center justify-center rounded-full bg-[#111318] px-4 text-xs font-extrabold text-white">İncele</span>
@@ -163,10 +163,10 @@ export function ServiceGrid() {
               </p>
             </div>
             <div className="flex flex-col gap-2 mt-6">
-              <Link href="/kendi-sistemini-tasarla" className="flex h-12 items-center justify-center rounded-full bg-white px-5 text-sm font-extrabold text-primary-600 transition hover:bg-primary-50">
+              <Link href="/kendi-sistemini-tasarla" className="flex h-12 items-center justify-center rounded-full bg-white px-5 text-sm font-extrabold text-primary-600  hover:bg-primary-50">
                 Kendi Sistemini Tasarla
               </Link>
-              <Link href="/iletisim" className="flex h-12 items-center justify-center rounded-full bg-white/15 px-5 text-sm font-extrabold text-white transition hover:bg-white/20">
+              <Link href="/iletisim" className="flex h-12 items-center justify-center rounded-full bg-white/15 px-5 text-sm font-extrabold text-white  hover:bg-white/20">
                 Teklif Al
               </Link>
             </div>

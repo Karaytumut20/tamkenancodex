@@ -45,7 +45,7 @@ export function MobileMenu({ open, onClose }: { open: boolean; onClose: () => vo
               <button
                 aria-label="Menüyü kapat"
                 onClick={onClose}
-                className="flex h-10 w-10 items-center justify-center rounded-full border border-gray-200 text-navy-900 transition hover:border-primary-500 hover:bg-primary-50 hover:text-primary-600"
+                className="flex h-10 w-10 items-center justify-center rounded-full border border-gray-200 text-navy-900   hover:bg-primary-50 hover:text-primary-600"
               >
                 <X className="h-5 w-5" />
               </button>
@@ -66,11 +66,11 @@ export function MobileMenu({ open, onClose }: { open: boolean; onClose: () => vo
                       <>
                         <button
                           onClick={() => setActive(active === item.menuKey ? null : item.menuKey)}
-                          className="flex w-full items-center justify-between p-4 text-left font-bold text-navy-900 transition hover:text-primary-600"
+                          className="flex w-full items-center justify-between p-4 text-left font-bold text-navy-900  hover:text-primary-600"
                         >
                           <span>{item.label}</span>
                           <ChevronDown
-                            className={`h-4 w-4 text-primary-500 transition-transform duration-300 ${
+                            className={`h-4 w-4 text-primary-500  duration-300 ${
                               active === item.menuKey ? "rotate-180" : ""
                             }`}
                           />
@@ -90,7 +90,7 @@ export function MobileMenu({ open, onClose }: { open: boolean; onClose: () => vo
                                     key={sub.href}
                                     href={sub.href}
                                     onClick={onClose}
-                                    className="block rounded-xl px-4 py-2.5 text-sm font-medium text-gray-700 transition hover:bg-primary-50 hover:text-primary-600"
+                                    className="block rounded-xl px-4 py-2.5 text-sm font-medium text-gray-700  hover:bg-primary-50 hover:text-primary-600"
                                   >
                                     {sub.title}
                                   </Link>
@@ -100,7 +100,7 @@ export function MobileMenu({ open, onClose }: { open: boolean; onClose: () => vo
                                     key={sub.href}
                                     href={sub.href}
                                     onClick={onClose}
-                                    className="block rounded-xl px-4 py-2.5 text-sm font-medium text-gray-700 transition hover:bg-primary-50 hover:text-primary-600"
+                                    className="block rounded-xl px-4 py-2.5 text-sm font-medium text-gray-700  hover:bg-primary-50 hover:text-primary-600"
                                   >
                                     {sub.title}
                                   </Link>
@@ -114,7 +114,7 @@ export function MobileMenu({ open, onClose }: { open: boolean; onClose: () => vo
                       <Link
                         onClick={onClose}
                         href={item.href}
-                        className="block p-4 font-bold text-navy-900 transition hover:text-primary-600"
+                        className="block p-4 font-bold text-navy-900  hover:text-primary-600"
                       >
                         {item.label}
                       </Link>

@@ -7,9 +7,9 @@ import { productWhatsappUrl } from "@/lib/whatsapp";
 
 export function ProductCard({ product }: { product: Product }) {
   return (
-    <article className="group flex aspect-[3/4.2] flex-col rounded-2xl border border-border bg-white p-4 shadow-card transition hover:-translate-y-1 hover:border-primary-500">
+    <article className="group flex aspect-[3/4.2] flex-col rounded-2xl border border-border bg-white p-4 shadow-card   ">
       <Link href={`/urunler/${product.slug}`} className="relative mb-4 block flex-[1.3] rounded-xl bg-[#F7FAFF]">
-        <Image src={product.image} alt={`${product.name} ürün görseli`} fill className="object-contain p-6 transition group-hover:scale-105" unoptimized />
+        <Image src={product.image} alt={`${product.name} ürün görseli`} fill className="object-contain p-6  " unoptimized />
       </Link>
       <div className="mb-3 flex flex-wrap gap-2">
         {product.tags.slice(0, 3).map((tag) => (

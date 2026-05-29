@@ -2,7 +2,7 @@
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import { AnimatePresence, motion } from "framer-motion";
-import { ArrowLeft, ArrowRight, Briefcase, Building2, Check, ClipboardCheck, Home, Info, Lock, Phone, ShieldCheck, SlidersHorizontal } from "lucide-react";
+import { ArrowLeft, ArrowRight, Briefcase, Building2, Check, Home, Info, Lock, Phone, ShieldCheck, SlidersHorizontal } from "lucide-react";
 import Image from "next/image";
 import type { InputHTMLAttributes, ReactNode } from "react";
 import { useEffect, useRef, useState } from "react";
@@ -99,26 +99,6 @@ export function SystemBuilder() {
   return (
     <section className="bg-surface py-6 md:py-10">
       <div className="container-primesec">
-        <div className="mb-6 grid gap-5 rounded-[26px] border border-border bg-white p-5 shadow-[0_18px_60px_rgba(6,20,46,0.08)] md:p-6 lg:grid-cols-[1fr_420px] lg:items-center">
-          <div>
-            <div className="inline-flex items-center gap-2 rounded-full border border-primary-500/20 bg-primary-500/5 px-4 py-2 text-xs font-extrabold uppercase tracking-[0.12em] text-primary-600">
-              <ClipboardCheck className="h-4 w-4" />
-              PrimeSec planlayıcı
-            </div>
-            <h1 className="mt-4 max-w-3xl text-3xl font-extrabold leading-tight tracking-[-0.035em] text-ink md:text-4xl">
-              Kendi güvenlik sistemini tasarla
-            </h1>
-            <p className="mt-4 max-w-2xl text-base leading-7 text-ink-muted md:text-lg">
-              Korunacak alanı, risk nedenini ve ek ürünleri seç; PrimeSec ekibi keşif öncesi daha doğru bir paket önerisiyle sana ulaşsın.
-            </p>
-          </div>
-          <div className="grid gap-3 sm:grid-cols-3">
-            <HeroFact value="30 sn" label="Ortalama tamamlama" />
-            <HeroFact value="4 adım" label="Net seçim akışı" />
-            <HeroFact value="Keşif" label="Sonrasında kesin teklif" />
-          </div>
-        </div>
-
         <div className="grid gap-6 xl:grid-cols-[minmax(0,1fr)_390px] xl:items-start">
           <div ref={wizardRef} className="scroll-mt-24 rounded-[24px] border border-border bg-white p-5 shadow-[0_24px_70px_rgba(6,20,46,0.09)] md:p-8">
             <Stepper step={step} />
@@ -191,7 +171,7 @@ function Stepper({ step }: { step: number }) {
 
       <div className="relative grid grid-cols-4 gap-2">
         <div className="absolute left-[12.5%] right-[12.5%] top-4 h-0.5 bg-border">
-          <div className="h-full bg-primary-600 transition-all duration-300" style={{ width: `${((currentStep - 1) / (labels.length - 1)) * 100}%` }} />
+          <div className="h-full bg-primary-600  duration-300" style={{ width: `${((currentStep - 1) / (labels.length - 1)) * 100}%` }} />
         </div>
         {labels.map((label, index) => {
           const active = currentStep >= index + 1;
@@ -199,14 +179,14 @@ function Stepper({ step }: { step: number }) {
           return (
             <div key={label} className="relative z-10 flex min-w-0 flex-col items-center text-center">
               <span className={cn(
-                "flex h-8 w-8 items-center justify-center rounded-full border-2 text-sm font-extrabold transition-all duration-300",
+                "flex h-8 w-8 items-center justify-center rounded-full border-2 text-sm font-extrabold  duration-300",
                 active ? "border-primary-600 bg-primary-600 text-white shadow-md shadow-primary-600/20" : "border-border bg-white text-ink-muted",
                 current ? "ring-4 ring-primary-600/10" : ""
               )}>
                 {index + 1}
               </span>
               <span className={cn(
-                "mt-2 block truncate text-xs font-extrabold transition-colors duration-300 md:text-sm",
+                "mt-2 block truncate text-xs font-extrabold  duration-300 md:text-sm",
                 active ? "text-primary-600" : "text-ink-muted"
               )}>
                 {label}
@@ -215,15 +195,6 @@ function Stepper({ step }: { step: number }) {
           );
         })}
       </div>
-    </div>
-  );
-}
-
-function HeroFact({ value, label }: { value: string; label: string }) {
-  return (
-    <div className="rounded-2xl border border-border bg-surface p-3">
-      <p className="text-lg font-extrabold text-ink">{value}</p>
-      <p className="mt-1 text-sm font-semibold leading-5 text-ink-muted">{label}</p>
     </div>
   );
 }
@@ -241,7 +212,7 @@ function StepBlock({ title, children }: { title: string; children: ReactNode }) 
 
 function SelectionCard({ title, description, selected, onClick, icon, image }: { title: string; description: string; selected: boolean; onClick: () => void; icon: ReactNode; image: string }) {
   return (
-    <button onClick={onClick} className={cn("relative flex min-h-[168px] items-center gap-5 rounded-2xl border-2 bg-white p-5 text-left transition hover:-translate-y-0.5 hover:border-primary-500 hover:shadow-[0_16px_36px_rgba(6,20,46,0.08)]", selected ? "border-primary-500 bg-gradient-to-br from-primary-500/10 to-white shadow-[0_14px_34px_rgba(0,107,255,0.14)]" : "border-border")}>
+    <button onClick={onClick} className={cn("relative flex min-h-[168px] items-center gap-5 rounded-2xl border-2 bg-white p-5 text-left    (6,20,46,0.08)]", selected ? "border-primary-500 bg-gradient-to-br from-primary-500/10 to-white shadow-[0_14px_34px_rgba(0,107,255,0.14)]" : "border-border")}>
       {selected ? <span className="absolute right-4 top-4 flex h-7 w-7 items-center justify-center rounded-full bg-primary-600 text-white"><Check className="h-4 w-4" /></span> : null}
       <span className="relative flex h-24 w-24 shrink-0 items-center justify-center rounded-2xl bg-surface">
         <Image src={image} alt="" fill className="object-contain p-3" unoptimized />
@@ -259,7 +230,7 @@ function OptionGrid({ options, selected, onSelect }: { options: string[]; select
   return (
     <div className="grid grid-cols-2 gap-3 md:grid-cols-3">
       {options.map((option) => (
-        <button key={option} onClick={() => onSelect(option)} className={cn("relative flex min-h-[118px] flex-col items-center justify-between gap-3 rounded-xl border-2 bg-white p-4 font-extrabold text-ink transition hover:-translate-y-0.5 hover:border-primary-500", selected === option ? "border-primary-500 bg-primary-500/5 text-primary-600" : "border-border")}>
+        <button key={option} onClick={() => onSelect(option)} className={cn("relative flex min-h-[118px] flex-col items-center justify-between gap-3 rounded-xl border-2 bg-white p-4 font-extrabold text-ink   ", selected === option ? "border-primary-500 bg-primary-500/5 text-primary-600" : "border-border")}>
           {selected === option ? <Check className="absolute right-2 top-2 h-4 w-4" /> : null}
           <div className="flex flex-1 items-center justify-center">
             <Building2 className="h-8 w-8 text-primary-600" />
@@ -275,7 +246,7 @@ function ReasonGrid({ options, selected, onSelect }: { options: string[]; select
   return (
     <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-3">
       {options.map((option) => (
-        <button key={option} onClick={() => onSelect(option)} className={cn("relative flex min-h-[96px] items-center gap-4 rounded-xl border-2 bg-white p-4 text-left font-bold text-ink transition hover:-translate-y-0.5 hover:border-primary-500", selected === option ? "border-primary-500 bg-primary-500/5 text-primary-600" : "border-border")}>
+        <button key={option} onClick={() => onSelect(option)} className={cn("relative flex min-h-[96px] items-center gap-4 rounded-xl border-2 bg-white p-4 text-left font-bold text-ink   ", selected === option ? "border-primary-500 bg-primary-500/5 text-primary-600" : "border-border")}>
           {selected === option ? <Check className="absolute right-3 top-3 h-4 w-4" /> : null}
           <Info className="h-8 w-8 shrink-0 text-primary-600" />
           {option}
@@ -297,7 +268,7 @@ function ProductSection({ title, badge, products: items, selected, onToggle }: {
           const product = products.find((entry) => entry.name.includes(item) || item.includes(entry.name.split(" ")[0]));
           const active = selected.includes(item);
           return (
-            <button key={item} onClick={() => onToggle(item)} className={cn("relative flex min-h-[148px] flex-col items-center justify-between gap-3 rounded-xl border-2 bg-white p-4 transition hover:-translate-y-0.5 hover:border-primary-500", active ? "border-primary-500 bg-primary-500/5" : "border-border")}>
+            <button key={item} onClick={() => onToggle(item)} className={cn("relative flex min-h-[148px] flex-col items-center justify-between gap-3 rounded-xl border-2 bg-white p-4   ", active ? "border-primary-500 bg-primary-500/5" : "border-border")}>
               <span className={cn("absolute right-3 top-3 flex h-5 w-5 items-center justify-center rounded border", active ? "border-primary-600 bg-primary-600 text-white" : "border-border-strong bg-white")}>{active ? <Check className="h-3 w-3" /> : null}</span>
               <div className="flex flex-1 items-center justify-center pt-2">
                 <span className="relative h-14 w-14 block">

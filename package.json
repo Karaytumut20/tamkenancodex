@@ -16,12 +16,14 @@
     "react": "^19.1.0",
     "react-dom": "^19.1.0",
     "react-hook-form": "^7.56.4",
+    "three": "^0.184.0",
     "zod": "^3.25.32"
   },
   "devDependencies": {
     "@types/node": "^22.15.21",
     "@types/react": "^19.1.5",
     "@types/react-dom": "^19.1.5",
+    "@types/three": "^0.184.1",
     "autoprefixer": "^10.4.21",
     "eslint": "^9.27.0",
     "eslint-config-next": "^15.3.3",

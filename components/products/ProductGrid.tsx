@@ -60,7 +60,7 @@ export function ProductGrid() {
             <SlidersHorizontal className="h-5 w-5 text-primary-600" /> Ürün Filtreleri
           </h2>
           {hasFilter ? (
-            <button onClick={clearFilters} className="inline-flex items-center gap-1 rounded-lg bg-surface px-2.5 py-1.5 text-xs font-extrabold text-ink-muted transition hover:bg-primary-500/10 hover:text-primary-600">
+            <button onClick={clearFilters} className="inline-flex items-center gap-1 rounded-lg bg-surface px-2.5 py-1.5 text-xs font-extrabold text-ink-muted  hover:bg-primary-500/10 hover:text-primary-600">
               <X className="h-3.5 w-3.5" /> Temizle
             </button>
           ) : null}

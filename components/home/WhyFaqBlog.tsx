@@ -34,7 +34,7 @@ export function WhyFaqBlog() {
 
           <div className="grid gap-5 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
             {benefitsList.map((item) => (
-              <div key={item.title} className="rounded-2xl border border-border bg-gradient-to-br from-white to-[#F7FAFF] p-6 shadow-sm transition hover:-translate-y-1 hover:border-primary-500/30">
+              <div key={item.title} className="rounded-2xl border border-border bg-gradient-to-br from-white to-[#F7FAFF] p-6 shadow-sm   ">
                 <span className="flex h-11 w-11 items-center justify-center rounded-xl bg-primary-500/10 text-primary-600">
                   <item.icon className="h-5 w-5" />
                 </span>
@@ -69,10 +69,10 @@ export function WhyFaqBlog() {
 
           <div className="xl:col-span-7 space-y-3">
             {homeFaqs.map((faq, index) => (
-              <div key={faq.question} className="rounded-xl border border-border bg-white shadow-sm transition hover:border-primary-500/30">
+              <div key={faq.question} className="rounded-xl border border-border bg-white shadow-sm  ">
                 <button onClick={() => setOpenFaq(openFaq === index ? -1 : index)} className="flex w-full items-center justify-between gap-4 p-5 text-left text-[16px] font-extrabold text-ink">
                   {faq.question}
-                  <span className={cn("flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-[#F7FAFF] text-primary-600 transition-transform duration-200", openFaq === index ? "rotate-45" : "")}>
+                  <span className={cn("flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-[#F7FAFF] text-primary-600  duration-200", openFaq === index ? "rotate-45" : "")}>
                     <Plus className="h-4 w-4" />
                   </span>
                 </button>
@@ -102,9 +102,9 @@ export function WhyFaqBlog() {
 
           <div className="grid gap-6 md:grid-cols-3">
             {posts.map((post) => (
-              <Link href={`/blog/${post.slug}`} key={post.slug} className="group flex flex-col overflow-hidden rounded-2xl border border-border bg-white shadow-sm transition hover:-translate-y-1 hover:border-primary-500">
+              <Link href={`/blog/${post.slug}`} key={post.slug} className="group flex flex-col overflow-hidden rounded-2xl border border-border bg-white shadow-sm   ">
                 <div className="relative h-48 w-full bg-[#F7FAFF]">
-                  <Image src={post.image} alt={post.date} fill className="object-contain p-6 transition group-hover:scale-105" unoptimized />
+                  <Image src={post.image} alt={post.date} fill className="object-contain p-6  " unoptimized />
                 </div>
                 <div className="flex flex-1 flex-col justify-between p-6">
                   <div>
@@ -113,7 +113,7 @@ export function WhyFaqBlog() {
                     <p className="mt-2 line-clamp-2 text-sm leading-6 text-ink-muted">{post.description}</p>
                   </div>
                   <div className="mt-4 flex items-center justify-between gap-3 pt-4 border-t border-border/50">
-                    <span className="text-xs font-extrabold text-primary-600 transition group-hover:text-primary-500">Oku</span>
+                    <span className="text-xs font-extrabold text-primary-600  group-hover:text-primary-500">Oku</span>
                     <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-[#F7FAFF] text-primary-600 shadow-sm">
                       <ChevronRight className="h-4 w-4" />
                     </span>

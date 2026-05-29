@@ -47,9 +47,9 @@ const config: Config = {
         },
       },
       boxShadow: {
-        card: "0 14px 40px rgba(6, 20, 46, 0.08)",
-        glow: "0 0 0 1px rgba(22, 131, 255, 0.28), 0 16px 44px rgba(0, 107, 255, 0.24)",
-        glass: "0 24px 80px rgba(0, 0, 0, 0.38), inset 0 1px 0 rgba(255, 255, 255, 0.08)",
+        card: "none",
+        glow: "none",
+        glass: "none",
       },
       fontFamily: {
         sans: ['"Google Sans"', "Inter", "Arial", "sans-serif"],

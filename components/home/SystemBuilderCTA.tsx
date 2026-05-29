@@ -6,15 +6,15 @@ export function SystemBuilderCTA() {
   return (
     <section className="bg-surface py-14">
       <div className="container-primesec grid gap-6 xl:grid-cols-2">
-        <Link href="/kendi-sistemini-tasarla" className="group relative min-h-[320px] overflow-hidden rounded-[28px] border border-primary-500/10 bg-gradient-to-br from-[#EBF3FF] via-[#F4F8FF] to-white p-8 text-ink shadow-[0_18px_50px_rgba(0,107,255,0.05)] transition hover:-translate-y-1 hover:border-primary-500/30">
-          <div className="absolute -bottom-6 -right-6 h-[240px] w-[240px] opacity-90 transition group-hover:scale-105 sm:h-[280px] sm:w-[280px]">
+        <Link href="/kendi-sistemini-tasarla" className="group relative min-h-[320px] overflow-hidden rounded-[28px] border border-primary-500/10 bg-gradient-to-br from-[#EBF3FF] via-[#F4F8FF] to-white p-8 text-ink shadow-[0_18px_50px_rgba(0,107,255,0.05)]   ">
+          <div className="absolute -bottom-6 -right-6 h-[240px] w-[240px] opacity-90   sm:h-[280px] sm:w-[280px]">
             <Image src="/images/local-security.svg" alt="PrimeSec kendi sistemini oluştur görseli" fill className="object-contain object-right-bottom p-4" unoptimized />
           </div>
           <div className="relative z-10 max-w-md">
             <p className="text-xs font-extrabold uppercase tracking-[0.14em] text-primary-600">PrimeSec Akıllı Teklif</p>
             <h2 className="mt-4 text-[clamp(28px,3vw,42px)] font-black leading-[1.02] tracking-[-0.045em] text-ink">Kendi Güvenlik Sistemini Oluştur</h2>
             <p className="mt-5 text-sm leading-6 text-ink-muted">Ev veya iş yeriniz için ihtiyacınızı seçin; alarm, kamera ve akıllı ürünlerden oluşan önerilen paketi birlikte çıkaralım.</p>
-            <span className="mt-8 inline-flex h-11 items-center justify-center rounded-full bg-primary-600 px-5 text-sm font-extrabold text-white transition shadow-md shadow-primary-600/20 group-hover:bg-primary-500">
+            <span className="mt-8 inline-flex h-11 items-center justify-center rounded-full bg-primary-600 px-5 text-sm font-extrabold text-white  shadow-md shadow-primary-600/20 group-hover:bg-primary-500">
               Başla <ChevronRight className="ml-2 h-4 w-4" />
             </span>
           </div>
