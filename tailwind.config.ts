@@ -22,6 +22,7 @@ const config: Config = {
           500: "#0066FF",
           400: "#3B82F6",
           300: "#60A5FA",
+          50: "#FFFFFF",
         },
         cyan: {
           500: "#00C2FF",
@@ -32,13 +33,27 @@ const config: Config = {
           500: "#00C460",
           400: "#10D876",
         },
+        // Keep white surfaces pure white across the site.
+        slate: {
+          50: "#F9FAFB",
+          100: "#F3F4F6",
+          200: "#E5E7EB",
+          300: "#D1D5DB",
+          400: "#9CA3AF",
+          500: "#6B7280",
+          600: "#4B5563",
+          700: "#374151",
+          800: "#1F2937",
+          900: "#111827",
+          950: "#030712",
+        },
         surface: {
-          DEFAULT: "#F4F8FD",
-          soft: "#E6EFFB",
+          DEFAULT: "#F9FAFB",
+          soft: "#F3F4F6",
         },
         border: {
-          DEFAULT: "#D0E0F5",
-          strong: "#A8C5EC",
+          DEFAULT: "#E5E5E5",
+          strong: "#CCCCCC",
         },
         ink: {
           DEFAULT: "#051433",
@@ -46,11 +61,7 @@ const config: Config = {
           lightMuted: "#768CAE",
         },
       },
-      boxShadow: {
-        card: "0 0 40px -10px rgba(0, 80, 255, 0.1)",
-        glow: "0 0 60px 0px rgba(0, 100, 255, 0.4)",
-        glass: "inset 0 1px 1px rgba(255,255,255,0.1)",
-      },
+
       fontFamily: {
         sans: ['"Google Sans"', "Inter", "Arial", "sans-serif"],
       },

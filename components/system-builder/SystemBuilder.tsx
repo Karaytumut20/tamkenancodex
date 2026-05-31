@@ -100,7 +100,7 @@ export function SystemBuilder() {
     <section className="bg-surface py-6 md:py-10">
       <div className="container-primesec">
         <div className="grid gap-6 xl:grid-cols-[minmax(0,1fr)_390px] xl:items-start">
-          <div ref={wizardRef} className="scroll-mt-24 rounded-[24px] border border-border bg-white p-5 shadow-[0_24px_70px_rgba(15,23,42,0.05)] md:p-8">
+          <div ref={wizardRef} className="scroll-mt-24 rounded-[24px] border border-border bg-white p-5 md:p-8">
             <Stepper step={step} />
             <div className="min-h-[300px]">
               <AnimatePresence mode="wait">
@@ -125,7 +125,7 @@ export function SystemBuilder() {
                   ) : null}
                   {step === 4 ? (
                     <StepBlock title="Paketine hangi ürünleri eklemek istersin?">
-                      <div className="mb-6 rounded-2xl border border-primary-500/20 bg-primary-500/5 p-5 text-sm leading-7 text-ink-muted">
+                      <div className="mb-6 rounded-2xl border border-primary-500/20 bg-white p-5 text-sm leading-7 text-ink-muted">
                         {area === "İş Yerimi"
                           ? "Uzun süre kapalı kalan iş yerleri güvenlik riski oluşturabilir. PrimeSec Plus kameralı alarm sistemiyle iş yerini uzaktan izleyebilir, akıllı zil ile kapına gelenleri takip edebilir ve alarm sistemini mobil cihazından yönetebilirsin."
                           : "Bahçe katları ve girişe açık evler hırsızlık ve su baskınına karşı daha hassas olabilir. PrimeSec Plus ile alarmı uzaktan kontrol edebilir, hareketleri anlık takip edip kameralarla evini 7/24 izleyebilirsin."}
@@ -180,7 +180,7 @@ function Stepper({ step }: { step: number }) {
             <div key={label} className="relative z-10 flex min-w-0 flex-col items-center text-center">
               <span className={cn(
                 "flex h-8 w-8 items-center justify-center rounded-full border-2 text-sm font-extrabold duration-300",
-                active ? "border-primary-600 bg-primary-600 text-white shadow-md shadow-primary-600/20" : "border-border bg-surface text-ink-muted",
+                active ? "border-primary-600 bg-primary-600 text-white" : "border-border bg-surface text-ink-muted",
                 current ? "ring-4 ring-primary-600/10" : ""
               )}>
                 {index + 1}
@@ -212,11 +212,11 @@ function StepBlock({ title, children }: { title: string; children: ReactNode }) 
 
 function SelectionCard({ title, description, selected, onClick, icon, image }: { title: string; description: string; selected: boolean; onClick: () => void; icon: ReactNode; image: string }) {
   return (
-    <button onClick={onClick} className={cn("relative flex min-h-[168px] items-center gap-5 rounded-2xl border-2 bg-surface p-5 text-left", selected ? "border-primary-600 bg-primary-50 shadow-sm" : "border-border hover:border-primary-200 hover:bg-white transition-colors")}>
+    <button onClick={onClick} className={cn("relative flex min-h-[168px] items-center gap-5 rounded-2xl border-2 bg-surface p-5 text-left", selected ? "border-primary-600 bg-white" : "border-border hover:border-primary-200 hover:bg-white transition-colors")}>
       {selected ? <span className="absolute right-4 top-4 flex h-7 w-7 items-center justify-center rounded-full bg-primary-600 text-white"><Check className="h-4 w-4" /></span> : null}
       <span className="relative flex h-24 w-24 shrink-0 items-center justify-center rounded-2xl bg-white border border-border">
         <Image src={image} alt="" fill className="object-contain p-3" unoptimized />
-        <span className="absolute -bottom-2 -right-2 flex h-9 w-9 items-center justify-center rounded-xl bg-primary-600 text-white shadow-sm">{icon}</span>
+        <span className="absolute -bottom-2 -right-2 flex h-9 w-9 items-center justify-center rounded-xl bg-primary-600 text-white">{icon}</span>
       </span>
       <span>
         <span className="block text-xl font-extrabold text-ink">{title}</span>
@@ -230,7 +230,7 @@ function OptionGrid({ options, selected, onSelect }: { options: string[]; select
   return (
     <div className="grid grid-cols-2 gap-3 md:grid-cols-3">
       {options.map((option) => (
-        <button key={option} onClick={() => onSelect(option)} className={cn("relative flex min-h-[118px] flex-col items-center justify-between gap-3 rounded-xl border-2 bg-white p-4 font-extrabold text-ink transition-colors", selected === option ? "border-primary-600 bg-primary-50" : "border-border hover:border-primary-200 hover:bg-surface")}>
+        <button key={option} onClick={() => onSelect(option)} className={cn("relative flex min-h-[118px] flex-col items-center justify-between gap-3 rounded-xl border-2 bg-white p-4 font-extrabold text-ink transition-colors", selected === option ? "border-primary-600 bg-white" : "border-border hover:border-primary-200 hover:bg-surface")}>
           {selected === option ? <Check className="absolute right-2 top-2 h-4 w-4 text-primary-600" /> : null}
           <div className="flex flex-1 items-center justify-center">
             <Building2 className="h-8 w-8 text-primary-600" />
@@ -246,7 +246,7 @@ function ReasonGrid({ options, selected, onSelect }: { options: string[]; select
   return (
     <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-3">
       {options.map((option) => (
-        <button key={option} onClick={() => onSelect(option)} className={cn("relative flex min-h-[96px] items-center gap-4 rounded-xl border-2 bg-white p-4 text-left font-bold text-ink transition-colors", selected === option ? "border-primary-600 bg-primary-50" : "border-border hover:border-primary-200 hover:bg-surface")}>
+        <button key={option} onClick={() => onSelect(option)} className={cn("relative flex min-h-[96px] items-center gap-4 rounded-xl border-2 bg-white p-4 text-left font-bold text-ink transition-colors", selected === option ? "border-primary-600 bg-white" : "border-border hover:border-primary-200 hover:bg-surface")}>
           {selected === option ? <Check className="absolute right-3 top-3 h-4 w-4 text-primary-600" /> : null}
           <Info className="h-8 w-8 shrink-0 text-primary-600" />
           {option}
@@ -268,7 +268,7 @@ function ProductSection({ title, badge, products: items, selected, onToggle }: {
           const product = products.find((entry) => entry.name.includes(item) || item.includes(entry.name.split(" ")[0]));
           const active = selected.includes(item);
           return (
-            <button key={item} onClick={() => onToggle(item)} className={cn("relative flex min-h-[148px] flex-col items-center justify-between gap-3 rounded-xl border-2 bg-white p-4   ", active ? "border-primary-500 bg-primary-500/5" : "border-border")}>
+            <button key={item} onClick={() => onToggle(item)} className={cn("relative flex min-h-[148px] flex-col items-center justify-between gap-3 rounded-xl border-2 bg-white p-4   ", active ? "border-primary-500 bg-white" : "border-border")}>
               <span className={cn("absolute right-3 top-3 flex h-5 w-5 items-center justify-center rounded border", active ? "border-primary-600 bg-primary-600 text-white" : "border-border-strong bg-white")}>{active ? <Check className="h-3 w-3" /> : null}</span>
               <div className="flex flex-1 items-center justify-center pt-2">
                 <span className="relative h-14 w-14 block">
@@ -286,7 +286,7 @@ function ProductSection({ title, badge, products: items, selected, onToggle }: {
 
 function SummaryCard({ area, floor, reason, products }: { area: string; floor: string; reason: string; products: string[] }) {
   return (
-    <aside className="h-fit rounded-[24px] border border-border bg-white p-6 shadow-card xl:sticky xl:top-24">
+    <aside className="h-fit rounded-[24px] border border-border bg-white p-6 xl:sticky xl:top-24">
       <div className="flex items-start justify-between gap-4">
         <div>
           <p className="text-xs font-extrabold uppercase tracking-[0.16em] text-primary-600">Canlı plan</p>
@@ -350,7 +350,7 @@ function FinalOffer({ submitted, area, floor, reason, selectedProducts, onBack, 
           </div>
         </div>
         <div className="mt-10 grid gap-7 xl:grid-cols-12">
-          <div className="rounded-[28px] border border-border bg-white shadow-sm p-6 md:p-8 xl:col-span-6">
+          <div className="rounded-[28px] border border-border bg-white p-6 md:p-8 xl:col-span-6">
             {submitted ? (
               <div className="rounded-2xl border border-border bg-surface p-8 text-center">
                 <ShieldCheck className="mx-auto h-12 w-12 text-primary-600" />
@@ -362,7 +362,7 @@ function FinalOffer({ submitted, area, floor, reason, selectedProducts, onBack, 
                 <div className="rounded-[18px] border border-border bg-surface p-6 text-center">
                   <p className="text-sm font-extrabold uppercase tracking-[0.16em] text-primary-600">Özel Teklifiniz</p>
                   <h2 className="mt-3 text-4xl font-extrabold leading-tight tracking-[-0.035em] text-ink">İlk 2 Ay %50 İndirim! <span className="text-primary-600">PrimeSec Plus</span></h2>
-                  <div className="mt-5 flex items-center gap-4 rounded-2xl border border-border bg-white p-4 text-left shadow-sm">
+                  <div className="mt-5 flex items-center gap-4 rounded-2xl border border-border bg-white p-4 text-left">
                     <ShieldCheck className="h-10 w-10 shrink-0 text-primary-600" />
                     <p className="text-sm leading-6 text-ink-muted"><strong className="text-ink">Tebrikler!</strong> Bu teklifimize özel 1 adet manyetik kontak hediye.</p>
                   </div>
@@ -385,17 +385,17 @@ function FinalOffer({ submitted, area, floor, reason, selectedProducts, onBack, 
                   <div className="rounded-xl border border-border bg-surface p-4 text-sm text-ink-muted">
                     Bilgileriniz güvenle saklanır ve yalnızca teklif süreci için kullanılır.
                   </div>
-                  <Button size="xl" className="w-full text-xl shadow-[0_4px_14px_0_rgba(0,118,255,0.39)]">
+                  <Button size="xl" className="w-full text-xl">
                     <Phone className="h-5 w-5" /> Beni Arayın <ArrowRight className="h-5 w-5" />
                   </Button>
                 </form>
               </>
             )}
           </div>
-          <div className="rounded-[24px] border border-border bg-white p-6 shadow-sm md:p-8 xl:col-span-6">
+          <div className="rounded-[24px] border border-border bg-white p-6 md:p-8 xl:col-span-6">
             <div className="flex flex-wrap items-center justify-between gap-3">
               <h2 className="text-2xl font-extrabold text-ink">Seçtiğiniz {area === "İş Yerimi" ? "İş Yeri" : "Ev"} Paketi</h2>
-              <span className="rounded-full border border-primary-200 bg-primary-50 px-4 py-2 text-sm font-extrabold text-primary-600">PrimeSec Plus</span>
+              <span className="rounded-full border border-primary-200 bg-white px-4 py-2 text-sm font-extrabold text-primary-600">PrimeSec Plus</span>
             </div>
             <div className="mt-6 overflow-hidden rounded-2xl border border-border">
               {selectedProducts.map((item) => {
@@ -418,7 +418,7 @@ function FinalOffer({ submitted, area, floor, reason, selectedProducts, onBack, 
             </div>
             <div className="mt-6 grid gap-4 md:grid-cols-3">
               {["Uzaktan İzleme", "Anında Bildirim", "7/24 Koruma"].map((item) => (
-                <div key={item} className="rounded-xl border border-border bg-white p-4 shadow-sm">
+                <div key={item} className="rounded-xl border border-border bg-white p-4">
                   <SlidersHorizontal className="h-5 w-5 text-primary-600" />
                   <p className="mt-3 font-extrabold text-ink">{item}</p>
                   <p className="mt-1 text-sm text-ink-muted">PrimeSec Plus</p>

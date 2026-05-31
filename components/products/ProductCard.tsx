@@ -7,13 +7,13 @@ import { productWhatsappUrl } from "@/lib/whatsapp";
 
 export function ProductCard({ product }: { product: Product }) {
   return (
-    <article className="group flex aspect-[3/4.2] flex-col rounded-2xl border border-border bg-white p-4 shadow-card   ">
-      <Link href={`/urunler/${product.slug}`} className="relative mb-4 block flex-[1.3] rounded-xl bg-[#F7FAFF]">
+    <article className="group flex aspect-[3/4.2] flex-col rounded-2xl border border-border bg-white p-4">
+      <Link href={`/urunler/${product.slug}`} className="relative mb-4 block flex-[1.3] rounded-xl bg-white border border-border/70">
         <Image src={product.image} alt={`${product.name} ürün görseli`} fill className="object-contain p-6  " unoptimized />
       </Link>
       <div className="mb-3 flex flex-wrap gap-2">
         {product.tags.slice(0, 3).map((tag) => (
-          <span key={tag} className="rounded-lg bg-primary-500/10 px-2.5 py-1 text-xs font-extrabold text-primary-600">{tag}</span>
+          <span key={tag} className="rounded-lg border border-border bg-white px-2.5 py-1 text-xs font-extrabold text-primary-600">{tag}</span>
         ))}
       </div>
       <h2 className="text-lg font-extrabold text-ink">

@@ -54,13 +54,13 @@ export function ProductGrid() {
 
   return (
     <div className="grid gap-8 xl:grid-cols-[320px_1fr]">
-      <aside className="h-fit rounded-2xl border border-border bg-white p-5 shadow-card xl:sticky xl:top-28">
+      <aside className="h-fit rounded-2xl border border-border bg-white p-5 xl:sticky xl:top-28">
         <div className="flex items-center justify-between gap-3">
           <h2 className="flex items-center gap-2 text-lg font-extrabold text-ink">
             <SlidersHorizontal className="h-5 w-5 text-primary-600" /> Ürün Filtreleri
           </h2>
           {hasFilter ? (
-            <button onClick={clearFilters} className="inline-flex items-center gap-1 rounded-lg bg-surface px-2.5 py-1.5 text-xs font-extrabold text-ink-muted  hover:bg-primary-500/10 hover:text-primary-600">
+            <button onClick={clearFilters} className="inline-flex items-center gap-1 rounded-lg bg-surface px-2.5 py-1.5 text-xs font-extrabold text-ink-muted  hover:bg-white hover:text-primary-600">
               <X className="h-3.5 w-3.5" /> Temizle
             </button>
           ) : null}
@@ -89,14 +89,14 @@ export function ProductGrid() {
       </aside>
 
       <div>
-        <div className="mb-5 flex flex-col gap-4 rounded-2xl border border-border bg-white p-5 shadow-card md:flex-row md:items-center md:justify-between">
+        <div className="mb-5 flex flex-col gap-4 rounded-2xl border border-border bg-white p-5 md:flex-row md:items-center md:justify-between">
           <div>
             <p className="text-sm font-bold text-ink-muted">Katalog sonucu</p>
             <h2 className="mt-1 text-2xl font-extrabold tracking-[-0.03em] text-ink">{filtered.length} ürün listeleniyor</h2>
           </div>
           <div className="flex flex-wrap gap-2">
             {[category, brand, usage, tag].filter((item) => item !== ALL).map((item) => (
-              <span key={item} className="rounded-lg bg-primary-500/10 px-3 py-1.5 text-xs font-extrabold text-primary-600">{item}</span>
+              <span key={item} className="rounded-lg border border-border bg-white px-3 py-1.5 text-xs font-extrabold text-primary-600">{item}</span>
             ))}
           </div>
         </div>
@@ -106,7 +106,7 @@ export function ProductGrid() {
             {filtered.map((product) => <ProductCard key={product.slug} product={product} />)}
           </div>
         ) : (
-          <div className="rounded-2xl border border-border bg-white p-8 text-center shadow-card">
+          <div className="rounded-2xl border border-border bg-white p-8 text-center">
             <h3 className="text-2xl font-extrabold text-ink">Bu filtrelerle ürün bulunamadı</h3>
             <p className="mt-3 text-ink-muted">Arama kelimesini sadeleştirin veya filtreleri temizleyerek tüm ürünleri tekrar görüntüleyin.</p>
             <button onClick={clearFilters} className="mt-5 h-11 rounded-xl bg-primary-600 px-5 text-sm font-extrabold text-white">Filtreleri Temizle</button>

@@ -15,10 +15,10 @@ export function Footer() {
   return (
     <footer className="bg-gradient-to-br from-navy-1000 to-navy-900 text-white">
       <Container className="py-12">
-        <div className="mb-12 flex flex-col gap-6 rounded-[24px] border border-white/10 bg-white/[0.04] p-7 md:flex-row md:items-center md:justify-between">
+        <div className="mb-12 flex flex-col gap-6 rounded-[24px] border border-white bg-white p-7 text-ink md:flex-row md:items-center md:justify-between">
           <div>
             <h2 className="text-3xl font-extrabold tracking-[-0.035em]">Güvenlik sisteminizi birlikte planlayalım</h2>
-            <p className="mt-3 max-w-2xl text-ink-lightMuted">PrimeSec uzmanları keşiften kuruluma kadar doğru ürün, doğru lokasyon ve doğru bütçe dengesini kurar.</p>
+            <p className="mt-3 max-w-2xl text-ink-muted">PrimeSec uzmanları keşiften kuruluma kadar doğru ürün, doğru lokasyon ve doğru bütçe dengesini kurar.</p>
           </div>
           <div className="flex flex-col gap-3 sm:flex-row">
             <ButtonLink href="/kendi-sistemini-tasarla" size="lg">Ücretsiz Keşif Al</ButtonLink>

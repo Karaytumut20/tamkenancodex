@@ -11,16 +11,16 @@ const stats = [
 export function StatsBand() {
   return (
     <section className="bg-transparent py-10">
-      <div className="container-primesec rounded-[28px] border border-border bg-white p-7 shadow-[0_20px_70px_rgba(15,23,42,0.04)]">
+      <div className="container-primesec rounded-[28px] border border-white/10 bg-[#030D21] p-7">
         <div className="grid gap-6 md:grid-cols-3 xl:grid-cols-5">
           {stats.map(([value, label, Icon]) => (
             <div key={label as string} className="flex items-center gap-4">
-              <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-surface text-primary-600">
+              <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-white text-primary-600">
                 <Icon className="h-5 w-5" />
               </span>
               <span>
-                <span className="block text-2xl font-extrabold text-ink">{value as string}</span>
-                <span className="text-sm font-semibold text-ink-muted">{label as string}</span>
+                <span className="block text-2xl font-extrabold text-white">{value as string}</span>
+                <span className="text-sm font-semibold text-white/70">{label as string}</span>
               </span>
             </div>
           ))}

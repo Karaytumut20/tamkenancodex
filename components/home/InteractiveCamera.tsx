@@ -321,7 +321,7 @@ export function InteractiveCamera() {
   return (
     <div 
       ref={containerRef}
-      className="relative w-full h-[400px] lg:h-[500px] bg-slate-950 border border-slate-800 rounded-3xl overflow-hidden flex items-center justify-center select-none group shadow-[0_20px_50px_rgba(0,0,0,0.8)]"
+      className="relative w-full h-[400px] lg:h-[500px] bg-slate-950 border border-slate-800 rounded-3xl overflow-hidden flex items-center justify-center select-none group"
     >
       {/* Sci-Fi Hologram grid overlay */}
       <div 
@@ -355,7 +355,7 @@ export function InteractiveCamera() {
       />
 
       {/* HUD 1: Telemetry Data (Bottom Left) */}
-      <div className="absolute bottom-6 left-6 z-20 font-mono text-[9px] sm:text-[10px] text-cyan-400 bg-slate-950/80 border border-slate-800 px-4 py-3 rounded-xl backdrop-blur-md flex flex-col gap-1 shadow-2xl">
+      <div className="absolute bottom-6 left-6 z-20 font-mono text-[9px] sm:text-[10px] text-cyan-400 bg-slate-950/80 border border-slate-800 px-4 py-3 rounded-xl backdrop-blur-md flex flex-col gap-1">
         <div className="flex items-center gap-2 border-b border-slate-800 pb-1 mb-1">
           <Cpu className="w-3.5 h-3.5 text-cyan-400" />
           <span className="font-bold text-cyan-300">REALTIME 3D FEED</span>
@@ -373,7 +373,7 @@ export function InteractiveCamera() {
       </div>
 
       {/* HUD 2: System Feeds (Top Left) */}
-      <div className="absolute top-6 left-6 z-20 font-mono text-[10px] text-cyan-400 bg-slate-950/80 border border-slate-800 px-4 py-3 rounded-xl backdrop-blur-md flex flex-col gap-1 shadow-2xl">
+      <div className="absolute top-6 left-6 z-20 font-mono text-[10px] text-cyan-400 bg-slate-950/80 border border-slate-800 px-4 py-3 rounded-xl backdrop-blur-md flex flex-col gap-1">
         <div className="flex items-center gap-2 font-bold text-red-500">
           <span className="relative flex h-2.5 w-2.5">
             <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
@@ -388,7 +388,7 @@ export function InteractiveCamera() {
       </div>
 
       {/* HUD 3: Proximity and Radar Status (Top Right) */}
-      <div className="absolute top-6 right-6 z-20 font-mono text-[10px] text-right text-cyan-400 bg-slate-950/80 border border-slate-800 px-4 py-3 rounded-xl backdrop-blur-md flex flex-col gap-1 shadow-2xl">
+      <div className="absolute top-6 right-6 z-20 font-mono text-[10px] text-right text-cyan-400 bg-slate-950/80 border border-slate-800 px-4 py-3 rounded-xl backdrop-blur-md flex flex-col gap-1">
         <div className="flex items-center gap-2 justify-end font-bold">
           <span className="text-cyan-300 uppercase">{systemStatus}</span>
           <Shield className="w-3.5 h-3.5 text-emerald-400" />
@@ -423,7 +423,7 @@ export function InteractiveCamera() {
 
       {/* Proximity Warning (Bottom Center) */}
       {isTracking && distance < 180 && (
-        <div className="absolute bottom-6 left-1/2 -translate-x-1/2 font-mono text-[10px] text-red-400 bg-red-950/90 border border-red-500/30 px-4 py-2 rounded-full backdrop-blur-md flex items-center gap-2 select-none shadow-[0_10px_30px_rgba(239,68,68,0.2)] z-20 animate-bounce">
+        <div className="absolute bottom-6 left-1/2 -translate-x-1/2 font-mono text-[10px] text-red-400 bg-red-950/90 border border-red-500/30 px-4 py-2 rounded-full backdrop-blur-md flex items-center gap-2 select-none z-20 animate-bounce">
           <AlertTriangle className="w-3.5 h-3.5 text-red-500" />
           <span>PROXIMITY WARNING: SUBJECT TOO CLOSE</span>
         </div>

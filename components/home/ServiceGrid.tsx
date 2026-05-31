@@ -2,7 +2,7 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { ChevronRight, Menu } from "lucide-react";
+import { ChevronRight } from "lucide-react";
 import { useMemo, useState } from "react";
 import { cn } from "@/lib/cn";
 
@@ -46,11 +46,11 @@ export function ServiceGrid() {
   }, [filtered]);
 
   return (
-    <section className="bg-transparent px-3 py-10">
+    <section className="bg-[#FFFFFF] px-3 py-10">
       <div className="container-primesec">
         <div className="mb-5 flex items-center justify-between gap-4">
           <div className="flex items-center gap-3">
-            <span className="flex h-9 w-9 items-center justify-center rounded-full bg-white shadow-sm border border-border">
+            <span className="flex h-9 w-9 items-center justify-center rounded-full border border-border bg-[#FFFFFF]">
               <span className="h-4 w-4 rounded-full border-4 border-primary-600" />
             </span>
             <div>
@@ -63,7 +63,7 @@ export function ServiceGrid() {
               <button
                 key={item}
                 onClick={() => setTab(item)}
-                className={cn("h-8 rounded-full px-4 text-xs font-extrabold transition-colors", tab === item ? "bg-primary-600 text-white" : "bg-white border border-border text-ink-muted hover:text-primary-600")}
+                className={cn("h-8 rounded-full px-4 text-xs font-extrabold transition-colors", tab === item ? "bg-primary-600 text-white" : "border border-border bg-[#FFFFFF] text-ink-muted hover:text-primary-600")}
               >
                 {item}
               </button>
@@ -80,8 +80,8 @@ export function ServiceGrid() {
                   key={service.title}
                   href={service.href}
                   className={cn(
-                    "group flex flex-col justify-between min-h-[260px] w-[280px] flex-shrink-0 overflow-hidden rounded-[24px] bg-white border border-border p-5 shadow-[0_18px_55px_rgba(15,23,42,0.04)]",
-                    index === 1 ? "bg-primary-50 border-primary-100" : ""
+                    "group flex flex-col justify-between min-h-[260px] w-[280px] flex-shrink-0 overflow-hidden rounded-[24px] border border-border bg-[#FFFFFF] p-5",
+                    index === 1 ? "border-primary-500 bg-[#FFFFFF]" : ""
                   )}
                   style={{ scrollSnapAlign: 'start' }}
                 >
@@ -99,8 +99,8 @@ export function ServiceGrid() {
                     <Image src={service.image} alt={`${service.title} hizmet görseli`} fill className="object-contain object-right-bottom" unoptimized />
                   </div>
                   <div className="mt-4 flex items-center gap-2">
-                    <span className="inline-flex h-8 items-center justify-center rounded-full bg-surface px-4 text-xs font-extrabold text-primary-600">İncele</span>
-                    <span className="inline-flex h-8 items-center justify-center rounded-full bg-surface px-4 text-xs font-extrabold text-ink-muted">Teklif Al</span>
+                    <span className="inline-flex h-8 items-center justify-center rounded-full bg-[#FFFFFF] px-4 text-xs font-extrabold text-primary-600">İncele</span>
+                    <span className="inline-flex h-8 items-center justify-center rounded-full bg-[#FFFFFF] px-4 text-xs font-extrabold text-ink-muted">Teklif Al</span>
                   </div>
                 </Link>
               ))}
@@ -114,7 +114,7 @@ export function ServiceGrid() {
                 return (
                   <div
                     key={service.title}
-                    className="hidden md:block min-h-[260px] rounded-[24px] border border-dashed border-[#D8DDE6] bg-white/20"
+                    className="hidden min-h-[260px] rounded-[24px] border border-dashed border-[#D8DDE6] bg-[#FFFFFF] md:block"
                   />
                 );
               }
@@ -123,8 +123,8 @@ export function ServiceGrid() {
                   key={service.title}
                   href={service.href}
                   className={cn(
-                    "group flex flex-col justify-between min-h-[260px] overflow-hidden rounded-[24px] bg-white border border-border p-5 shadow-[0_18px_55px_rgba(15,23,42,0.04)]",
-                    index === 1 ? "bg-primary-50 border-primary-100" : ""
+                    "group flex flex-col justify-between min-h-[260px] overflow-hidden rounded-[24px] border border-border bg-[#FFFFFF] p-5",
+                    index === 1 ? "border-primary-500 bg-[#FFFFFF]" : ""
                   )}
                 >
                   <div className="flex items-start justify-between gap-4">
@@ -141,21 +141,21 @@ export function ServiceGrid() {
                     <Image src={service.image} alt={`${service.title} hizmet görseli`} fill className="object-contain object-right-bottom" unoptimized />
                   </div>
                   <div className="mt-4 flex items-center gap-2">
-                    <span className="inline-flex h-8 items-center justify-center rounded-full bg-surface px-4 text-xs font-extrabold text-primary-600">İncele</span>
-                    <span className="inline-flex h-8 items-center justify-center rounded-full bg-surface px-4 text-xs font-extrabold text-ink-muted">Teklif Al</span>
+                    <span className="inline-flex h-8 items-center justify-center rounded-full bg-[#FFFFFF] px-4 text-xs font-extrabold text-primary-600">İncele</span>
+                    <span className="inline-flex h-8 items-center justify-center rounded-full bg-[#FFFFFF] px-4 text-xs font-extrabold text-ink-muted">Teklif Al</span>
                   </div>
                 </Link>
               );
             })}
           </div>
 
-          <aside className="flex min-h-[506px] flex-col justify-between rounded-[28px] bg-primary-600 p-7 text-white shadow-[0_24px_70px_rgba(0,107,255,0.22)]">
+          <aside className="flex min-h-[506px] flex-col justify-between rounded-[28px] bg-primary-600 p-7 text-white">
             <div>
               <p className="text-sm font-extrabold uppercase tracking-[0.14em] text-white/65">PrimeSec Plan</p>
               <h3 className="mt-4 text-3xl font-black leading-tight tracking-[-0.045em]">Güvenliğinizi Kendiniz Tasarlayın</h3>
               <div className="mt-6 flex flex-wrap gap-2">
                 {["Alarm", "Kamera", "Network", "Destek"].map((item) => (
-                  <span key={item} className="rounded-full bg-white/15 px-3 py-1.5 text-xs font-extrabold">{item}</span>
+                  <span key={item} className="rounded-full bg-white px-3 py-1.5 text-xs font-extrabold text-primary-600">{item}</span>
                 ))}
               </div>
               <p className="mt-6 text-sm leading-7 text-white/78">
@@ -163,10 +163,10 @@ export function ServiceGrid() {
               </p>
             </div>
             <div className="flex flex-col gap-2 mt-6">
-              <Link href="/kendi-sistemini-tasarla" className="flex h-12 items-center justify-center rounded-full bg-white px-5 text-sm font-extrabold text-primary-600  hover:bg-primary-50">
+              <Link href="/kendi-sistemini-tasarla" className="flex h-12 items-center justify-center rounded-full bg-white px-5 text-sm font-extrabold text-primary-600  hover:bg-white">
                 Kendi Sistemini Tasarla
               </Link>
-              <Link href="/iletisim" className="flex h-12 items-center justify-center rounded-full bg-white/15 px-5 text-sm font-extrabold text-white  hover:bg-white/20">
+              <Link href="/iletisim" className="flex h-12 items-center justify-center rounded-full bg-white px-5 text-sm font-extrabold text-primary-600 hover:bg-white">
                 Teklif Al
               </Link>
             </div>

@@ -21,10 +21,10 @@
   --color-red-500: #EF233C;
   --color-orange-500: #FF8A00;
   --color-white: #FFFFFF;
-  --color-surface: #F7FAFF;
-  --color-surface-soft: #F1F6FC;
-  --color-border: #DCE7F5;
-  --color-border-strong: #BFD0E7;
+  --color-surface: #F9FAFB;
+  --color-surface-soft: #F3F4F6;
+  --color-border: #E5E5E5;
+  --color-border-strong: #CCCCCC;
   --color-text-dark: #06142E;
   --color-text-muted: #5D6B82;
   --color-text-light: #FFFFFF;
@@ -41,7 +41,7 @@ html {
 
 body {
   margin: 0;
-  background: #F7FAFF;
+  background: #F9FAFB;
   color: #06142E;
   font-family: "Google Sans", Inter, Arial, sans-serif;
   text-rendering: geometricPrecision;

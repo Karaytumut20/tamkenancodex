@@ -29,7 +29,7 @@ export function FloatingContact() {
               animate={{ opacity: 1, y: 0, scale: 1 }}
               exit={{ opacity: 0, y: 30, scale: 0.95 }}
               transition={{ duration: 0.3, ease: [0.16, 1, 0.3, 1] }}
-              className="absolute bottom-16 right-0 w-[340px] overflow-hidden rounded-3xl border border-border bg-white p-5 shadow-[0_20px_50px_rgba(3,13,33,0.15)]"
+              className="absolute bottom-16 right-0 w-[340px] overflow-hidden rounded-3xl border border-border bg-white p-5"
             >
               <div className="flex items-center justify-between border-b border-border pb-3">
                 <div>
@@ -38,7 +38,7 @@ export function FloatingContact() {
                 </div>
                 <button
                   onClick={() => setIsOpen(false)}
-                  className="flex h-8 w-8 items-center justify-center rounded-full bg-surface text-ink hover:bg-primary-50 hover:text-primary-600 transition-colors border border-border"
+                  className="flex h-8 w-8 items-center justify-center rounded-full bg-surface text-ink hover:bg-white hover:text-primary-600 transition-colors border border-border"
                 >
                   <X className="h-4 w-4" />
                 </button>
@@ -57,7 +57,7 @@ export function FloatingContact() {
                     <div className="mt-3.5 grid grid-cols-2 gap-2">
                       <a
                         href={`tel:${rep.phone.replace(/\s+/g, "")}`}
-                        className="flex items-center justify-center gap-1.5 rounded-xl border border-border bg-white px-3 py-2.5 text-xs font-bold text-ink hover:border-primary-600 hover:text-primary-600 transition-colors shadow-sm"
+                        className="flex items-center justify-center gap-1.5 rounded-xl border border-border bg-white px-3 py-2.5 text-xs font-bold text-ink hover:border-primary-600 hover:text-primary-600 transition-colors"
                       >
                         <Phone className="h-3.5 w-3.5 text-primary-600" />
                         Hemen Ara
@@ -68,7 +68,7 @@ export function FloatingContact() {
                         )}`}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="flex items-center justify-center gap-1.5 rounded-xl bg-primary-600 px-3 py-2.5 text-xs font-bold text-white hover:bg-primary-500 transition-colors shadow-sm"
+                        className="flex items-center justify-center gap-1.5 rounded-xl bg-primary-600 px-3 py-2.5 text-xs font-bold text-white hover:bg-primary-500 transition-colors"
                       >
                         <MessageCircle className="h-3.5 w-3.5" />
                         WhatsApp
@@ -95,7 +95,7 @@ export function FloatingContact() {
       {/* ── FLOATING BUTTON ── */}
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className="relative flex h-14 w-14 items-center justify-center rounded-full bg-primary-600 text-white shadow-[0_8px_30px_rgb(0,107,255,0.4)] hover:bg-primary-500 hover:scale-105 active:scale-95 transition-all outline-none"
+        className="relative flex h-14 w-14 items-center justify-center rounded-full bg-primary-600 text-white hover:bg-primary-500 hover:scale-105 active:scale-95 transition-all outline-none"
         aria-label="İletişim paneli"
       >
         <AnimatePresence mode="wait">

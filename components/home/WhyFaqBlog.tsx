@@ -24,18 +24,21 @@ export function WhyFaqBlog() {
   return (
     <>
       {/* SECTION 1: Neden PrimeSec */}
-      <section className="bg-surface py-16">
-        <div className="container-primesec">
+      <section className="bg-[#030D21] py-16 relative overflow-hidden text-white">
+        <div className="absolute inset-0 z-0 pointer-events-none">
+           <div className="absolute top-0 left-0 w-[400px] h-[400px] bg-[radial-gradient(circle_at_center,rgba(0,107,255,0.12),transparent_70%)] blur-[70px]" />
+        </div>
+        <div className="container-primesec relative z-10">
           <div className="text-center max-w-3xl mx-auto mb-12">
-            <p className="text-sm font-extrabold uppercase tracking-[0.14em] text-primary-600">Neden Biz?</p>
-            <h2 className="mt-3 text-[clamp(30px,3.2vw,48px)] font-extrabold leading-none tracking-[-0.045em] text-ink">Neden PrimeSec Teknoloji?</h2>
-            <p className="mt-4 text-sm leading-7 text-ink-muted">Güvenlik sistemlerini sadece cihaz montajı olarak değil, uzun vadeli bir yaşam ve iş alanı koruma mimarisi olarak görüyoruz.</p>
+            <p className="text-sm font-extrabold uppercase tracking-[0.14em] text-cyan-400">Neden Biz?</p>
+            <h2 className="mt-3 text-[clamp(30px,3.2vw,48px)] font-extrabold leading-none tracking-[-0.045em] text-white">Neden PrimeSec Teknoloji?</h2>
+            <p className="mt-4 text-sm leading-7 text-white/70">Güvenlik sistemlerini sadece cihaz montajı olarak değil, uzun vadeli bir yaşam ve iş alanı koruma mimarisi olarak görüyoruz.</p>
           </div>
 
           <div className="grid gap-5 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
             {benefitsList.map((item) => (
-              <div key={item.title} className="rounded-2xl border border-border bg-white p-6 shadow-[0_10px_30px_rgba(15,23,42,0.04)]">
-                <span className="flex h-11 w-11 items-center justify-center rounded-xl bg-primary-50 text-primary-600">
+              <div key={item.title} className="rounded-2xl border border-border bg-white p-6 hover:border-primary-300 transition-all">
+                <span className="flex h-11 w-11 items-center justify-center rounded-xl border border-border bg-white text-primary-600">
                   <item.icon className="h-5 w-5" />
                 </span>
                 <h3 className="mt-5 text-[17px] font-extrabold text-ink leading-tight">{item.title}</h3>
@@ -45,19 +48,19 @@ export function WhyFaqBlog() {
           </div>
 
           <div className="mt-10 text-center">
-            <ButtonLink href="/hakkimizda" variant="outlineBlue" className="rounded-full px-8">Hakkımızda Daha Fazla Bilgi</ButtonLink>
+            <ButtonLink href="/hakkimizda" className="rounded-full px-8 bg-white text-[#030D21] font-bold hover:bg-white">Hakkımızda Daha Fazla Bilgi</ButtonLink>
           </div>
         </div>
       </section>
 
       {/* SECTION 2: Sıkça Sorulan Sorular */}
-      <section className="bg-white py-16">
+      <section className="bg-[#FFFFFF] py-16">
         <div className="container-primesec grid gap-10 xl:grid-cols-12 xl:items-start">
           <div className="xl:col-span-5">
             <p className="text-sm font-extrabold uppercase tracking-[0.14em] text-primary-600">SSS</p>
             <h2 className="mt-3 text-[clamp(30px,3.2vw,46px)] font-extrabold leading-tight tracking-[-0.045em] text-ink">Sıkça Sorulan Sorular</h2>
             <p className="mt-4 leading-7 text-ink-muted">Kamera ve alarm sistemlerimizin özellikleri, kurulum süreleri ve destek süreçlerimiz hakkında en çok merak edilen konuları derledik.</p>
-            <div className="mt-8 rounded-2xl border border-primary-100 bg-primary-50 p-6 flex gap-4">
+            <div className="mt-8 flex gap-4 rounded-2xl border border-border bg-[#FFFFFF] p-6">
               <HelpCircle className="h-8 w-8 text-primary-600 shrink-0" />
               <div>
                 <h4 className="font-extrabold text-ink">Aradığınız yanıtı bulamadınız mı?</h4>
@@ -69,10 +72,10 @@ export function WhyFaqBlog() {
 
           <div className="xl:col-span-7 space-y-3">
             {homeFaqs.map((faq, index) => (
-              <div key={faq.question} className="rounded-xl border border-border bg-white shadow-sm">
+              <div key={faq.question} className="rounded-xl border border-border bg-[#FFFFFF]">
                 <button onClick={() => setOpenFaq(openFaq === index ? -1 : index)} className="flex w-full items-center justify-between gap-4 p-5 text-left text-[16px] font-extrabold text-ink">
                   {faq.question}
-                  <span className={cn("flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-surface text-primary-600 duration-200", openFaq === index ? "rotate-45" : "")}>
+                  <span className={cn("flex h-6 w-6 shrink-0 items-center justify-center rounded-full border border-border bg-[#FFFFFF] text-primary-600 duration-200", openFaq === index ? "rotate-45" : "")}>
                     <Plus className="h-4 w-4" />
                   </span>
                 </button>
@@ -88,7 +91,7 @@ export function WhyFaqBlog() {
       </section>
 
       {/* SECTION 3: Son Blog Yazıları */}
-      <section className="bg-surface py-16">
+      <section className="bg-white py-16">
         <div className="container-primesec">
           <div className="mb-10 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
             <div>
@@ -102,8 +105,8 @@ export function WhyFaqBlog() {
 
           <div className="grid gap-6 md:grid-cols-3">
             {posts.map((post) => (
-              <Link href={`/blog/${post.slug}`} key={post.slug} className="group flex flex-col overflow-hidden rounded-2xl border border-border bg-white shadow-[0_10px_30px_rgba(15,23,42,0.04)]">
-                <div className="relative h-48 w-full bg-surface flex items-center justify-center">
+              <Link href={`/blog/${post.slug}`} key={post.slug} className="group flex flex-col overflow-hidden rounded-2xl border border-border bg-white">
+                <div className="relative h-48 w-full bg-white flex items-center justify-center">
                   <Image src={post.image} alt={post.date} fill className="object-contain p-6" unoptimized />
                 </div>
                 <div className="flex flex-1 flex-col justify-between p-6">
@@ -114,7 +117,7 @@ export function WhyFaqBlog() {
                   </div>
                   <div className="mt-4 flex items-center justify-between gap-3 pt-4 border-t border-border">
                     <span className="text-xs font-extrabold text-primary-600 group-hover:text-primary-700 transition-colors">Oku</span>
-                    <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-surface text-primary-600 shadow-sm">
+                    <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-white text-primary-600">
                       <ChevronRight className="h-4 w-4" />
                     </span>
                   </div>

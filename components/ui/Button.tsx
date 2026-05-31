@@ -7,14 +7,14 @@ type Size = "sm" | "md" | "lg" | "xl";
 
 const variants: Record<Variant, string> = {
   primary:
-    "bg-gradient-to-br from-primary-600 to-primary-500 text-white shadow-glow  (0,107,255,0.34)]",
+    "bg-gradient-to-br from-primary-600 to-primary-500 text-white",
   secondaryDark:
-    "border border-white/25 bg-white/[0.04] text-white  hover:bg-primary-500/10",
+    "border border-white/25 bg-transparent text-white  hover:bg-transparent",
   outlineBlue:
     "border border-primary-500 bg-white text-primary-600 hover:bg-primary-600 hover:text-white",
   whatsapp:
     "border border-success-500 bg-success-500/10 text-white hover:bg-success-500 hover:text-navy-1000",
-  ghost: "bg-transparent text-inherit hover:bg-primary-500/10",
+  ghost: "bg-transparent text-inherit hover:bg-transparent",
 };
 
 const sizes: Record<Size, string> = {

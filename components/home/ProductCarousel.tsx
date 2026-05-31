@@ -100,7 +100,7 @@ export function ProductCarousel() {
               onClick={(event) => {
                 if (drag.current.moved) event.preventDefault();
               }}
-              className="group flex w-[78%] shrink-0 snap-start flex-col overflow-hidden rounded-[24px] bg-white border border-border p-4 shadow-[0_18px_55px_rgba(15,23,42,0.06)] md:w-[36%] xl:w-[23.5%]"
+              className="group flex w-[78%] shrink-0 snap-start flex-col overflow-hidden rounded-[24px] bg-white border border-border p-4  md:w-[36%] xl:w-[23.5%]"
             >
               <div className="flex items-center justify-between">
                 <p className="text-sm font-extrabold text-ink">{product.brand}</p>

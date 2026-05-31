@@ -73,12 +73,12 @@ export function ServiceShowcase() {
               <button
                 key={item}
                 onClick={() => setTab(item)}
-                className={cn("h-9 rounded-full px-4 text-xs font-extrabold  whitespace-nowrap transition-colors", tab === item ? "bg-primary-600 text-white" : "bg-white text-ink-muted hover:bg-primary-500/10 hover:text-primary-600")}
+                className={cn("h-9 rounded-full px-4 text-xs font-extrabold  whitespace-nowrap transition-colors", tab === item ? "bg-primary-600 text-white" : "bg-white text-ink-muted hover:bg-white hover:text-primary-600")}
               >
                 {item}
               </button>
             ))}
-            <Link href="/urunler" className="inline-flex h-9 items-center justify-center gap-1 rounded-full bg-white px-4 text-xs font-extrabold text-primary-600 hover:bg-primary-500/10 hover:text-primary-600 transition-colors md:ml-auto md:bg-transparent">
+            <Link href="/urunler" className="inline-flex h-9 items-center justify-center gap-1 rounded-full bg-white px-4 text-xs font-extrabold text-primary-600 hover:bg-white hover:text-primary-600 transition-colors md:ml-auto md:bg-transparent">
               Tüm Ürünleri Gör <ChevronRight className="h-4 w-4" />
             </Link>
           </div>
@@ -101,7 +101,7 @@ export function ServiceShowcase() {
               onClick={(event) => {
                 if (drag.current.moved) event.preventDefault();
               }}
-              className="group flex w-[280px] shrink-0 snap-start flex-col overflow-hidden rounded-[24px] border border-white bg-white p-4 shadow-[0_18px_55px_rgba(15,23,42,0.06)] transition-all"
+              className="group flex w-[280px] shrink-0 snap-start flex-col overflow-hidden rounded-[24px] border border-white bg-white p-4 transition-all"
             >
               <div className="relative h-44 w-full overflow-hidden rounded-[20px] bg-surface flex items-center justify-center">
                 <Image src={product.image} alt={product.name} fill className="object-contain p-6" unoptimized />
@@ -113,7 +113,7 @@ export function ServiceShowcase() {
                 </div>
                 <div className="mt-4 flex items-center justify-between gap-3">
                   <span className="text-xs font-extrabold text-primary-600 group-hover:text-primary-500 transition-colors">İncele</span>
-                  <span className="mb-1 flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-surface text-primary-600 shadow-sm">
+                  <span className="mb-1 flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-surface text-primary-600">
                     <ChevronRight className="h-4 w-4" />
                   </span>
                 </div>

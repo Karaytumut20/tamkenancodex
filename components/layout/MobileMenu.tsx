@@ -34,7 +34,7 @@ export function MobileMenu({ open, onClose }: { open: boolean; onClose: () => vo
             animate={{ x: 0 }}
             exit={{ x: "100%" }}
             transition={{ type: "tween", ease: "easeInOut", duration: 0.3 }}
-            className="fixed right-0 top-0 z-[121] flex h-full w-[min(420px,90%)] flex-col bg-surface shadow-2xl lg:hidden"
+            className="fixed right-0 top-0 z-[121] flex h-full w-[min(420px,90%)] flex-col bg-surface lg:hidden"
           >
             {/* Header */}
             <div className="flex items-center justify-between border-b border-border p-5">
@@ -57,7 +57,7 @@ export function MobileMenu({ open, onClose }: { open: boolean; onClose: () => vo
                 {mainNavigation.map((item, idx) => (
                   <div
                     key={item.href}
-                    className="overflow-hidden rounded-2xl border border-border bg-white shadow-sm"
+                    className="overflow-hidden rounded-2xl border border-border bg-white"
                   >
                     {item.menuKey ? (
                       <>
@@ -128,7 +128,7 @@ export function MobileMenu({ open, onClose }: { open: boolean; onClose: () => vo
                   href="/iletisim"
                   variant="outlineBlue"
                   size="lg"
-                  className="w-full shadow-sm"
+                  className="w-full"
                 >
                   <Phone className="h-5 w-5" /> Teklif Al
                 </ButtonLink>

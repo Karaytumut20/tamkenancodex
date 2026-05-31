@@ -11,15 +11,15 @@
     <path d="M548 424H624M548 466H646M548 508H610" stroke="#70BDFF" stroke-width="12" stroke-linecap="round"/>
   </g>
   <g filter="url(#glow)">
-    <rect x="694" y="430" width="248" height="150" rx="30" fill="#F7FAFF"/>
+    <rect x="694" y="430" width="248" height="150" rx="30" fill="#FFFFFF"/>
     <circle cx="770" cy="505" r="42" fill="#061A35"/>
     <circle cx="770" cy="505" r="20" fill="#1683FF"/>
     <rect x="838" y="482" width="56" height="46" rx="14" fill="#1683FF"/>
-    <path d="M942 472L1016 430V580L942 536" fill="#D9ECFF"/>
+    <path d="M942 472L1016 430V580L942 536" fill="#FFFFFF"/>
   </g>
   <g filter="url(#glow)">
     <rect x="276" y="438" width="184" height="230" rx="30" fill="#FFFFFF"/>
-    <rect x="310" y="476" width="116" height="74" rx="18" fill="#E8F3FF"/>
+    <rect x="310" y="476" width="116" height="74" rx="18" fill="#FFFFFF"/>
     <path d="M328 596H408M328 632H384" stroke="#1683FF" stroke-width="14" stroke-linecap="round"/>
   </g>
   <circle cx="898" cy="304" r="52" fill="#006BFF" opacity=".18" stroke="#70BDFF" stroke-width="5"/>

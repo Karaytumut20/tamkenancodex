@@ -14,7 +14,7 @@ export function MegaMenu({ menuKey, onNavigate }: Props) {
   const menu = megaMenus[menuKey];
 
   return (
-    <div className="absolute left-0 top-full z-50 hidden w-screen border-y border-border bg-white shadow-[0_30px_80px_rgba(15,23,42,0.08)] lg:block">
+    <div className="absolute left-0 top-full z-50 hidden w-screen border-y border-border bg-white lg:block">
       <div className="container-primesec grid min-h-[330px] grid-cols-12">
         <div className="col-span-4 border-r border-border py-6 pr-6 xl:col-span-4">
           <p className="mb-4 text-xs font-extrabold uppercase tracking-[0.14em] text-primary-600">{menu.eyebrow}</p>
@@ -25,7 +25,7 @@ export function MegaMenu({ menuKey, onNavigate }: Props) {
                 key={persona.title}
                 onClick={onNavigate}
                 className={`group flex min-h-[86px] items-center justify-between rounded-xl border px-5 hover:bg-surface transition-colors ${
-                  index === 0 ? "border-primary-100 bg-primary-50" : "border-border bg-white"
+                  index === 0 ? "border-primary-500 bg-white" : "border-border bg-white"
                 }`}
               >
                 <span>

@@ -67,20 +67,17 @@ export function Hero() {
         >
           {/* Framer Dust/Particles */}
           <div className="absolute inset-0 -z-10 pointer-events-none flex justify-center">
-             <div className="absolute top-[-30px] left-[10px] w-[2px] h-[2px] bg-white rounded-full shadow-[0_0_12px_2px_rgba(255,255,255,0.9)] animate-pulse" style={{ animationDuration: '2s' }} />
-             <div className="absolute top-[-10px] left-[-40px] w-[1.5px] h-[1.5px] bg-[#00D0FF] rounded-full shadow-[0_0_10px_2px_rgba(0,208,255,0.8)] animate-pulse" style={{ animationDuration: '3s' }} />
-             <div className="absolute top-[20px] right-[-45px] w-[2px] h-[2px] bg-[#0055FF] rounded-full shadow-[0_0_8px_2px_rgba(0,85,255,0.8)] animate-pulse" style={{ animationDuration: '2.5s' }} />
-             <div className="absolute bottom-[-15px] left-[30px] w-[1px] h-[1px] bg-white/60 rounded-full shadow-[0_0_6px_1px_rgba(255,255,255,0.5)] animate-pulse" style={{ animationDuration: '4s' }} />
-             <div className="absolute top-[-50px] right-[20px] w-[1.5px] h-[1.5px] bg-[#00C2FF] rounded-full shadow-[0_0_8px_1px_rgba(0,194,255,0.6)] animate-pulse" style={{ animationDuration: '3.5s' }} />
+             <div className="absolute top-[-30px] left-[10px] w-[2px] h-[2px] bg-white rounded-full animate-pulse" style={{ animationDuration: '2s' }} />
+             <div className="absolute top-[-10px] left-[-40px] w-[1.5px] h-[1.5px] bg-[#00D0FF] rounded-full animate-pulse" style={{ animationDuration: '3s' }} />
+             <div className="absolute top-[20px] right-[-45px] w-[2px] h-[2px] bg-[#0055FF] rounded-full animate-pulse" style={{ animationDuration: '2.5s' }} />
+             <div className="absolute bottom-[-15px] left-[30px] w-[1px] h-[1px] bg-white/60 rounded-full animate-pulse" style={{ animationDuration: '4s' }} />
+             <div className="absolute top-[-50px] right-[20px] w-[1.5px] h-[1.5px] bg-[#00C2FF] rounded-full animate-pulse" style={{ animationDuration: '3.5s' }} />
           </div>
 
           {/* Glowing Pill Button */}
           <Link
             href="/iletisim"
             className="group relative inline-flex items-center justify-center px-6 py-[14px] md:px-8 md:py-[16px] rounded-full bg-white text-[#030D21] font-semibold text-[14px] md:text-[15px] hover:scale-[1.02] active:scale-[0.98] transition-all"
-            style={{
-              boxShadow: "0 0 60px 0px rgba(0, 100, 255, 0.4), inset 0 -3px 5px rgba(3,13,33,0.06), inset 0 2px 5px rgba(255,255,255,1)"
-            }}
           >
             Hemen İletişime Geç
           </Link>

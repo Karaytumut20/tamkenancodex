@@ -10,7 +10,7 @@ const items = [
 export function TrustBar() {
   return (
     <section className="bg-transparent py-10">
-      <div className="container-primesec grid gap-5 rounded-[30px] border border-border bg-white p-7 md:grid-cols-2 xl:grid-cols-4 shadow-[0_18px_50px_rgba(15,23,42,0.04)]">
+      <div className="container-primesec grid gap-5 rounded-[30px] border border-border bg-white p-7 md:grid-cols-2 xl:grid-cols-4">
         {items.map(([title, subtitle, Icon]) => (
           <div key={title as string} className="flex items-center gap-4">
             <span className="flex h-12 w-12 items-center justify-center rounded-xl bg-surface text-primary-600 shrink-0">
