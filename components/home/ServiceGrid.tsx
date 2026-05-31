@@ -46,15 +46,15 @@ export function ServiceGrid() {
   }, [filtered]);
 
   return (
-    <section className="bg-surface px-3 py-10">
+    <section className="bg-transparent px-3 py-10">
       <div className="container-primesec">
         <div className="mb-5 flex items-center justify-between gap-4">
           <div className="flex items-center gap-3">
-            <span className="flex h-9 w-9 items-center justify-center rounded-full bg-white shadow-sm">
+            <span className="flex h-9 w-9 items-center justify-center rounded-full bg-white shadow-sm border border-border">
               <span className="h-4 w-4 rounded-full border-4 border-primary-600" />
             </span>
             <div>
-              <p className="text-xs font-extrabold uppercase tracking-[0.14em] text-ink-muted">PrimeSec hizmetleri</p>
+              <p className="text-xs font-extrabold uppercase tracking-[0.14em] text-primary-600">PrimeSec hizmetleri</p>
               <h2 className="text-lg font-black tracking-[-0.03em] text-ink">Güvenlik hizmet alanları</h2>
             </div>
           </div>
@@ -63,7 +63,7 @@ export function ServiceGrid() {
               <button
                 key={item}
                 onClick={() => setTab(item)}
-                className={cn("h-8 rounded-full px-4 text-xs font-extrabold ", tab === item ? "bg-[#111318] text-white" : "bg-white text-ink-muted hover:text-ink")}
+                className={cn("h-8 rounded-full px-4 text-xs font-extrabold transition-colors", tab === item ? "bg-primary-600 text-white" : "bg-white border border-border text-ink-muted hover:text-primary-600")}
               >
                 {item}
               </button>
@@ -80,8 +80,8 @@ export function ServiceGrid() {
                   key={service.title}
                   href={service.href}
                   className={cn(
-                    "group flex flex-col justify-between min-h-[260px] w-[280px] flex-shrink-0 overflow-hidden rounded-[24px] bg-white p-5 shadow-[0_18px_55px_rgba(15,23,42,0.07)]  ",
-                    index === 1 ? "bg-[#EEF2FF]" : ""
+                    "group flex flex-col justify-between min-h-[260px] w-[280px] flex-shrink-0 overflow-hidden rounded-[24px] bg-white border border-border p-5 shadow-[0_18px_55px_rgba(15,23,42,0.04)]",
+                    index === 1 ? "bg-primary-50 border-primary-100" : ""
                   )}
                   style={{ scrollSnapAlign: 'start' }}
                 >
@@ -96,11 +96,11 @@ export function ServiceGrid() {
                     </span>
                   </div>
                   <div className="relative mt-4 h-24 w-full flex-1">
-                    <Image src={service.image} alt={`${service.title} hizmet görseli`} fill className="object-contain object-right-bottom  " unoptimized />
+                    <Image src={service.image} alt={`${service.title} hizmet görseli`} fill className="object-contain object-right-bottom" unoptimized />
                   </div>
                   <div className="mt-4 flex items-center gap-2">
-                    <span className="inline-flex h-8 items-center justify-center rounded-full bg-[#111318] px-4 text-xs font-extrabold text-white">İncele</span>
-                    <span className="inline-flex h-8 items-center justify-center rounded-full bg-[#F1F3F6] px-4 text-xs font-extrabold text-ink-muted">Teklif Al</span>
+                    <span className="inline-flex h-8 items-center justify-center rounded-full bg-surface px-4 text-xs font-extrabold text-primary-600">İncele</span>
+                    <span className="inline-flex h-8 items-center justify-center rounded-full bg-surface px-4 text-xs font-extrabold text-ink-muted">Teklif Al</span>
                   </div>
                 </Link>
               ))}
@@ -123,8 +123,8 @@ export function ServiceGrid() {
                   key={service.title}
                   href={service.href}
                   className={cn(
-                    "group flex flex-col justify-between min-h-[260px] overflow-hidden rounded-[24px] bg-white p-5 shadow-[0_18px_55px_rgba(15,23,42,0.07)]  ",
-                    index === 1 ? "bg-[#EEF2FF]" : ""
+                    "group flex flex-col justify-between min-h-[260px] overflow-hidden rounded-[24px] bg-white border border-border p-5 shadow-[0_18px_55px_rgba(15,23,42,0.04)]",
+                    index === 1 ? "bg-primary-50 border-primary-100" : ""
                   )}
                 >
                   <div className="flex items-start justify-between gap-4">
@@ -138,11 +138,11 @@ export function ServiceGrid() {
                     </span>
                   </div>
                   <div className="relative mt-4 h-24 w-full flex-1">
-                    <Image src={service.image} alt={`${service.title} hizmet görseli`} fill className="object-contain object-right-bottom  " unoptimized />
+                    <Image src={service.image} alt={`${service.title} hizmet görseli`} fill className="object-contain object-right-bottom" unoptimized />
                   </div>
                   <div className="mt-4 flex items-center gap-2">
-                    <span className="inline-flex h-8 items-center justify-center rounded-full bg-[#111318] px-4 text-xs font-extrabold text-white">İncele</span>
-                    <span className="inline-flex h-8 items-center justify-center rounded-full bg-[#F1F3F6] px-4 text-xs font-extrabold text-ink-muted">Teklif Al</span>
+                    <span className="inline-flex h-8 items-center justify-center rounded-full bg-surface px-4 text-xs font-extrabold text-primary-600">İncele</span>
+                    <span className="inline-flex h-8 items-center justify-center rounded-full bg-surface px-4 text-xs font-extrabold text-ink-muted">Teklif Al</span>
                   </div>
                 </Link>
               );

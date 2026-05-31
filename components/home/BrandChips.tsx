@@ -35,7 +35,7 @@ export function BrandChips() {
 
 function BrandLogo({ brand }: { brand: string }) {
   return (
-    <div className="flex h-16 w-[168px] shrink-0 items-center justify-center rounded-xl border border-border bg-white px-5 grayscale   hover:grayscale-0">
+    <div className="flex h-16 w-[168px] shrink-0 items-center justify-center rounded-xl border border-border bg-white px-5 grayscale hover:grayscale-0 transition-all">
       <div className="flex items-center gap-3 text-[#111827]">
         <span className="relative flex h-8 w-8 items-center justify-center">
           <span className="absolute inset-0 rotate-45 rounded-[7px] border-2 border-current opacity-80" />

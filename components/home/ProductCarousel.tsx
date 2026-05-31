@@ -72,7 +72,7 @@ export function ProductCarousel() {
             <p className="text-sm font-extrabold uppercase tracking-[0.14em] text-primary-600">Ürünler</p>
             <h2 className="mt-3 text-[clamp(30px,3.2vw,48px)] font-extrabold leading-none tracking-[-0.045em] text-ink">Öne çıkan güvenlik ürünleri</h2>
           </div>
-          <Link href="/urunler" className="hidden items-center gap-2 rounded-full bg-[#1853c9] px-5 py-3 text-sm font-extrabold text-white md:inline-flex">
+          <Link href="/urunler" className="hidden items-center gap-2 rounded-full bg-primary-600 px-5 py-3 text-sm font-extrabold text-white md:inline-flex">
             Tüm ürünler <ChevronRight className="h-4 w-4" />
           </Link>
         </div>
@@ -100,7 +100,7 @@ export function ProductCarousel() {
               onClick={(event) => {
                 if (drag.current.moved) event.preventDefault();
               }}
-              className="group flex w-[78%] shrink-0 snap-start flex-col overflow-hidden rounded-[24px] bg-white p-4 shadow-[0_18px_55_rgba(15,23,42,0.07)]   md:w-[36%] xl:w-[23.5%]"
+              className="group flex w-[78%] shrink-0 snap-start flex-col overflow-hidden rounded-[24px] bg-white border border-border p-4 shadow-[0_18px_55px_rgba(15,23,42,0.06)] md:w-[36%] xl:w-[23.5%]"
             >
               <div className="flex items-center justify-between">
                 <p className="text-sm font-extrabold text-ink">{product.brand}</p>
@@ -108,14 +108,14 @@ export function ProductCarousel() {
                   <ChevronRight className="h-4 w-4" />
                 </span>
               </div>
-              <div className="relative mt-4 h-48 w-full rounded-[20px] bg-surface">
-                {index === 1 ? <span className="absolute right-4 top-4 z-10 h-4 w-4 rounded-full bg-primary-600" /> : null}
-                <Image src={product.image} alt={`${product.name} ürün görseli`} fill className="object-contain p-6  " unoptimized />
+              <div className="relative mt-4 h-48 w-full rounded-[20px] bg-surface flex items-center justify-center">
+                {index === 1 ? <span className="absolute right-4 top-4 z-10 h-4 w-4 rounded-full bg-red-500" /> : null}
+                <Image src={product.image} alt={`${product.name} ürün görseli`} fill className="object-contain p-6" unoptimized />
               </div>
               <div className="flex flex-1 flex-col justify-between pt-4">
                 <div>
                   <p className="text-xs font-bold text-ink-muted">{product.category}</p>
-                  <h3 className="mt-2 line-clamp-2 min-h-[44px] text-lg font-extrabold leading-5 tracking-[-0.02em] text-ink">{product.name}</h3>
+                  <h3 className="mt-2 line-clamp-2 min-h-[44px] text-lg font-extrabold leading-5 tracking-[-0.02em] text-ink group-hover:text-primary-600 transition-colors">{product.name}</h3>
                 </div>
               </div>
             </Link>
@@ -124,7 +124,7 @@ export function ProductCarousel() {
 
         <div className="mt-6 hidden justify-center gap-2 md:flex">
           {slides.map((_, index) => (
-            <button key={index} aria-label={`${index + 1}. ürün grubuna git`} onClick={() => { setActive(index); scrollToSlide(index); }} className={`h-2 rounded-full  ${active === index ? "w-8 bg-primary-600" : "w-2 bg-border-strong"}`} />
+            <button key={index} aria-label={`${index + 1}. ürün grubuna git`} onClick={() => { setActive(index); scrollToSlide(index); }} className={`h-2 rounded-full transition-all ${active === index ? "w-8 bg-primary-600" : "w-2 bg-border-strong"}`} />
           ))}
         </div>
       </div>

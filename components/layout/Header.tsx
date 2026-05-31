@@ -46,37 +46,39 @@ export function Header() {
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.35 }}
       onMouseLeave={() => setActiveMenu(null)}
-      className="sticky top-0 z-50 bg-white px-0 py-0"
+      className="sticky top-0 z-50 bg-white/90 backdrop-blur-md px-0 py-0 border-b border-border shadow-sm"
     >
-      <div className="flex h-[72px] w-full items-center border-b border-black/5 bg-white lg:h-[76px]">
+      <div className="flex h-[72px] w-full items-center lg:h-[76px]">
         <div className="container-primesec flex w-full items-center justify-between gap-5">
-        <Logo dark={false} />
+        <div onMouseEnter={() => setActiveMenu(null)}>
+          <Logo dark={false} />
+        </div>
         <nav className="hidden items-center gap-1 lg:flex" aria-label="Ana menü">
           {mainNavigation.map((item) => (
-            <div key={item.href} className="relative" onMouseEnter={() => item.menuKey && setActiveMenu(item.menuKey as MegaMenuKey)}>
+            <div key={item.href} className="relative" onMouseEnter={() => setActiveMenu((item.menuKey as MegaMenuKey) ?? null)}>
               <Link
                 href={item.href}
-                className="group relative flex h-9 items-center gap-1 rounded-full px-3 text-[12px] font-bold text-[#171923] hover:text-primary-600"
+                className="group relative flex h-9 items-center gap-1 rounded-full px-3 text-[12px] font-bold text-ink hover:text-primary-600 transition-colors"
               >
                 {item.label}
-                {item.menuKey ? <ChevronDown className={`h-3.5 w-3.5 ${activeMenu === item.menuKey ? "rotate-180 text-primary-600" : "text-ink-muted"}`} /> : null}
+                {item.menuKey ? <ChevronDown className={`h-3.5 w-3.5 ${activeMenu === item.menuKey ? "rotate-180 text-primary-600" : "text-ink-lighter"}`} /> : null}
               </Link>
             </div>
           ))}
         </nav>
-        <div className="hidden items-center gap-3 xl:flex">
-          <ButtonLink href="/iletisim" variant="outlineBlue" size="sm" className="h-8 rounded-full border-[#D8DDE6] bg-white px-4 text-xs text-ink hover:text-white">
+        <div className="hidden items-center gap-3 xl:flex" onMouseEnter={() => setActiveMenu(null)}>
+          <ButtonLink href="/iletisim" variant="outlineBlue" size="sm" className="h-8 rounded-full border-border bg-transparent px-4 text-xs text-ink hover:border-primary-600 hover:text-primary-600">
             <Phone className="h-4 w-4" /> Teklif Al
           </ButtonLink>
-          <ButtonLink href="/kendi-sistemini-tasarla" size="sm" className="h-8 rounded-full bg-[#111318] px-5 text-xs shadow-none hover:bg-primary-600">
+          <ButtonLink href="/kendi-sistemini-tasarla" size="sm" className="h-8 rounded-full bg-primary-600 px-5 text-xs text-white font-bold shadow-[0_4px_14px_0_rgba(0,118,255,0.39)] hover:bg-primary-500 hover:scale-105 transition-all">
             Kendi Sistemini Tasarla <SlidersHorizontal className="h-4 w-4" />
           </ButtonLink>
         </div>
-        <div className="flex items-center gap-2 xl:hidden">
-          <ButtonLink href={whatsappUrl("Merhaba, PrimeSec Teknoloji'den bilgi almak istiyorum.")} variant="outlineBlue" size="sm" className="hidden rounded-full border-[#D8DDE6] text-ink sm:inline-flex">
+        <div className="flex items-center gap-2 xl:hidden" onMouseEnter={() => setActiveMenu(null)}>
+          <ButtonLink href={whatsappUrl("Merhaba, PrimeSec Teknoloji'den bilgi almak istiyorum.")} variant="outlineBlue" size="sm" className="hidden rounded-full border-border text-ink sm:inline-flex">
             WhatsApp
           </ButtonLink>
-          <button className="rounded-full border border-[#D8DDE6] p-3 text-ink lg:hidden" aria-label="Menüyü aç" onClick={() => setMobileOpen(true)}>
+          <button className="rounded-full border border-border p-3 text-ink lg:hidden hover:border-primary-600 transition-colors" aria-label="Menüyü aç" onClick={() => setMobileOpen(true)}>
             <Menu className="h-5 w-5" />
           </button>
         </div>

@@ -12,6 +12,21 @@ export const siteConfig = {
   social: ["https://www.linkedin.com/company/primesec-teknoloji"],
 };
 
+export const representatives = [
+  {
+    name: "Kenan Bey",
+    role: "Satış & Projelendirme",
+    phone: "+90 532 000 00 01", // Placeholder, can be changed by user
+    whatsapp: "905320000001",
+  },
+  {
+    name: "Umut Bey",
+    role: "Teknik Destek & Kurulum",
+    phone: "+90 532 000 00 02", // Placeholder, can be changed by user
+    whatsapp: "905320000002",
+  },
+];
+
 export const trustItems = [
   "7/24 Teknik Destek",
   "Ücretsiz Keşif",

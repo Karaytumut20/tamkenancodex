@@ -10,12 +10,12 @@ const stats = [
 
 export function StatsBand() {
   return (
-    <section className="bg-surface py-10">
-      <div className="container-primesec rounded-[28px] border border-white bg-white p-7 shadow-[0_20px_70px_rgba(15,23,42,0.07)]">
+    <section className="bg-transparent py-10">
+      <div className="container-primesec rounded-[28px] border border-border bg-white p-7 shadow-[0_20px_70px_rgba(15,23,42,0.04)]">
         <div className="grid gap-6 md:grid-cols-3 xl:grid-cols-5">
           {stats.map(([value, label, Icon]) => (
             <div key={label as string} className="flex items-center gap-4">
-              <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-[#111318] text-white">
+              <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-surface text-primary-600">
                 <Icon className="h-5 w-5" />
               </span>
               <span>

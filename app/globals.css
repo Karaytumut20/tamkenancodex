@@ -42,9 +42,10 @@ html {
 body {
   margin: 0;
   background: #F7FAFF;
-  color: var(--color-text-dark);
+  color: #06142E;
   font-family: "Google Sans", Inter, Arial, sans-serif;
   text-rendering: geometricPrecision;
+  color-scheme: light;
 }
 
 a {
@@ -107,14 +108,14 @@ button {
 
 .hero-bg {
   background:
-    radial-gradient(circle at 70% 20%, rgba(0,107,255,0.22), transparent 34%),
-    radial-gradient(circle at 20% 10%, rgba(24,191,255,0.12), transparent 28%),
+    radial-gradient(circle at 70% 20%, rgba(0, 107, 255, 0.22), transparent 34%),
+    radial-gradient(circle at 20% 10%, rgba(24, 191, 255, 0.12), transparent 28%),
     linear-gradient(135deg, #020817 0%, #061A35 52%, #020817 100%);
 }
 
 .final-bg {
   background:
-    radial-gradient(circle at 75% 20%, rgba(0,107,255,0.28), transparent 32%),
+    radial-gradient(circle at 75% 20%, rgba(0, 107, 255, 0.28), transparent 32%),
     linear-gradient(135deg, #020817 0%, #061A35 60%, #020817 100%);
 }
 
@@ -160,6 +161,7 @@ button {
   from {
     transform: translateX(0);
   }
+
   to {
     transform: translateX(-50%);
   }

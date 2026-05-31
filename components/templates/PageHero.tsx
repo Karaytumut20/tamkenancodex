@@ -1,36 +1,32 @@
-import Image from "next/image";
-import { ArrowRight, ShieldCheck } from "lucide-react";
 import { Breadcrumbs, type Crumb } from "@/components/seo/Breadcrumbs";
-import { ButtonLink } from "@/components/ui/Button";
-import { Container } from "@/components/ui/Container";
 
-export function PageHero({ title, description, image, crumbs }: { title: string; description: string; image: string; crumbs: Crumb[] }) {
+export function PageHero({ title, description, crumbs }: { title: string; description: string; image?: string; crumbs: Crumb[] }) {
   return (
-    <section className="hero-bg py-4">
-      <Container className="bg-transparent">
-        <div className="desktop-grid items-center px-5 py-12 md:px-10 lg:py-16">
-          <div className="col-span-4 md:col-span-8 xl:col-span-6">
-            <Breadcrumbs items={crumbs} dark />
-            <div className="mt-8 inline-flex h-10 items-center gap-2 rounded-full border border-white/20 bg-white/10 px-4 text-xs font-extrabold tracking-wide text-white backdrop-blur-sm">
-              <ShieldCheck className="h-4 w-4 text-primary-300" /> PRIMESEC TEKNOLOJİ
-            </div>
-            <h1 className="mt-6 text-[clamp(38px,4vw,68px)] font-black leading-[1.02] tracking-[-0.055em] text-white">{title}</h1>
-            <p className="mt-5 max-w-2xl text-lg leading-8 text-ink-lightMuted">{description}</p>
-            <div className="mt-8 flex flex-col gap-3 sm:flex-row">
-              <ButtonLink href="/kendi-sistemini-tasarla" size="lg" className="rounded-full bg-primary-600 shadow-none hover:bg-primary-700">
-                Ücretsiz Keşif Al <ArrowRight className="h-5 w-5" />
-              </ButtonLink>
-              <ButtonLink href="/iletisim" variant="outlineBlue" size="lg" className="rounded-full border-white/30 bg-white/10 text-white hover:bg-white hover:text-ink">Teklif İste</ButtonLink>
+    <section className="relative min-h-[50vh] flex flex-col items-center justify-center overflow-hidden bg-[#030D21] text-center px-4 font-sans pt-32 pb-16">
+      {/* ── FRAMER STYLE BACKGROUND GRADIENTS ── */}
+      <div className="absolute inset-0 z-0 pointer-events-none flex justify-center items-end overflow-hidden">
+         <div className="absolute bottom-[-30%] w-[150vw] md:w-[100vw] h-[80vh] bg-[radial-gradient(ellipse_at_bottom,_var(--tw-gradient-stops))] from-[#0044FF]/40 via-[#0066FF]/10 to-transparent blur-[80px]" />
+         <div className="absolute bottom-[0%] left-[-20%] w-[60vw] h-[60vh] bg-[radial-gradient(circle_at_center,_var(--tw-gradient-stops))] from-[#0C2556]/60 via-[#030D21]/20 to-transparent blur-[100px]" />
+         <div className="absolute bottom-[5%] right-[-10%] w-[50vw] h-[60vh] bg-[radial-gradient(circle_at_center,_var(--tw-gradient-stops))] from-[#00C2FF]/20 via-[#0088FF]/5 to-transparent blur-[90px]" />
+      </div>
+
+      <div className="relative z-10 w-full max-w-5xl mx-auto flex flex-col items-center">
+        {crumbs && crumbs.length > 0 && (
+          <div className="mb-6">
+            <div className="inline-flex items-center px-5 py-2 rounded-full border border-white/10 bg-[#081C44]/50 backdrop-blur-md">
+              <Breadcrumbs items={crumbs} dark />
             </div>
           </div>
-          <div className="col-span-4 mt-10 md:col-span-8 xl:col-span-6 xl:mt-0">
-            <div className="relative mx-auto h-[300px] max-w-[620px] md:h-[430px]">
-              <div className="absolute inset-8 rounded-[38px] bg-white/10 shadow-[0_24px_70px_rgba(0,0,0,0.30)] backdrop-blur-sm" />
-              <Image src={image} alt={`${title} görseli`} fill priority className="object-contain p-8 drop-shadow-[0_24px_60px_rgba(0,107,255,0.35)]" unoptimized />
-            </div>
-          </div>
-        </div>
-      </Container>
+        )}
+        
+        <h1 className="text-[clamp(2.5rem,8vw,5.5rem)] leading-[1.05] font-bold tracking-[-0.04em] md:tracking-[-0.05em] text-white max-w-[900px]">
+          {title}
+        </h1>
+
+        <p className="mt-6 md:mt-8 text-[15px] md:text-[18px] text-[#A1A1AA] font-medium max-w-[700px] leading-relaxed tracking-[-0.01em]">
+          {description}
+        </p>
+      </div>
     </section>
   );
 }

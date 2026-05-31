@@ -23,7 +23,7 @@ export function MobileMenu({ open, onClose }: { open: boolean; onClose: () => vo
             exit={{ opacity: 0 }}
             transition={{ duration: 0.2 }}
             onClick={onClose}
-            className="fixed inset-0 z-[120] bg-navy-1000/40 backdrop-blur-sm lg:hidden"
+            className="fixed inset-0 z-[120] bg-ink/40 backdrop-blur-sm lg:hidden"
             role="dialog"
             aria-modal="true"
           />
@@ -33,19 +33,19 @@ export function MobileMenu({ open, onClose }: { open: boolean; onClose: () => vo
             initial={{ x: "100%" }}
             animate={{ x: 0 }}
             exit={{ x: "100%" }}
-            transition={{ type: "spring", damping: 30, stiffness: 300 }}
-            className="fixed right-0 top-0 z-[121] flex h-full w-[min(420px,90%)] flex-col bg-white shadow-2xl lg:hidden"
+            transition={{ type: "tween", ease: "easeInOut", duration: 0.3 }}
+            className="fixed right-0 top-0 z-[121] flex h-full w-[min(420px,90%)] flex-col bg-surface shadow-2xl lg:hidden"
           >
             {/* Header */}
-            <div className="flex items-center justify-between border-b border-gray-100 p-5">
+            <div className="flex items-center justify-between border-b border-border p-5">
               <div className="flex items-center gap-2">
-                <div className="h-8 w-1 rounded-full bg-gradient-to-b from-primary-600 to-primary-400" />
-                <span className="text-lg font-extrabold text-navy-900">Menü</span>
+                <div className="h-8 w-1 rounded-full bg-gradient-to-b from-primary-400 to-primary-600" />
+                <span className="text-lg font-extrabold text-ink">Menü</span>
               </div>
               <button
                 aria-label="Menüyü kapat"
                 onClick={onClose}
-                className="flex h-10 w-10 items-center justify-center rounded-full border border-gray-200 text-navy-900   hover:bg-primary-50 hover:text-primary-600"
+                className="flex h-10 w-10 items-center justify-center rounded-full border border-border text-ink hover:bg-white hover:text-primary-600"
               >
                 <X className="h-5 w-5" />
               </button>
@@ -55,22 +55,19 @@ export function MobileMenu({ open, onClose }: { open: boolean; onClose: () => vo
             <div className="flex-1 overflow-y-auto p-4">
               <div className="space-y-2">
                 {mainNavigation.map((item, idx) => (
-                  <motion.div
+                  <div
                     key={item.href}
-                    initial={{ opacity: 0, x: 20 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    transition={{ delay: idx * 0.05 }}
-                    className="overflow-hidden rounded-2xl border border-gray-100 bg-gradient-to-br from-white to-gray-50/50 shadow-sm"
+                    className="overflow-hidden rounded-2xl border border-border bg-white shadow-sm"
                   >
                     {item.menuKey ? (
                       <>
                         <button
                           onClick={() => setActive(active === item.menuKey ? null : item.menuKey)}
-                          className="flex w-full items-center justify-between p-4 text-left font-bold text-navy-900  hover:text-primary-600"
+                          className="flex w-full items-center justify-between p-4 text-left font-bold text-ink hover:text-primary-600"
                         >
                           <span>{item.label}</span>
                           <ChevronDown
-                            className={`h-4 w-4 text-primary-500  duration-300 ${
+                            className={`h-4 w-4 text-primary-600 duration-300 ${
                               active === item.menuKey ? "rotate-180" : ""
                             }`}
                           />
@@ -82,7 +79,7 @@ export function MobileMenu({ open, onClose }: { open: boolean; onClose: () => vo
                               animate={{ height: "auto", opacity: 1 }}
                               exit={{ height: 0, opacity: 0 }}
                               transition={{ duration: 0.3 }}
-                              className="overflow-hidden border-t border-gray-100 bg-white/80"
+                              className="overflow-hidden border-t border-border bg-surface"
                             >
                               <div className="space-y-1 p-3">
                                 {megaMenus[item.menuKey as MegaMenuKey].personas.map((sub) => (
@@ -90,7 +87,7 @@ export function MobileMenu({ open, onClose }: { open: boolean; onClose: () => vo
                                     key={sub.href}
                                     href={sub.href}
                                     onClick={onClose}
-                                    className="block rounded-xl px-4 py-2.5 text-sm font-medium text-gray-700  hover:bg-primary-50 hover:text-primary-600"
+                                    className="block rounded-xl px-4 py-2.5 text-sm font-medium text-ink-muted hover:bg-white hover:text-primary-600"
                                   >
                                     {sub.title}
                                   </Link>
@@ -100,7 +97,7 @@ export function MobileMenu({ open, onClose }: { open: boolean; onClose: () => vo
                                     key={sub.href}
                                     href={sub.href}
                                     onClick={onClose}
-                                    className="block rounded-xl px-4 py-2.5 text-sm font-medium text-gray-700  hover:bg-primary-50 hover:text-primary-600"
+                                    className="block rounded-xl px-4 py-2.5 text-sm font-medium text-ink-muted hover:bg-white hover:text-primary-600"
                                   >
                                     {sub.title}
                                   </Link>
@@ -114,18 +111,18 @@ export function MobileMenu({ open, onClose }: { open: boolean; onClose: () => vo
                       <Link
                         onClick={onClose}
                         href={item.href}
-                        className="block p-4 font-bold text-navy-900  hover:text-primary-600"
+                        className="block p-4 font-bold text-ink hover:text-primary-600"
                       >
                         {item.label}
                       </Link>
                     )}
-                  </motion.div>
+                  </div>
                 ))}
               </div>
             </div>
 
             {/* Footer Actions */}
-            <div className="border-t border-gray-100 bg-gradient-to-br from-gray-50 to-white p-5">
+            <div className="border-t border-border bg-white p-5">
               <div className="space-y-3">
                 <ButtonLink
                   href="/iletisim"

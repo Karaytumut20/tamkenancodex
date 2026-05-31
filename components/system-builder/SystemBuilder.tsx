@@ -100,7 +100,7 @@ export function SystemBuilder() {
     <section className="bg-surface py-6 md:py-10">
       <div className="container-primesec">
         <div className="grid gap-6 xl:grid-cols-[minmax(0,1fr)_390px] xl:items-start">
-          <div ref={wizardRef} className="scroll-mt-24 rounded-[24px] border border-border bg-white p-5 shadow-[0_24px_70px_rgba(6,20,46,0.09)] md:p-8">
+          <div ref={wizardRef} className="scroll-mt-24 rounded-[24px] border border-border bg-white p-5 shadow-[0_24px_70px_rgba(15,23,42,0.05)] md:p-8">
             <Stepper step={step} />
             <div className="min-h-[300px]">
               <AnimatePresence mode="wait">
@@ -171,7 +171,7 @@ function Stepper({ step }: { step: number }) {
 
       <div className="relative grid grid-cols-4 gap-2">
         <div className="absolute left-[12.5%] right-[12.5%] top-4 h-0.5 bg-border">
-          <div className="h-full bg-primary-600  duration-300" style={{ width: `${((currentStep - 1) / (labels.length - 1)) * 100}%` }} />
+          <div className="h-full bg-primary-600 duration-300" style={{ width: `${((currentStep - 1) / (labels.length - 1)) * 100}%` }} />
         </div>
         {labels.map((label, index) => {
           const active = currentStep >= index + 1;
@@ -179,14 +179,14 @@ function Stepper({ step }: { step: number }) {
           return (
             <div key={label} className="relative z-10 flex min-w-0 flex-col items-center text-center">
               <span className={cn(
-                "flex h-8 w-8 items-center justify-center rounded-full border-2 text-sm font-extrabold  duration-300",
-                active ? "border-primary-600 bg-primary-600 text-white shadow-md shadow-primary-600/20" : "border-border bg-white text-ink-muted",
+                "flex h-8 w-8 items-center justify-center rounded-full border-2 text-sm font-extrabold duration-300",
+                active ? "border-primary-600 bg-primary-600 text-white shadow-md shadow-primary-600/20" : "border-border bg-surface text-ink-muted",
                 current ? "ring-4 ring-primary-600/10" : ""
               )}>
                 {index + 1}
               </span>
               <span className={cn(
-                "mt-2 block truncate text-xs font-extrabold  duration-300 md:text-sm",
+                "mt-2 block truncate text-xs font-extrabold duration-300 md:text-sm",
                 active ? "text-primary-600" : "text-ink-muted"
               )}>
                 {label}
@@ -212,11 +212,11 @@ function StepBlock({ title, children }: { title: string; children: ReactNode }) 
 
 function SelectionCard({ title, description, selected, onClick, icon, image }: { title: string; description: string; selected: boolean; onClick: () => void; icon: ReactNode; image: string }) {
   return (
-    <button onClick={onClick} className={cn("relative flex min-h-[168px] items-center gap-5 rounded-2xl border-2 bg-white p-5 text-left    (6,20,46,0.08)]", selected ? "border-primary-500 bg-gradient-to-br from-primary-500/10 to-white shadow-[0_14px_34px_rgba(0,107,255,0.14)]" : "border-border")}>
+    <button onClick={onClick} className={cn("relative flex min-h-[168px] items-center gap-5 rounded-2xl border-2 bg-surface p-5 text-left", selected ? "border-primary-600 bg-primary-50 shadow-sm" : "border-border hover:border-primary-200 hover:bg-white transition-colors")}>
       {selected ? <span className="absolute right-4 top-4 flex h-7 w-7 items-center justify-center rounded-full bg-primary-600 text-white"><Check className="h-4 w-4" /></span> : null}
-      <span className="relative flex h-24 w-24 shrink-0 items-center justify-center rounded-2xl bg-surface">
+      <span className="relative flex h-24 w-24 shrink-0 items-center justify-center rounded-2xl bg-white border border-border">
         <Image src={image} alt="" fill className="object-contain p-3" unoptimized />
-        <span className="absolute -bottom-2 -right-2 flex h-9 w-9 items-center justify-center rounded-xl bg-primary-600 text-white shadow-md shadow-primary-600/20">{icon}</span>
+        <span className="absolute -bottom-2 -right-2 flex h-9 w-9 items-center justify-center rounded-xl bg-primary-600 text-white shadow-sm">{icon}</span>
       </span>
       <span>
         <span className="block text-xl font-extrabold text-ink">{title}</span>
@@ -230,8 +230,8 @@ function OptionGrid({ options, selected, onSelect }: { options: string[]; select
   return (
     <div className="grid grid-cols-2 gap-3 md:grid-cols-3">
       {options.map((option) => (
-        <button key={option} onClick={() => onSelect(option)} className={cn("relative flex min-h-[118px] flex-col items-center justify-between gap-3 rounded-xl border-2 bg-white p-4 font-extrabold text-ink   ", selected === option ? "border-primary-500 bg-primary-500/5 text-primary-600" : "border-border")}>
-          {selected === option ? <Check className="absolute right-2 top-2 h-4 w-4" /> : null}
+        <button key={option} onClick={() => onSelect(option)} className={cn("relative flex min-h-[118px] flex-col items-center justify-between gap-3 rounded-xl border-2 bg-white p-4 font-extrabold text-ink transition-colors", selected === option ? "border-primary-600 bg-primary-50" : "border-border hover:border-primary-200 hover:bg-surface")}>
+          {selected === option ? <Check className="absolute right-2 top-2 h-4 w-4 text-primary-600" /> : null}
           <div className="flex flex-1 items-center justify-center">
             <Building2 className="h-8 w-8 text-primary-600" />
           </div>
@@ -246,8 +246,8 @@ function ReasonGrid({ options, selected, onSelect }: { options: string[]; select
   return (
     <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-3">
       {options.map((option) => (
-        <button key={option} onClick={() => onSelect(option)} className={cn("relative flex min-h-[96px] items-center gap-4 rounded-xl border-2 bg-white p-4 text-left font-bold text-ink   ", selected === option ? "border-primary-500 bg-primary-500/5 text-primary-600" : "border-border")}>
-          {selected === option ? <Check className="absolute right-3 top-3 h-4 w-4" /> : null}
+        <button key={option} onClick={() => onSelect(option)} className={cn("relative flex min-h-[96px] items-center gap-4 rounded-xl border-2 bg-white p-4 text-left font-bold text-ink transition-colors", selected === option ? "border-primary-600 bg-primary-50" : "border-border hover:border-primary-200 hover:bg-surface")}>
+          {selected === option ? <Check className="absolute right-3 top-3 h-4 w-4 text-primary-600" /> : null}
           <Info className="h-8 w-8 shrink-0 text-primary-600" />
           {option}
         </button>
@@ -286,13 +286,13 @@ function ProductSection({ title, badge, products: items, selected, onToggle }: {
 
 function SummaryCard({ area, floor, reason, products }: { area: string; floor: string; reason: string; products: string[] }) {
   return (
-    <aside className="h-fit rounded-[24px] border border-border bg-white p-6 shadow-[0_18px_54px_rgba(6,20,46,0.08)] xl:sticky xl:top-24">
+    <aside className="h-fit rounded-[24px] border border-border bg-white p-6 shadow-card xl:sticky xl:top-24">
       <div className="flex items-start justify-between gap-4">
         <div>
           <p className="text-xs font-extrabold uppercase tracking-[0.16em] text-primary-600">Canlı plan</p>
           <h2 className="mt-1 text-2xl font-extrabold text-ink">Paket özeti</h2>
         </div>
-        <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-primary-500/10 text-primary-600">
+        <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-surface text-primary-600 border border-border">
           <ShieldCheck className="h-6 w-6" />
         </span>
       </div>
@@ -335,93 +335,93 @@ function SummaryRow({ label, value }: { label: string; value: string }) {
 
 function FinalOffer({ submitted, area, floor, reason, selectedProducts, onBack, form, onSubmit }: { submitted: boolean; area: string; floor: string; reason: string; selectedProducts: string[]; onBack: () => void; form: ReturnType<typeof useForm<LeadForm>>; onSubmit: (values: LeadForm) => void }) {
   return (
-    <section className="final-bg min-h-screen py-12 text-white">
+    <section className="bg-surface min-h-screen py-12 text-ink">
       <div className="container-primesec">
-        <button onClick={onBack} className="mb-8 inline-flex items-center gap-2 text-sm font-bold text-ink-lightMuted hover:text-white">
+        <button onClick={onBack} className="mb-8 inline-flex items-center gap-2 text-sm font-bold text-ink-muted hover:text-ink">
           <ArrowLeft className="h-4 w-4" /> Seçimlere dön
         </button>
         <div className="grid gap-9 xl:grid-cols-12 xl:items-end">
           <div className="xl:col-span-7">
-            <h1 className="text-[clamp(44px,5vw,72px)] font-extrabold leading-none tracking-[-0.045em]">Son Adımdayız!</h1>
-            <p className="mt-5 max-w-3xl text-lg leading-8 text-ink-lightMuted">Değerli bilgilerinizi bizimle paylaştığınız için teşekkür ederiz. Şimdi PrimeSec uzman ekibimiz sizi arayarak tüm detayları netleştirecek ve size özel en iyi teklifi sunacak.</p>
+            <h1 className="text-[clamp(44px,5vw,72px)] font-extrabold leading-none tracking-[-0.045em] text-ink">Son Adımdayız!</h1>
+            <p className="mt-5 max-w-3xl text-lg leading-8 text-ink-muted">Değerli bilgilerinizi bizimle paylaştığınız için teşekkür ederiz. Şimdi PrimeSec uzman ekibimiz sizi arayarak tüm detayları netleştirecek ve size özel en iyi teklifi sunacak.</p>
           </div>
           <div className="relative hidden h-56 xl:col-span-5 xl:block">
             <Image src="/images/local-security.svg" alt="PrimeSec mavi neon bina güvenliği görseli" fill className="object-contain opacity-80" unoptimized />
           </div>
         </div>
         <div className="mt-10 grid gap-7 xl:grid-cols-12">
-          <div className="glass-card rounded-[28px] p-6 md:p-8 xl:col-span-6">
+          <div className="rounded-[28px] border border-border bg-white shadow-sm p-6 md:p-8 xl:col-span-6">
             {submitted ? (
-              <div className="rounded-2xl border border-primary-400/30 bg-primary-500/10 p-8 text-center">
-                <ShieldCheck className="mx-auto h-12 w-12 text-primary-300" />
+              <div className="rounded-2xl border border-border bg-surface p-8 text-center">
+                <ShieldCheck className="mx-auto h-12 w-12 text-primary-600" />
                 <h2 className="mt-4 text-3xl font-extrabold">Talebiniz alındı</h2>
-                <p className="mt-3 text-ink-lightMuted">PrimeSec ekibi en kısa sürede sizinle iletişime geçecek.</p>
+                <p className="mt-3 text-ink-muted">PrimeSec ekibi en kısa sürede sizinle iletişime geçecek.</p>
               </div>
             ) : (
               <>
-                <div className="rounded-[18px] border border-primary-400/25 bg-white/[0.03] p-6 text-center">
-                  <p className="text-sm font-extrabold uppercase tracking-[0.16em] text-primary-400">Özel Teklifiniz</p>
-                  <h2 className="mt-3 text-4xl font-extrabold leading-tight tracking-[-0.035em]">İlk 2 Ay %50 İndirim! <span className="gradient-text">PrimeSec Plus</span></h2>
-                  <div className="mt-5 flex items-center gap-4 rounded-2xl border border-primary-400/25 bg-primary-500/10 p-4 text-left">
-                    <ShieldCheck className="h-10 w-10 shrink-0 text-primary-300" />
-                    <p className="text-sm leading-6 text-[#D3DEF0]"><strong className="text-white">Tebrikler!</strong> Bu teklifimize özel 1 adet manyetik kontak hediye.</p>
+                <div className="rounded-[18px] border border-border bg-surface p-6 text-center">
+                  <p className="text-sm font-extrabold uppercase tracking-[0.16em] text-primary-600">Özel Teklifiniz</p>
+                  <h2 className="mt-3 text-4xl font-extrabold leading-tight tracking-[-0.035em] text-ink">İlk 2 Ay %50 İndirim! <span className="text-primary-600">PrimeSec Plus</span></h2>
+                  <div className="mt-5 flex items-center gap-4 rounded-2xl border border-border bg-white p-4 text-left shadow-sm">
+                    <ShieldCheck className="h-10 w-10 shrink-0 text-primary-600" />
+                    <p className="text-sm leading-6 text-ink-muted"><strong className="text-ink">Tebrikler!</strong> Bu teklifimize özel 1 adet manyetik kontak hediye.</p>
                   </div>
-                  <p className="mt-4 text-xs text-ink-lightMuted">*Teklif 11 Haziran 2026 tarihine kadar geçerlidir.</p>
+                  <p className="mt-4 text-xs text-ink-muted">*Teklif 11 Haziran 2026 tarihine kadar geçerlidir.</p>
                 </div>
                 <form onSubmit={form.handleSubmit(onSubmit)} className="mt-7 space-y-4">
-                  <h3 className="text-2xl font-extrabold">Sizinle İletişime Geçelim</h3>
+                  <h3 className="text-2xl font-extrabold text-ink">Sizinle İletişime Geçelim</h3>
                   <DarkInput label="Ad Soyad" error={form.formState.errors.name?.message} {...form.register("name")} />
                   <DarkInput label="Telefon" error={form.formState.errors.phone?.message} {...form.register("phone")} />
                   <DarkInput label="Şehir" error={form.formState.errors.city?.message} {...form.register("city")} />
-                  <label className="flex gap-3 text-sm leading-6 text-ink-lightMuted">
-                    <input type="checkbox" className="mt-1 h-5 w-5 rounded border-white/25" {...form.register("kvkkConsent")} />
+                  <label className="flex gap-3 text-sm leading-6 text-ink-muted">
+                    <input type="checkbox" className="mt-1 h-5 w-5 rounded border-border" {...form.register("kvkkConsent")} />
                     KVKK metnini okudum, kişisel verilerimin teklif amacıyla işlenmesini kabul ediyorum.
                   </label>
-                  {form.formState.errors.kvkkConsent ? <p className="text-sm text-red-300">{form.formState.errors.kvkkConsent.message}</p> : null}
-                  <label className="flex gap-3 text-sm leading-6 text-ink-lightMuted">
-                    <input type="checkbox" className="mt-1 h-5 w-5 rounded border-white/25" {...form.register("marketingConsent")} />
+                  {form.formState.errors.kvkkConsent ? <p className="text-sm text-red-500">{form.formState.errors.kvkkConsent.message}</p> : null}
+                  <label className="flex gap-3 text-sm leading-6 text-ink-muted">
+                    <input type="checkbox" className="mt-1 h-5 w-5 rounded border-border" {...form.register("marketingConsent")} />
                     Kampanya ve bilgilendirme iletişimi almak istiyorum.
                   </label>
-                  <div className="rounded-xl border border-primary-400/20 bg-primary-500/10 p-4 text-sm text-[#D3DEF0]">
+                  <div className="rounded-xl border border-border bg-surface p-4 text-sm text-ink-muted">
                     Bilgileriniz güvenle saklanır ve yalnızca teklif süreci için kullanılır.
                   </div>
-                  <Button size="xl" className="w-full text-xl">
+                  <Button size="xl" className="w-full text-xl shadow-[0_4px_14px_0_rgba(0,118,255,0.39)]">
                     <Phone className="h-5 w-5" /> Beni Arayın <ArrowRight className="h-5 w-5" />
                   </Button>
                 </form>
               </>
             )}
           </div>
-          <div className="rounded-[24px] border border-white/20 bg-white/[0.08] p-6 backdrop-blur-xl md:p-8 xl:col-span-6">
+          <div className="rounded-[24px] border border-border bg-white p-6 shadow-sm md:p-8 xl:col-span-6">
             <div className="flex flex-wrap items-center justify-between gap-3">
-              <h2 className="text-2xl font-extrabold">Seçtiğiniz {area === "İş Yerimi" ? "İş Yeri" : "Ev"} Paketi</h2>
-              <span className="rounded-full border border-primary-400/30 bg-primary-500/15 px-4 py-2 text-sm font-extrabold text-primary-300">PrimeSec Plus</span>
+              <h2 className="text-2xl font-extrabold text-ink">Seçtiğiniz {area === "İş Yerimi" ? "İş Yeri" : "Ev"} Paketi</h2>
+              <span className="rounded-full border border-primary-200 bg-primary-50 px-4 py-2 text-sm font-extrabold text-primary-600">PrimeSec Plus</span>
             </div>
-            <div className="mt-6 overflow-hidden rounded-2xl border border-white/15">
+            <div className="mt-6 overflow-hidden rounded-2xl border border-border">
               {selectedProducts.map((item) => {
                 const product = products.find((entry) => entry.name.includes(item) || item.includes(entry.name.split(" ")[0]));
                 const imageSrc = product?.image ?? "/images/alarm-sistemi.svg";
                 return (
-                  <div key={item} className="grid min-h-[72px] grid-cols-[56px_1fr_auto] items-center gap-3 border-b border-white/10 px-4 last:border-b-0">
-                    <span className="relative h-11 w-11 rounded-lg bg-white">
+                  <div key={item} className="grid min-h-[72px] grid-cols-[56px_1fr_auto] items-center gap-3 border-b border-border bg-white px-4 last:border-b-0">
+                    <span className="relative h-11 w-11 rounded-lg bg-surface border border-border">
                       <Image src={imageSrc} alt="" fill className="object-contain p-2" unoptimized />
                     </span>
-                    <span className="font-extrabold text-white">{item}</span>
-                    <span className="font-bold text-white">x 1</span>
+                    <span className="font-extrabold text-ink">{item}</span>
+                    <span className="font-bold text-ink-muted">x 1</span>
                   </div>
                 );
               })}
             </div>
-            <div className="mt-6 rounded-2xl border border-primary-400/25 bg-primary-500/10 p-5">
-              <h3 className="text-2xl font-extrabold text-primary-300">{area === "İş Yerimi" ? "İş yeriniz her zaman güvende olsun" : "Eviniz her zaman güvende olsun"}</h3>
-              <p className="mt-3 leading-7 text-ink-lightMuted">{floor} ve “{reason}” seçiminize göre alarm, akıllı video ve mobil bildirim odaklı bir paket öneriyoruz.</p>
+            <div className="mt-6 rounded-2xl border border-border bg-surface p-5">
+              <h3 className="text-2xl font-extrabold text-primary-600">{area === "İş Yerimi" ? "İş yeriniz her zaman güvende olsun" : "Eviniz her zaman güvende olsun"}</h3>
+              <p className="mt-3 leading-7 text-ink-muted">{floor} ve “{reason}” seçiminize göre alarm, akıllı video ve mobil bildirim odaklı bir paket öneriyoruz.</p>
             </div>
             <div className="mt-6 grid gap-4 md:grid-cols-3">
               {["Uzaktan İzleme", "Anında Bildirim", "7/24 Koruma"].map((item) => (
-                <div key={item} className="rounded-xl border border-white/15 bg-white/[0.04] p-4">
-                  <SlidersHorizontal className="h-5 w-5 text-primary-300" />
-                  <p className="mt-3 font-extrabold">{item}</p>
-                  <p className="mt-1 text-sm text-ink-lightMuted">PrimeSec Plus</p>
+                <div key={item} className="rounded-xl border border-border bg-white p-4 shadow-sm">
+                  <SlidersHorizontal className="h-5 w-5 text-primary-600" />
+                  <p className="mt-3 font-extrabold text-ink">{item}</p>
+                  <p className="mt-1 text-sm text-ink-muted">PrimeSec Plus</p>
                 </div>
               ))}
             </div>
@@ -436,8 +436,8 @@ function DarkInput({ label, error, ...props }: InputHTMLAttributes<HTMLInputElem
   return (
     <label className="block">
       <span className="sr-only">{label}</span>
-      <input aria-label={label} placeholder={label} className="h-[58px] w-full rounded-xl border border-white/15 bg-white/[0.04] px-4 text-white placeholder:text-[#8EA0BA] outline-none focus:border-primary-500 focus:ring-4 focus:ring-primary-500/20" {...props} />
-      {error ? <span className="mt-1 block text-sm text-red-300">{error}</span> : null}
+      <input aria-label={label} placeholder={label} className="h-[58px] w-full rounded-xl border border-border bg-surface px-4 text-ink placeholder:text-ink-lighter outline-none focus:border-primary-600 focus:bg-white transition-colors" {...props} />
+      {error ? <span className="mt-1 block text-sm text-red-500">{error}</span> : null}
     </label>
   );
 }

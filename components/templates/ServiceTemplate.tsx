@@ -36,21 +36,21 @@ export function ServiceTemplate({ page, kind = "service" }: { page: ServicePage;
   return (
     <>
       <JsonLd data={schema} />
-      <PageHero title={page.title} description={page.description} image={page.heroImage} crumbs={[{ label: page.title, href }]} />
-      <section className="bg-[#F7FAFF] py-14">
+      <PageHero title={page.title} description={page.description} crumbs={[{ label: page.title, href }]} />
+      <section className="bg-surface py-14">
         <Container className="grid gap-10 xl:grid-cols-12">
           <article className="xl:col-span-7">
             <p className="text-sm font-extrabold uppercase tracking-[0.12em] text-primary-600">Detaylı Hizmet Rehberi</p>
-            <h2 className="section-title mt-3">{page.title} nasıl planlanmalı?</h2>
+            <h2 className="section-title mt-3 text-ink">{page.title} nasıl planlanmalı?</h2>
             <div className="mt-6 space-y-5 text-[17px] leading-8 text-ink-muted">
               {buildServiceCopy(page, kind).overview.map((paragraph) => <p key={paragraph}>{paragraph}</p>)}
             </div>
           </article>
-          <aside className="h-fit rounded-[24px] border border-border bg-surface p-6 xl:sticky xl:top-28 xl:col-span-5">
+          <aside className="h-fit rounded-[24px] border border-border bg-white p-6 xl:sticky xl:top-28 xl:col-span-5 shadow-[0_18px_50px_rgba(15,23,42,0.04)]">
             <h2 className="text-2xl font-extrabold text-ink">Bu sayfada ne bulacaksınız?</h2>
             <div className="mt-5 space-y-3">
               {["Hizmet kapsamı", "Uygun kullanım alanları", "Önerilen ürünler", "Kurulum süreci", "Sık sorulan sorular"].map((item) => (
-                <div key={item} className="flex items-center gap-3 rounded-xl border border-border bg-white p-4">
+                <div key={item} className="flex items-center gap-3 rounded-xl border border-border bg-surface p-4">
                   <CheckCircle2 className="h-5 w-5 text-primary-600" />
                   <span className="font-extrabold text-ink">{item}</span>
                 </div>
@@ -59,10 +59,10 @@ export function ServiceTemplate({ page, kind = "service" }: { page: ServicePage;
           </aside>
         </Container>
       </section>
-      <section className="bg-[#F7FAFF] py-14">
+      <section className="bg-white py-14">
         <Container className="grid gap-8 lg:grid-cols-3">
           {page.benefits.map((benefit) => (
-            <div key={benefit} className="rounded-2xl border border-border bg-white p-6 shadow-card">
+            <div key={benefit} className="rounded-2xl border border-border bg-surface p-6">
               <CheckCircle2 className="h-8 w-8 text-primary-600" />
               <h2 className="mt-4 text-xl font-extrabold text-ink">{benefit}</h2>
               <p className="mt-3 text-sm leading-6 text-ink-muted">PrimeSec Teknoloji, bu avantajı keşif, doğru ürün seçimi ve profesyonel kurulum süreciyle kalıcı hale getirir.</p>
@@ -70,11 +70,11 @@ export function ServiceTemplate({ page, kind = "service" }: { page: ServicePage;
           ))}
         </Container>
       </section>
-      <section className="bg-[#F7FAFF] py-14">
+      <section className="bg-surface py-14">
         <Container className="grid gap-9 xl:grid-cols-12">
           <div className="xl:col-span-5">
             <p className="text-sm font-extrabold uppercase tracking-[0.12em] text-primary-600">Kullanım Alanları</p>
-            <h2 className="section-title mt-3">İhtiyaca göre planlanan güvenlik mimarisi</h2>
+            <h2 className="section-title mt-3 text-ink">İhtiyaca göre planlanan güvenlik mimarisi</h2>
             <p className="mt-4 leading-7 text-ink-muted">Her alanın giriş noktası, risk seviyesi ve günlük kullanım ritmi farklıdır. Bu yüzden PrimeSec, standart paket mantığını keşif verisiyle özelleştirir.</p>
           </div>
           <div className="grid gap-4 md:grid-cols-2 xl:col-span-7">
@@ -87,22 +87,22 @@ export function ServiceTemplate({ page, kind = "service" }: { page: ServicePage;
           </div>
         </Container>
       </section>
-      <section className="bg-[#F7FAFF] py-14">
+      <section className="bg-white py-14">
         <Container className="grid gap-8 xl:grid-cols-3">
           {buildServiceCopy(page, kind).deepDive.map((block) => (
-            <article key={block.title} className="rounded-[24px] border border-border bg-white p-6 shadow-card">
+            <article key={block.title} className="rounded-[24px] border border-border bg-surface p-6">
               <h2 className="text-2xl font-extrabold tracking-[-0.03em] text-ink">{block.title}</h2>
               <p className="mt-4 text-sm leading-7 text-ink-muted">{block.text}</p>
             </article>
           ))}
         </Container>
       </section>
-      <section className="bg-[#F7FAFF] py-14">
+      <section className="bg-surface py-14">
         <Container>
           <div className="mb-8 flex items-end justify-between gap-4">
             <div>
               <p className="text-sm font-extrabold uppercase tracking-[0.12em] text-primary-600">Önerilen Ürünler</p>
-              <h2 className="section-title mt-3">Bu hizmet için öne çıkan çözümler</h2>
+              <h2 className="section-title mt-3 text-ink">Bu hizmet için öne çıkan çözümler</h2>
             </div>
             <Link href="/urunler" className="hidden items-center gap-1 text-sm font-extrabold text-primary-600 md:flex">Tüm ürünler <ArrowRight className="h-4 w-4" /></Link>
           </div>
@@ -111,13 +111,13 @@ export function ServiceTemplate({ page, kind = "service" }: { page: ServicePage;
           </div>
         </Container>
       </section>
-      <section className="bg-[#F7FAFF] py-14">
+      <section className="bg-white py-14">
         <Container className="grid gap-9 xl:grid-cols-2">
           <div>
-            <h2 className="section-title">Süreç nasıl ilerler?</h2>
+            <h2 className="section-title text-ink">Süreç nasıl ilerler?</h2>
             <div className="mt-7 space-y-4">
               {page.process.map((step, index) => (
-                <div key={step} className="flex gap-4 rounded-2xl border border-border bg-white p-5">
+                <div key={step} className="flex gap-4 rounded-2xl border border-border bg-surface p-5">
                   <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-primary-600 text-sm font-extrabold text-white">{index + 1}</span>
                   <div>
                     <h3 className="font-extrabold text-ink">{step}</h3>
@@ -128,10 +128,10 @@ export function ServiceTemplate({ page, kind = "service" }: { page: ServicePage;
             </div>
           </div>
           <div>
-            <h2 className="section-title">Sık sorulan sorular</h2>
+            <h2 className="section-title text-ink">Sık sorulan sorular</h2>
             <div className="mt-7 space-y-4">
               {page.faqs.map((faq) => (
-                <div key={faq.question} className="rounded-2xl border border-border bg-white p-5">
+                <div key={faq.question} className="rounded-2xl border border-border bg-surface p-5">
                   <h3 className="font-extrabold text-ink">{faq.question}</h3>
                   <p className="mt-2 text-sm leading-6 text-ink-muted">{faq.answer}</p>
                 </div>
@@ -140,24 +140,24 @@ export function ServiceTemplate({ page, kind = "service" }: { page: ServicePage;
           </div>
         </Container>
       </section>
-      <section className="bg-[#F7FAFF] py-14">
-        <Container className="rounded-[24px] bg-gradient-to-br from-navy-1000 to-navy-900 p-8 text-white md:p-10">
+      <section className="bg-surface py-14">
+        <Container className="rounded-[24px] bg-gradient-to-br from-primary-600 to-primary-700 p-8 text-white md:p-10">
           <div className="grid gap-8 md:grid-cols-[1fr_auto] md:items-center">
             <div>
-              <ClipboardCheck className="h-10 w-10 text-primary-300" />
+              <ClipboardCheck className="h-10 w-10 text-white/80" />
               <h2 className="mt-4 text-3xl font-extrabold tracking-[-0.035em]">Size özel güvenlik planını çıkaralım</h2>
-              <p className="mt-3 max-w-2xl text-ink-lightMuted">Seçtiğiniz hizmet için ürün, kurulum ve destek kapsamını birlikte netleştirelim.</p>
+              <p className="mt-3 max-w-2xl text-white/80">Seçtiğiniz hizmet için ürün, kurulum ve destek kapsamını birlikte netleştirelim.</p>
             </div>
-            <ButtonLink href="/kendi-sistemini-tasarla" size="lg">Kendi Sistemini Tasarla</ButtonLink>
+            <ButtonLink href="/kendi-sistemini-tasarla" size="lg" className="bg-white text-primary-600 font-extrabold hover:bg-surface">Kendi Sistemini Tasarla</ButtonLink>
           </div>
         </Container>
       </section>
-      <section className="bg-[#F7FAFF] pb-14">
+      <section className="bg-white pb-14 pt-14">
         <Container>
           <h2 className="mb-5 text-2xl font-extrabold text-ink">İlgili rehberler</h2>
           <div className="grid gap-4 md:grid-cols-3">
             {blogPosts.slice(0, 3).map((post) => (
-              <Link key={post.slug} href={`/blog/${post.slug}`} className="rounded-2xl border border-border bg-white p-5 font-extrabold text-ink shadow-card  hover:text-primary-600">
+              <Link key={post.slug} href={`/blog/${post.slug}`} className="rounded-2xl border border-border bg-surface p-5 font-extrabold text-ink hover:text-primary-600 transition-colors">
                 {post.title}
               </Link>
             ))}
