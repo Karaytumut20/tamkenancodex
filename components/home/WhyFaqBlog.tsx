@@ -24,7 +24,7 @@ export function WhyFaqBlog() {
   return (
     <>
       {/* SECTION 1: Neden PrimeSec */}
-      <section className="bg-[#030D21] py-16 relative overflow-hidden text-white">
+      <section className="bg-[#031a46] py-16 relative overflow-hidden text-white">
         <div className="absolute inset-0 z-0 pointer-events-none">
            <div className="absolute top-0 left-0 w-[400px] h-[400px] bg-[radial-gradient(circle_at_center,rgba(0,107,255,0.12),transparent_70%)] blur-[70px]" />
         </div>
@@ -48,7 +48,7 @@ export function WhyFaqBlog() {
           </div>
 
           <div className="mt-10 text-center">
-            <ButtonLink href="/hakkimizda" className="rounded-full px-8 bg-white text-[#030D21] font-bold hover:bg-white">Hakkımızda Daha Fazla Bilgi</ButtonLink>
+            <ButtonLink href="/hakkimizda" className="rounded-full px-8 bg-white text-[#031a46] font-bold hover:bg-white">Hakkımızda Daha Fazla Bilgi</ButtonLink>
           </div>
         </div>
       </section>

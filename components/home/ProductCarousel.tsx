@@ -65,7 +65,7 @@ export function ProductCarousel() {
   }
 
   return (
-    <section className="bg-surface py-12" onMouseEnter={() => setPaused(true)} onMouseLeave={() => setPaused(false)}>
+    <section className="bg-white py-12" onMouseEnter={() => setPaused(true)} onMouseLeave={() => setPaused(false)}>
       <div className="container-primesec">
         <div className="mb-6 flex items-end justify-between gap-4">
           <div>
@@ -104,11 +104,11 @@ export function ProductCarousel() {
             >
               <div className="flex items-center justify-between">
                 <p className="text-sm font-extrabold text-ink">{product.brand}</p>
-                <span className="flex h-8 w-8 items-center justify-center rounded-full bg-surface text-primary-600">
+                <span className="flex h-8 w-8 items-center justify-center rounded-full bg-white text-primary-600">
                   <ChevronRight className="h-4 w-4" />
                 </span>
               </div>
-              <div className="relative mt-4 h-48 w-full rounded-[20px] bg-surface flex items-center justify-center">
+              <div className="relative mt-4 h-48 w-full rounded-[20px] bg-white flex items-center justify-center">
                 {index === 1 ? <span className="absolute right-4 top-4 z-10 h-4 w-4 rounded-full bg-red-500" /> : null}
                 <Image src={product.image} alt={`${product.name} ürün görseli`} fill className="object-contain p-6" unoptimized />
               </div>

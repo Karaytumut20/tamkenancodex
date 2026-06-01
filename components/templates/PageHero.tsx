@@ -2,11 +2,11 @@ import { Breadcrumbs, type Crumb } from "@/components/seo/Breadcrumbs";
 
 export function PageHero({ title, description, crumbs }: { title: string; description: string; image?: string; crumbs: Crumb[] }) {
   return (
-    <section className="relative min-h-[50vh] flex flex-col items-center justify-center overflow-hidden bg-[#030D21] text-center px-4 font-sans pt-32 pb-16">
+    <section className="relative min-h-[50vh] flex flex-col items-center justify-center overflow-hidden bg-[#031a46] text-center px-4 font-sans pt-32 pb-16">
       {/* ── FRAMER STYLE BACKGROUND GRADIENTS ── */}
       <div className="absolute inset-0 z-0 pointer-events-none flex justify-center items-end overflow-hidden">
          <div className="absolute bottom-[-30%] w-[150vw] md:w-[100vw] h-[80vh] bg-[radial-gradient(ellipse_at_bottom,_var(--tw-gradient-stops))] from-[#0044FF]/40 via-[#0066FF]/10 to-transparent blur-[80px]" />
-         <div className="absolute bottom-[0%] left-[-20%] w-[60vw] h-[60vh] bg-[radial-gradient(circle_at_center,_var(--tw-gradient-stops))] from-[#0C2556]/60 via-[#030D21]/20 to-transparent blur-[100px]" />
+         <div className="absolute bottom-[0%] left-[-20%] w-[60vw] h-[60vh] bg-[radial-gradient(circle_at_center,_var(--tw-gradient-stops))] from-[#0C2556]/60 via-[#031a46]/20 to-transparent blur-[100px]" />
          <div className="absolute bottom-[5%] right-[-10%] w-[50vw] h-[60vh] bg-[radial-gradient(circle_at_center,_var(--tw-gradient-stops))] from-[#00C2FF]/20 via-[#0088FF]/5 to-transparent blur-[90px]" />
       </div>
 

@@ -2,7 +2,6 @@ import { BrandChips } from "@/components/home/BrandChips";
 import { Hero } from "@/components/home/Hero";
 import { ProductCarousel } from "@/components/home/ProductCarousel";
 import { ServiceGrid } from "@/components/home/ServiceGrid";
-import { ServiceShowcase } from "@/components/home/ServiceShowcase";
 import { StatsBand } from "@/components/home/StatsBand";
 import { SystemBuilderCTA } from "@/components/home/SystemBuilderCTA";
 import { TrustBar } from "@/components/home/TrustBar";
@@ -33,7 +32,6 @@ export default function HomePage() {
       <ProductCarousel />
       <SystemBuilderCTA />
       <BrandChips />
-      <ServiceShowcase />
       <StatsBand />
       <WhyFaqBlog />
       <TrustBar />

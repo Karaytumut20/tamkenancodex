@@ -4,7 +4,7 @@ import { ChevronRight, Sparkles } from "lucide-react";
 
 export function SystemBuilderCTA() {
   return (
-    <section className="bg-[#030D21] py-16 relative overflow-hidden">
+    <section className="bg-[#031a46] py-16 relative overflow-hidden">
       <div className="absolute inset-0 z-0 pointer-events-none">
          <div className="absolute bottom-0 right-0 w-[500px] h-[500px] bg-[radial-gradient(circle_at_center,rgba(0,107,255,0.15),transparent_70%)] blur-[80px]" />
       </div>

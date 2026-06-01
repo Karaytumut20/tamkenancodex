@@ -22,7 +22,7 @@ export default function BlogPage() {
           <div className="mb-7 flex flex-wrap gap-2">
             {blogCategories.map((category) => <span key={category} className="rounded-lg border border-border bg-white px-3 py-2 text-sm font-extrabold text-ink">{category}</span>)}
           </div>
-          <Link href={`/blog/${featured.slug}`} className="grid overflow-hidden rounded-[24px] border border-white/10 bg-[#030D21] md:grid-cols-2 group text-white relative">
+          <Link href={`/blog/${featured.slug}`} className="grid overflow-hidden rounded-[24px] border border-white/10 bg-[#031a46] md:grid-cols-2 group text-white relative">
             <div className="absolute inset-0 z-0 pointer-events-none">
                <div className="absolute top-0 left-0 w-[200px] h-[200px] bg-[radial-gradient(circle_at_center,rgba(0,107,255,0.1),transparent_70%)] blur-[40px]" />
             </div>
