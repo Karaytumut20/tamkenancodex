@@ -181,6 +181,45 @@ button {
   overflow: hidden;
 }
 
+.product-card-image {
+  height: 176px;
+}
+
+.product-card-whatsapp {
+  gap: 4px;
+}
+
+.product-grid-list {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 16px;
+}
+
+@media (min-width: 520px) {
+  .product-grid-list {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (min-width: 1024px) {
+  .product-grid-list {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 20px;
+  }
+}
+
+@media (min-width: 640px) {
+  .product-card-image {
+    height: 208px;
+  }
+}
+
+@media (min-width: 1024px) {
+  .product-card-image {
+    height: 224px;
+  }
+}
+
 @keyframes brand-marquee {
   from {
     transform: translateX(0);

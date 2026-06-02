@@ -1,6 +1,6 @@
 "use client";
 
-import { Search, SlidersHorizontal, X } from "lucide-react";
+import { ChevronDown, Search, SlidersHorizontal, X } from "lucide-react";
 import { useMemo, useState } from "react";
 import { ProductCard } from "@/components/products/ProductCard";
 import { brands, productCategories, products } from "@/data/products";
@@ -13,6 +13,7 @@ export function ProductGrid() {
   const [brand, setBrand] = useState(ALL);
   const [usage, setUsage] = useState(ALL);
   const [tag, setTag] = useState(ALL);
+  const [filtersOpen, setFiltersOpen] = useState(false);
 
   const allBrands = useMemo(() => Array.from(new Set([...brands, ...products.map((product) => product.brand)])).sort((a, b) => a.localeCompare(b, "tr")), []);
   const usageOptions = useMemo(() => Array.from(new Set(products.flatMap((product) => product.usage))).sort((a, b) => a.localeCompare(b, "tr")), []);
@@ -43,6 +44,12 @@ export function ProductGrid() {
   }, [query, category, brand, usage, tag]);
 
   const hasFilter = query || category !== ALL || brand !== ALL || usage !== ALL || tag !== ALL;
+  const activeFilters = [
+    { key: "category", label: category, clear: () => setCategory(ALL) },
+    { key: "brand", label: brand, clear: () => setBrand(ALL) },
+    { key: "usage", label: usage, clear: () => setUsage(ALL) },
+    { key: "tag", label: tag, clear: () => setTag(ALL) },
+  ].filter((item) => item.label !== ALL);
 
   function clearFilters() {
     setQuery("");
@@ -52,57 +59,104 @@ export function ProductGrid() {
     setTag(ALL);
   }
 
+  const filterPanelProps = {
+    query,
+    setQuery,
+    category,
+    setCategory,
+    brand,
+    setBrand,
+    usage,
+    setUsage,
+    tag,
+    setTag,
+    allBrands,
+    usageOptions,
+    tagOptions,
+    hasFilter,
+    clearFilters,
+  };
+
   return (
     <div className="grid gap-8 xl:grid-cols-[320px_1fr]">
-      <aside className="h-fit rounded-2xl border border-border bg-white p-5 xl:sticky xl:top-28">
-        <div className="flex items-center justify-between gap-3">
-          <h2 className="flex items-center gap-2 text-lg font-extrabold text-ink">
-            <SlidersHorizontal className="h-5 w-5 text-primary-600" /> Ürün Filtreleri
-          </h2>
-          {hasFilter ? (
-            <button onClick={clearFilters} className="inline-flex items-center gap-1 rounded-lg bg-surface px-2.5 py-1.5 text-xs font-extrabold text-ink-muted  hover:bg-white hover:text-cyan-500">
-              <X className="h-3.5 w-3.5" /> Temizle
-            </button>
-          ) : null}
-        </div>
-
-        <label className="mt-5 block text-sm font-extrabold text-ink" htmlFor="product-search">Arama</label>
-        <div className="relative mt-2">
-          <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-ink-muted" />
-          <input
-            id="product-search"
-            value={query}
-            onChange={(event) => setQuery(event.target.value)}
-            placeholder="Ürün, marka, kod veya çözüm ara..."
-            className="h-12 w-full rounded-xl border border-border bg-white pl-10 pr-3 text-sm outline-none focus:border-primary-500"
-          />
-        </div>
-
-        <Filter label="Kategori" value={category} values={[ALL, ...productCategories]} onChange={setCategory} />
-        <Filter label="Marka" value={brand} values={[ALL, ...allBrands]} onChange={setBrand} />
-        <Filter label="Kullanım Alanı" value={usage} values={[ALL, ...usageOptions]} onChange={setUsage} />
-        <Filter label="Özellik / Etiket" value={tag} values={[ALL, ...tagOptions]} onChange={setTag} />
-
-        <div className="mt-5 rounded-xl bg-surface p-4 text-sm leading-6 text-ink-muted">
-          Tüm ürünler marka, kategori, kullanım alanı ve öne çıkan özelliklere göre filtrelenebilir. Ürün detayında WhatsApp teklif mesajı otomatik hazırlanır.
-        </div>
+      <aside className="hidden h-fit rounded-2xl border border-border bg-white p-5 xl:sticky xl:top-28 xl:block">
+        <FilterPanel {...filterPanelProps} searchId="product-search-desktop" />
       </aside>
 
       <div>
+        <div className="mb-5 rounded-2xl border border-border bg-white p-4 xl:hidden">
+          <button
+            type="button"
+            onClick={() => setFiltersOpen((value) => !value)}
+            className="flex w-full items-center justify-between gap-3 text-left"
+            aria-expanded={filtersOpen}
+            aria-controls="mobile-product-filters"
+          >
+            <span>
+              <span className="flex items-center gap-2 text-lg font-extrabold text-ink">
+                <SlidersHorizontal className="h-5 w-5 text-primary-600" /> Filtrele
+              </span>
+              <span className="mt-1 block text-sm font-bold text-ink-muted">
+                {hasFilter ? "Seçili filtreleri düzenleyin" : "Kategori, marka ve özellik seçin"}
+              </span>
+            </span>
+            <ChevronDown className={`h-5 w-5 shrink-0 text-ink-muted transition-transform ${filtersOpen ? "rotate-180" : ""}`} />
+          </button>
+
+          <div className="mt-4 flex gap-2 overflow-x-auto pb-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+            {[ALL, ...productCategories].map((item) => (
+              <button
+                key={item}
+                type="button"
+                onClick={() => setCategory(item)}
+                className={`shrink-0 rounded-full border px-3 py-2 text-xs font-extrabold transition-colors ${
+                  category === item ? "border-primary-600 bg-primary-600 text-white" : "border-border bg-surface text-ink"
+                }`}
+              >
+                {item}
+              </button>
+            ))}
+          </div>
+
+          {filtersOpen ? (
+            <div id="mobile-product-filters" className="mt-5 border-t border-border pt-5">
+              <FilterPanel {...filterPanelProps} searchId="product-search-mobile" />
+            </div>
+          ) : null}
+        </div>
+
         <div className="mb-5 flex flex-col gap-4 rounded-2xl border border-border bg-white p-5 md:flex-row md:items-center md:justify-between">
           <div>
             <p className="text-sm font-bold text-ink-muted">Katalog sonucu</p>
             <h2 className="mt-1 text-2xl font-extrabold tracking-[-0.03em] text-ink">{filtered.length} ürün listeleniyor</h2>
           </div>
           <div className="flex flex-wrap gap-2">
-            {[category, brand, usage, tag].filter((item) => item !== ALL).map((item) => (
-              <span key={item} className="rounded-lg border border-border bg-white px-3 py-1.5 text-xs font-extrabold text-primary-600">{item}</span>
+            {activeFilters.map((item) => (
+              <button
+                key={item.key}
+                type="button"
+                onClick={item.clear}
+                className="inline-flex items-center gap-1 rounded-lg border border-border bg-white px-3 py-1.5 text-xs font-extrabold text-primary-600 transition-colors hover:border-primary-500"
+              >
+                {item.label}
+                <X className="h-3.5 w-3.5" />
+              </button>
             ))}
+            {query ? (
+              <button
+                type="button"
+                onClick={() => setQuery("")}
+                className="inline-flex items-center gap-1 rounded-lg border border-border bg-white px-3 py-1.5 text-xs font-extrabold text-primary-600 transition-colors hover:border-primary-500"
+              >
+                Arama: {query}
+                <X className="h-3.5 w-3.5" />
+              </button>
+            ) : null}
           </div>
         </div>
 
         {filtered.length ? (
-          <div className="grid grid-cols-2 gap-3 sm:gap-5 md:grid-cols-3 lg:grid-cols-4">
+          <div className="product-grid-list">
             {filtered.map((product) => <ProductCard key={product.slug} product={product} />)}
           </div>
         ) : (
@@ -114,6 +168,63 @@ export function ProductGrid() {
         )}
       </div>
     </div>
+  );
+}
+
+type FilterPanelProps = {
+  query: string;
+  setQuery: (value: string) => void;
+  category: string;
+  setCategory: (value: string) => void;
+  brand: string;
+  setBrand: (value: string) => void;
+  usage: string;
+  setUsage: (value: string) => void;
+  tag: string;
+  setTag: (value: string) => void;
+  allBrands: string[];
+  usageOptions: string[];
+  tagOptions: string[];
+  hasFilter: string | boolean;
+  clearFilters: () => void;
+  searchId: string;
+};
+
+function FilterPanel({ query, setQuery, category, setCategory, brand, setBrand, usage, setUsage, tag, setTag, allBrands, usageOptions, tagOptions, hasFilter, clearFilters, searchId }: FilterPanelProps) {
+  return (
+    <>
+      <div className="flex items-center justify-between gap-3">
+        <h2 className="flex items-center gap-2 text-lg font-extrabold text-ink">
+          <SlidersHorizontal className="h-5 w-5 text-primary-600" /> Ürün Filtreleri
+        </h2>
+        {hasFilter ? (
+          <button type="button" onClick={clearFilters} className="inline-flex items-center gap-1 rounded-lg bg-surface px-2.5 py-1.5 text-xs font-extrabold text-ink-muted hover:bg-white hover:text-cyan-500">
+            <X className="h-3.5 w-3.5" /> Temizle
+          </button>
+        ) : null}
+      </div>
+
+      <label className="mt-5 block text-sm font-extrabold text-ink" htmlFor={searchId}>Arama</label>
+      <div className="relative mt-2">
+        <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-ink-muted" />
+        <input
+          id={searchId}
+          value={query}
+          onChange={(event) => setQuery(event.target.value)}
+          placeholder="Ürün, marka, kod veya çözüm ara..."
+          className="h-12 w-full rounded-xl border border-border bg-white pl-10 pr-3 text-sm outline-none focus:border-primary-500"
+        />
+      </div>
+
+      <Filter label="Kategori" value={category} values={[ALL, ...productCategories]} onChange={setCategory} />
+      <Filter label="Marka" value={brand} values={[ALL, ...allBrands]} onChange={setBrand} />
+      <Filter label="Kullanım Alanı" value={usage} values={[ALL, ...usageOptions]} onChange={setUsage} />
+      <Filter label="Özellik / Etiket" value={tag} values={[ALL, ...tagOptions]} onChange={setTag} />
+
+      <div className="mt-5 rounded-xl bg-surface p-4 text-sm leading-6 text-ink-muted">
+        Tüm ürünler marka, kategori, kullanım alanı ve öne çıkan özelliklere göre filtrelenebilir.
+      </div>
+    </>
   );
 }
 
