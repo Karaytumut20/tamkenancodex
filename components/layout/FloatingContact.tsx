@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Phone, X, ChevronRight, MessageSquare } from "lucide-react";
+import { Phone, X, ChevronRight } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { representatives } from "@/data/site";
 
@@ -113,11 +113,21 @@ export function FloatingContact() {
             exit={{ scale: 0, opacity: 0 }}
             transition={{ duration: 0.25, ease: "easeOut" }}
             onClick={() => setIsOpen(true)}
-            className="relative flex h-14 w-14 items-center justify-center rounded-full primesec-navy-action text-white hover:scale-105 active:scale-95 transition-all outline-none"
+            className="relative flex h-14 w-14 items-center justify-center rounded-full bg-gradient-to-b from-[#5BFF72] to-[#08C735] text-white shadow-lg shadow-[#08C735]/30 ring-4 ring-white/80 hover:scale-105 active:scale-95 transition-all outline-none"
             aria-label="İletişim paneli"
           >
-            <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-primary-400 opacity-20" />
-            <MessageSquare className="h-6 w-6" />
+            <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-[#23E04E] opacity-20" />
+            <svg
+              className="relative h-8 w-8"
+              viewBox="0 0 64 64"
+              aria-hidden="true"
+              focusable="false"
+            >
+              <path
+                fill="currentColor"
+                d="M32 11C18.8 11 8 20.1 8 31.3c0 7.1 4.3 13.4 10.9 17.1l-2.8 9.1 10.4-5.3c1.8.4 3.6.6 5.5.6 13.2 0 24-9.1 24-20.4S45.2 11 32 11Z"
+              />
+            </svg>
           </motion.button>
         )}
       </AnimatePresence>
