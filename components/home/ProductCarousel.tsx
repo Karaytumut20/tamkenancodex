@@ -9,28 +9,23 @@ import { products } from "@/data/products";
 import { cn } from "@/lib/cn";
 
 export function ProductCarousel() {
-  const [active, setActive] = useState(0);
   const [paused, setPaused] = useState(false);
   const [isDragging, setIsDragging] = useState(false);
   const scrollerRef = useRef<HTMLDivElement>(null);
   const drag = useRef({ active: false, startX: 0, scrollLeft: 0, moved: false });
-  const slides = useMemo(() => {
-    const chunks = [];
-    for (let index = 0; index < products.length; index += 4) chunks.push(products.slice(index, index + 4));
-    return chunks;
-  }, []);
 
   useEffect(() => {
-    if (paused || slides.length <= 1) return;
+    if (paused) return;
     const timer = window.setInterval(() => {
-      setActive((current) => {
-        const next = (current + 1) % slides.length;
-        scrollToSlide(next);
-        return next;
-      });
+      const node = scrollerRef.current;
+      if (!node) return;
+      const card = node.querySelector("a");
+      const cardWidth = card ? card.getBoundingClientRect().width : 280;
+      const gap = 16; // gap-4 is 16px
+      node.scrollBy({ left: cardWidth + gap, behavior: "smooth" });
     }, 4200);
     return () => window.clearInterval(timer);
-  }, [paused, slides.length]);
+  }, [paused]);
 
   function handlePrev() {
     const node = scrollerRef.current;
@@ -108,12 +103,6 @@ export function ProductCarousel() {
           onPointerMove={handlePointerMove}
           onPointerUp={finishDrag}
           onPointerCancel={finishDrag}
-          onScroll={(event) => {
-            if (drag.current.active) return;
-            const node = event.currentTarget;
-            const index = Math.round(node.scrollLeft / (node.scrollWidth / slides.length));
-            setActive(Math.max(0, Math.min(slides.length - 1, index)));
-          }}
           className={cn("flex cursor-grab gap-4 overflow-x-auto active:cursor-grabbing [&::-webkit-scrollbar]:hidden", isDragging ? "snap-none" : "snap-x snap-mandatory")}
         >
           {products.map((product, index) => (
