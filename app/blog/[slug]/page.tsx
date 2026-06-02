@@ -144,7 +144,7 @@ export default async function BlogDetailPage({ params }: { params: Promise<{ slu
               </h2>
               <div className="space-y-4 not-prose mt-6">
                 {post.faqs.map((faq) => (
-                  <div key={faq.question} className="rounded-2xl border border-border bg-[#FFFFFF] p-6">
+                  <div key={faq.question} className="rounded-2xl border border-border bg-[#FFFFFF] p-6 hover:border-cyan-500 transition-colors duration-200">
                     <h3 className="font-extrabold text-ink text-base md:text-lg leading-snug">{faq.question}</h3>
                     <p className="mt-3 text-sm md:text-base leading-relaxed text-ink-muted">{faq.answer}</p>
                   </div>

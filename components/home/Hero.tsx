@@ -59,7 +59,7 @@ export function Hero() {
           <div className="mt-10 flex flex-wrap justify-center lg:justify-start gap-4 w-full">
             <Link
               href="/iletisim"
-              className="group relative inline-flex items-center justify-center px-8 py-4 rounded-full primesec-navy-action border border-primary-500/30 text-white font-bold text-[15px] hover:border-primary-400/50 hover:shadow-lg hover:shadow-primary-600/30 hover:scale-[1.02] active:scale-[0.98] transition-all duration-200"
+              className="group relative inline-flex items-center justify-center px-8 py-4 rounded-full bg-white text-primary-600 border border-transparent font-bold text-[15px] hover:bg-cyan-100 hover:shadow-lg hover:scale-[1.02] active:scale-[0.98] transition-all duration-200"
             >
               Hemen Keşif Al
               <ArrowRight className="w-4 h-4 ml-2 group-hover:translate-x-1 transition-transform" />

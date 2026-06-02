@@ -85,20 +85,20 @@ export function ProductCarousel() {
       <div className="container-primesec">
         <div className="mb-6 flex items-end justify-between gap-4">
           <div>
-            <p className="text-sm font-extrabold uppercase tracking-[0.14em] text-primary-600">Ürünler</p>
+            <p className="text-sm font-extrabold uppercase tracking-[0.14em] text-cyan-500">Ürünler</p>
             <h2 className="mt-3 text-[clamp(30px,3.2vw,48px)] font-extrabold leading-none tracking-[-0.045em] text-ink">Öne çıkan güvenlik ürünleri</h2>
           </div>
           <div className="flex items-center gap-2">
             <button
               onClick={handlePrev}
-              className="flex h-12 w-12 items-center justify-center rounded-full primesec-navy-action text-white transition-all duration-200 shadow-sm"
+              className="flex h-12 w-12 items-center justify-center rounded-full primesec-navy-action text-white hover:bg-cyan-500 hover:bg-none transition-all duration-200 shadow-sm"
               aria-label="Önceki ürünler"
             >
               <ChevronLeft className="h-5 w-5" />
             </button>
             <button
               onClick={handleNext}
-              className="flex h-12 w-12 items-center justify-center rounded-full primesec-navy-action text-white transition-all duration-200 shadow-sm"
+              className="flex h-12 w-12 items-center justify-center rounded-full primesec-navy-action text-white hover:bg-cyan-500 hover:bg-none transition-all duration-200 shadow-sm"
               aria-label="Sonraki ürünler"
             >
               <ChevronRight className="h-5 w-5" />
@@ -129,11 +129,11 @@ export function ProductCarousel() {
               onClick={(event) => {
                 if (drag.current.moved) event.preventDefault();
               }}
-              className="group flex w-[78%] shrink-0 snap-start flex-col overflow-hidden rounded-[24px] bg-white border border-border hover:border-primary-600 transition-colors duration-200 p-4  md:w-[36%] xl:w-[23.5%]"
+              className="group flex w-[78%] shrink-0 snap-start flex-col overflow-hidden rounded-[24px] bg-white border border-border hover:border-cyan-500 transition-colors duration-200 p-4  md:w-[36%] xl:w-[23.5%]"
             >
               <div className="flex items-center justify-between">
                 <p className="text-sm font-extrabold text-ink">{product.brand}</p>
-                <span className="flex h-8 w-8 items-center justify-center rounded-full bg-white text-primary-600">
+                <span className="flex h-8 w-8 items-center justify-center rounded-full bg-white text-primary-600 group-hover:bg-cyan-500 group-hover:text-white transition-all duration-300">
                   <ChevronRight className="h-4 w-4" />
                 </span>
               </div>
@@ -143,7 +143,7 @@ export function ProductCarousel() {
               <div className="flex flex-1 flex-col justify-between pt-4">
                 <div>
                   <p className="text-xs font-bold text-ink-muted">{product.category}</p>
-                  <h3 className="mt-2 line-clamp-2 min-h-[44px] text-lg font-extrabold leading-5 tracking-[-0.02em] text-ink group-hover:text-primary-600 transition-colors">{product.name}</h3>
+                  <h3 className="mt-2 line-clamp-2 min-h-[44px] text-lg font-extrabold leading-5 tracking-[-0.02em] text-ink group-hover:text-cyan-500 transition-colors">{product.name}</h3>
                 </div>
               </div>
             </Link>
@@ -151,7 +151,7 @@ export function ProductCarousel() {
         </div>
 
         <div className="mt-10 flex justify-center">
-          <Link href="/urunler" className="inline-flex items-center gap-2 rounded-full primesec-navy-action px-8 py-4 text-sm font-extrabold text-white hover:scale-[1.02] active:scale-[0.98] transition-all duration-200 shadow-md hover:shadow-lg hover:shadow-primary-600/20">
+          <Link href="/urunler" className="inline-flex items-center gap-2 rounded-full primesec-navy-action px-8 py-4 text-sm font-extrabold text-white hover:scale-[1.02] active:scale-[0.98] transition-all duration-200 shadow-md hover:shadow-lg hover:shadow-cyan-500/20 hover:bg-cyan-500 hover:bg-none">
             Tüm Ürünler <ChevronRight className="h-4 w-4" />
           </Link>
         </div>

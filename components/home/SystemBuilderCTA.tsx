@@ -1,5 +1,6 @@
+import Link from "next/link";
 import { ButtonLink } from "@/components/ui/Button";
-import { ArrowRight, Building2, CheckCircle2, ClipboardCheck, MapPinned, Radar } from "lucide-react";
+import { ArrowRight, Building2, ClipboardCheck, MapPinned, Radar } from "lucide-react";
 
 const zones = [
   {
@@ -17,12 +18,6 @@ const zones = [
     title: "Site ve tesis",
     desc: "Çevre güvenliği, otopark, geçiş kontrol ve kayıt altyapısı birlikte kurulur.",
   },
-];
-
-const steps = [
-  "Riskli noktalar işaretlenir",
-  "Doğru cihaz ve kablolama seçilir",
-  "Kurulum sonrası kullanıcı eğitimi verilir",
 ];
 
 export function SystemBuilderCTA() {
@@ -47,19 +42,18 @@ export function SystemBuilderCTA() {
             </p>
 
             <div className="mt-8 flex flex-col gap-3 sm:flex-row">
-              <ButtonLink
+              <Link
                 href="/kendi-sistemini-tasarla"
-                size="lg"
-                className="bg-white text-[#031a46] transition-all duration-200 hover:bg-cyan-100"
+                className="inline-flex items-center justify-center gap-2 rounded-xl font-bold h-[58px] px-6 text-base bg-white text-[#031a46] transition-all duration-200 hover:bg-cyan-100 hover:text-[#031a46] hover:shadow-lg hover:scale-[1.02] active:scale-[0.98]"
               >
                 Sistemini Tasarla
                 <ArrowRight className="h-4 w-4" />
-              </ButtonLink>
+              </Link>
               <ButtonLink
                 href="/kamera-sistemleri"
                 size="lg"
                 variant="secondaryDark"
-                className="border-white/25 text-white hover:border-cyan-300/60 hover:text-cyan-100"
+                className="border-white/25 text-white hover:border-cyan-500 hover:text-cyan-400 transition-all duration-200"
               >
                 Kamera Sistemleri
               </ButtonLink>
@@ -70,28 +64,17 @@ export function SystemBuilderCTA() {
             {zones.map((zone) => {
               const Icon = zone.icon;
               return (
-                <div key={zone.title} className="flex items-start gap-3 rounded-xl border border-white/10 bg-white/[0.03] p-4">
-                  <div className="mt-0.5 flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border border-cyan-300/20 primesec-navy-chip text-cyan-300">
+                <div key={zone.title} className="flex items-start gap-3 rounded-xl border border-white/10 bg-white/[0.03] hover:bg-white/[0.08] hover:border-cyan-500/30 p-4 transition-all duration-300 group">
+                  <div className="mt-0.5 flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border border-cyan-300/20 primesec-navy-chip text-cyan-300 group-hover:border-cyan-400 group-hover:text-cyan-400 group-hover:scale-105 transition-all duration-300">
                     <Icon className="h-5 w-5" />
                   </div>
                   <div>
-                    <p className="text-sm font-extrabold text-white">{zone.title}</p>
+                    <p className="text-sm font-extrabold text-white group-hover:text-cyan-300 transition-colors">{zone.title}</p>
                     <p className="mt-1 text-xs leading-6 text-[#b8c7dd]">{zone.desc}</p>
                   </div>
                 </div>
               );
             })}
-          </div>
-        </div>
-
-        <div className="mt-10 rounded-2xl border border-white/10 bg-white/[0.05] p-4 backdrop-blur-md md:p-5">
-          <div className="grid gap-3 md:grid-cols-3">
-          {steps.map((step) => (
-            <div key={step} className="flex items-center gap-3 rounded-xl border border-white/10 bg-white/[0.03] px-4 py-3">
-              <CheckCircle2 className="h-5 w-5 shrink-0 text-[#00D46A]" />
-              <span className="text-sm font-bold text-white/85">{step}</span>
-            </div>
-          ))}
           </div>
         </div>
       </div>

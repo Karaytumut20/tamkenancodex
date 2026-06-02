@@ -12,6 +12,7 @@ import { ButtonLink } from "@/components/ui/Button";
 import { mainNavigation } from "@/data/navigation";
 import { megaMenus, type MegaMenuKey } from "@/data/mega-menu";
 import { whatsappUrl } from "@/lib/whatsapp";
+import { cn } from "@/lib/cn";
 
 export function Header() {
   const pathname = usePathname();
@@ -51,24 +52,38 @@ export function Header() {
       <div className="flex h-[84px] w-full items-center lg:h-[92px]">
         <div className="container-primesec flex w-full items-center justify-between gap-5">
           <div onMouseEnter={() => setActiveMenu(null)}>
-            <Logo dark={false} />
+            <Logo dark={false} isHeader={true} />
           </div>
           <nav className="hidden items-center gap-1 lg:flex h-full" aria-label="Ana menü">
-            {mainNavigation.map((item) => (
-              <div key={item.href} className="relative h-full flex items-center" onMouseEnter={() => setActiveMenu((item.menuKey as MegaMenuKey) ?? null)}>
-                <Link
-                  href={item.href}
-                  className="group relative flex h-full items-center gap-1.5 px-3 text-[13px] font-extrabold text-ink hover:text-primary-600 transition-colors"
-                >
-                  <span>{item.label}</span>
-                  {item.menuKey ? <ChevronDown className={`h-3.5 w-3.5 transition-transform duration-200 ${activeMenu === item.menuKey ? "rotate-180 text-primary-600" : "text-ink-muted"}`} /> : null}
-                  <span className={`absolute bottom-0 left-3 right-3 h-[2.5px] primesec-navy-action transform scale-x-0 group-hover:scale-x-100 transition-transform duration-200 origin-left ${activeMenu === item.menuKey ? "scale-x-100" : ""}`} />
-                </Link>
-              </div>
-            ))}
+            {mainNavigation.map((item) => {
+              const isOpen = activeMenu === item.menuKey;
+              return (
+                <div key={item.href} className="relative flex items-center" onMouseEnter={() => setActiveMenu((item.menuKey as MegaMenuKey) ?? null)}>
+                  <Link
+                    href={item.href}
+                    className={cn(
+                      "group flex items-center gap-1.5 px-4 py-2 text-[13px] font-extrabold rounded-full transition-all duration-200",
+                      isOpen
+                        ? "bg-cyan-50 text-cyan-600 shadow-sm"
+                        : "text-ink hover:bg-slate-50 hover:text-cyan-600"
+                    )}
+                  >
+                    <span>{item.label}</span>
+                    {item.menuKey ? (
+                      <ChevronDown
+                        className={cn(
+                          "h-3.5 w-3.5 transition-transform duration-200",
+                          isOpen ? "rotate-180 text-cyan-600" : "text-ink-muted group-hover:text-cyan-600"
+                        )}
+                      />
+                    ) : null}
+                  </Link>
+                </div>
+              );
+            })}
           </nav>
-          <div className="hidden items-center gap-3 xl:flex" onMouseEnter={() => setActiveMenu(null)}>
-            <ButtonLink href="/iletisim" variant="outlineBlue" size="sm" className="h-10 rounded-full border-border bg-transparent px-5 text-[13px] text-ink hover:border-primary-600 hover:text-primary-600 flex items-center">
+          <div className="hidden items-center gap-3 xl:flex" onMouseEnter={() => setActiveMenu((item) => null)}>
+            <ButtonLink href="/iletisim" variant="outlineBlue" size="sm" className="h-10 rounded-full border-border bg-transparent px-5 text-[13px] text-ink hover:border-cyan-500 hover:text-cyan-500 flex items-center">
               <Phone className="h-4 w-4" /> Teklif Al
             </ButtonLink>
             <ButtonLink href="/kendi-sistemini-tasarla" size="sm" className="h-10 rounded-full primesec-navy-action px-6 text-[13px] text-white font-bold hover:scale-[1.02] transition-all flex items-center">
@@ -79,7 +94,7 @@ export function Header() {
             <ButtonLink href={whatsappUrl("Merhaba, PrimeSec Teknoloji'den bilgi almak istiyorum.")} variant="outlineBlue" size="sm" className="hidden rounded-full border-border text-ink sm:inline-flex">
               WhatsApp
             </ButtonLink>
-            <button className="rounded-full border border-border p-3 text-ink lg:hidden hover:border-primary-600 transition-colors" aria-label="Menüyü aç" onClick={() => setMobileOpen(true)}>
+            <button className="rounded-full border border-border p-3 text-ink lg:hidden hover:border-cyan-500 transition-colors" aria-label="Menüyü aç" onClick={() => setMobileOpen(true)}>
               <Menu className="h-5 w-5" />
             </button>
           </div>

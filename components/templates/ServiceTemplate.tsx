@@ -155,7 +155,7 @@ export function ServiceTemplate({ page, kind = "service" }: { page: ServicePage;
               return (
                 <div
                   key={benefit}
-                  className="rounded-3xl border border-border bg-[#FFFFFF] p-6 hover:border-primary-300 transition-all duration-300 flex flex-col justify-between group"
+                  className="rounded-3xl border border-border bg-[#FFFFFF] p-6 hover:border-cyan-400 transition-all duration-300 flex flex-col justify-between group"
                 >
                   <div>
                     <div className="h-12 w-12 rounded-2xl bg-cyan-400/10 border border-cyan-400/20 flex items-center justify-center text-cyan-400 mb-6 group-hover:scale-110 transition-transform">
@@ -193,7 +193,7 @@ export function ServiceTemplate({ page, kind = "service" }: { page: ServicePage;
             {page.useCases.map((item, index) => (
               <div
                 key={item}
-                className="flex items-start gap-4 rounded-2xl border border-border bg-[#FFFFFF] p-5 transition-all duration-300"
+                className="flex items-start gap-4 rounded-2xl border border-border bg-[#FFFFFF] p-5 hover:border-cyan-500 transition-all duration-300"
               >
                 <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-border bg-white text-primary-600 font-extrabold text-lg">
                   0{index + 1}
@@ -216,7 +216,7 @@ export function ServiceTemplate({ page, kind = "service" }: { page: ServicePage;
           {copy.deepDive.map((block) => (
             <article
               key={block.title}
-              className="rounded-[32px] border border-border bg-[#FFFFFF] p-8 transition-all group"
+              className="rounded-[32px] border border-border bg-[#FFFFFF] p-8 hover:border-cyan-500 transition-all duration-300 group"
             >
               <div className="h-2.5 w-12 primesec-navy-action rounded-full mb-6 group-hover:w-20 transition-all duration-300" />
               <h3 className="text-2xl font-extrabold tracking-tight text-ink">{block.title}</h3>
@@ -268,7 +268,7 @@ export function ServiceTemplate({ page, kind = "service" }: { page: ServicePage;
             </div>
             <Link
               href="/urunler"
-              className="inline-flex items-center gap-1 text-sm font-extrabold text-primary-600 hover:text-primary-500 transition-colors"
+              className="inline-flex items-center gap-1 text-sm font-extrabold text-primary-600 hover:text-cyan-500 transition-colors"
             >
               Tüm ürünleri gör <ArrowRight className="h-4 w-4" />
             </Link>
@@ -301,7 +301,7 @@ export function ServiceTemplate({ page, kind = "service" }: { page: ServicePage;
           {/* Right Column Accordion Layout */}
           <div className="xl:col-span-7 space-y-4">
             {page.faqs.map((faq) => (
-              <div key={faq.question} className="rounded-3xl border border-border bg-[#FFFFFF] p-6 md:p-8">
+              <div key={faq.question} className="rounded-3xl border border-border bg-[#FFFFFF] p-6 md:p-8 hover:border-cyan-500 transition-colors duration-200">
                 <h3 className="text-lg md:text-xl font-bold text-ink leading-snug">{faq.question}</h3>
                 <p className="mt-3 text-sm md:text-base leading-7 text-ink-muted">{faq.answer}</p>
               </div>
@@ -330,13 +330,12 @@ export function ServiceTemplate({ page, kind = "service" }: { page: ServicePage;
                 </p>
               </div>
               <div>
-                <ButtonLink
+                <Link
                   href="/kendi-sistemini-tasarla"
-                  size="xl"
-                  className="bg-white text-primary-600 font-extrabold hover:bg-white text-lg px-8 py-4 rounded-2xl"
+                  className="inline-flex items-center justify-center rounded-2xl font-extrabold h-[58px] px-8 text-lg bg-white text-primary-600 transition-all duration-200 hover:bg-cyan-100 hover:shadow-lg hover:scale-[1.02] active:scale-[0.98] shrink-0"
                 >
                   Kendi Sistemini Tasarla
-                </ButtonLink>
+                </Link>
               </div>
             </div>
           </div>

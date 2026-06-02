@@ -1,4 +1,5 @@
-﻿import { ButtonLink } from "@/components/ui/Button";
+import Link from "next/link";
+import { ButtonLink } from "@/components/ui/Button";
 import { whatsappUrl } from "@/lib/whatsapp";
 import { Compass, ShieldCheck, Headphones, Settings, ArrowRight } from "lucide-react";
 
@@ -19,7 +20,7 @@ export function PlanBanner() {
             {/* Left Column: Title & Description & Features Grid */}
             <div className="xl:col-span-8 space-y-8">
               <div>
-                <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full border border-[#1683FF]/30 primesec-navy-chip text-[#b8c7dd] text-xs font-bold tracking-wider uppercase mb-4">
+                <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full border border-cyan-400/30 primesec-navy-chip text-cyan-400 text-xs font-bold tracking-wider uppercase mb-4">
                   BİRLİKTE TASARLAYALIM
                 </span>
                 <h2 className="text-3xl md:text-4xl font-extrabold tracking-[-0.04em] leading-tight">
@@ -71,32 +72,37 @@ export function PlanBanner() {
             </div>
 
             {/* Right Column: CTA Buttons & Quick Note */}
-            <div className="xl:col-span-4 flex flex-col gap-4 bg-gradient-to-br from-white/[0.08] to-white/[0.03] border border-white/15 rounded-[28px] p-6 md:p-8 backdrop-blur-md self-start shadow-xl hover:shadow-2xl hover:border-white/30 hover:from-white/[0.12] hover:to-white/[0.06] transition-all duration-300">
-              <h3 className="font-extrabold text-xl text-white">Hemen Başlayın</h3>
-              <p className="text-xs text-[#b8c7dd] leading-relaxed">
-                Birkaç dakikada ihtiyacınızı belirleyin, keşif ekibimiz sizinle iletişime geçsin.
-              </p>
+            <div className="xl:col-span-4 flex flex-col justify-between bg-gradient-to-br from-white/[0.08] to-white/[0.03] border border-white/15 rounded-[28px] p-6 md:p-8 backdrop-blur-md shadow-xl hover:shadow-2xl hover:border-white/30 hover:from-white/[0.12] hover:to-white/[0.06] transition-all duration-300 xl:h-full">
+              <div>
+                <h3 className="font-extrabold text-xl text-white">Hemen Başlayın</h3>
+                <p className="mt-2 text-xs text-[#b8c7dd] leading-relaxed">
+                  Birkaç dakikada ihtiyacınızı belirleyin, keşif ekibimiz sizinle iletişime geçsin.
+                </p>
+              </div>
 
-              <div className="flex flex-col gap-3 mt-2">
-                <ButtonLink
+              <div className="flex flex-col gap-3 my-6">
+                <Link
                   href="/kendi-sistemini-tasarla"
-                  size="lg"
-                  className="w-full primesec-navy-action border border-primary-500/30 text-white hover:border-primary-400/50 hover:shadow-lg hover:shadow-primary-600/30 hover:scale-[1.02] active:scale-[0.98] transition-all duration-200 justify-center gap-2"
+                  className="inline-flex items-center justify-center gap-2 rounded-xl font-bold h-[58px] px-6 text-base w-full bg-white text-primary-600 border border-transparent hover:bg-cyan-100 hover:shadow-lg hover:scale-[1.02] active:scale-[0.98] transition-all duration-200 justify-center"
                 >
                   Kendi Sistemini Tasarla <ArrowRight className="h-4 w-4" />
-                </ButtonLink>
+                </Link>
                 <ButtonLink
                   href={whatsappUrl("Merhaba, PrimeSec Teknoloji ile güvenlik sistemimi planlamak istiyorum.")}
+                  variant="whatsapp"
                   size="lg"
-                  className="w-full bg-gradient-to-r from-[#00D46A] to-[#00B85A] border border-[#00D46A]/50 text-white transition-all duration-200 justify-center"
+                  className="w-full justify-center flex items-center gap-2"
                 >
+                  <svg className="h-5 w-5 fill-current" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L0 24l6.335-1.662c1.746.953 3.71 1.455 5.703 1.456h.008c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z" />
+                  </svg>
                   WhatsApp'tan Yaz
                 </ButtonLink>
               </div>
 
-              <div className="mt-4 pt-4 border-t border-white/10 text-center">
+              <div className="pt-4 border-t border-white/10 text-center">
                 <p className="text-[11px] text-[#b8c7dd]/70 flex items-center justify-center gap-1.5">
-                  <span className="text-[#FF8A00]">▲</span> Keşif ve danışmanlık hizmetimiz tamamen ücretsizdir.
+                  <span className="text-[#3d6b93]">▲</span> Keşif ve danışmanlık hizmetimiz tamamen ücretsizdir.
                 </p>
               </div>
             </div>
