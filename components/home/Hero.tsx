@@ -47,9 +47,9 @@ export function Hero() {
             ].map((item, idx) => {
               const Icon = item.icon;
               return (
-                <div key={idx} className="flex gap-3 items-start group p-3 rounded-xl border border-white/5 bg-white/[0.02] hover:bg-white/10 hover:border-cyan-400/30 transition-all duration-300">
+                <div key={idx} className="flex gap-3 items-start group p-3 rounded-xl border border-white/5 bg-white/[0.02] md:hover:bg-white/10 md:hover:border-cyan-400/30 transition-all duration-300">
                   <Icon className="w-5 h-5 text-cyan-400 shrink-0 mt-0.5" />
-                  <span className="text-sm font-semibold text-white/90 group-hover:text-white transition-colors">{item.text}</span>
+                  <span className="text-sm font-semibold text-white/90 md:group-hover:text-white transition-colors">{item.text}</span>
                 </div>
               );
             })}
@@ -59,15 +59,15 @@ export function Hero() {
           <div className="mt-10 flex flex-wrap justify-center lg:justify-start gap-4 w-full">
             <Link
               href="/iletisim"
-              className="group relative inline-flex items-center justify-center px-8 py-4 rounded-full bg-white text-primary-600 border border-transparent font-bold text-[15px] hover:bg-cyan-100 hover:shadow-lg hover:scale-[1.02] active:scale-[0.98] transition-all duration-200"
+              className="group relative inline-flex items-center justify-center px-8 py-4 rounded-full bg-white text-primary-600 border border-transparent font-bold text-[15px] md:hover:bg-cyan-100 md:hover:shadow-lg md:hover:scale-[1.02] md:active:scale-[0.98] transition-all duration-200"
             >
               Hemen Keşif Al
-              <ArrowRight className="w-4 h-4 ml-2 group-hover:translate-x-1 transition-transform" />
+              <ArrowRight className="w-4 h-4 ml-2 md:group-hover:translate-x-1 transition-transform" />
             </Link>
 
             <Link
               href="/kendi-sistemini-tasarla"
-              className="inline-flex items-center justify-center px-8 py-4 rounded-full border border-white/15 bg-white/5 text-white font-bold text-[15px] hover:bg-white/[0.12] hover:border-white/30 hover:shadow-lg hover:shadow-white/10 hover:scale-[1.02] active:scale-[0.98] transition-all duration-200 backdrop-blur-sm"
+              className="inline-flex items-center justify-center px-8 py-4 rounded-full border border-white/15 bg-white/5 text-white font-bold text-[15px] md:hover:bg-white/[0.12] md:hover:border-white/30 md:hover:shadow-lg md:hover:shadow-white/10 md:hover:scale-[1.02] md:active:scale-[0.98] transition-all duration-200 backdrop-blur-sm"
             >
               Kendi Sistemini Tasarla
             </Link>

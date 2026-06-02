@@ -57,13 +57,13 @@ export function PlanBanner() {
                 ].map((feat, idx) => {
                   const Icon = feat.icon;
                   return (
-                    <div key={idx} className="flex gap-4 items-start group p-4 rounded-2xl border border-white/5 bg-white/[0.02] hover:bg-white/10 hover:border-cyan-400/30 transition-all duration-300">
-                      <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl primesec-navy-chip border border-white/10 text-cyan-400 group-hover:border-cyan-400/50 group-hover:shadow-lg group-hover:shadow-cyan-500/20 transition-all duration-300">
+                    <div key={idx} className="flex gap-4 items-start group p-4 rounded-2xl border border-white/5 bg-white/[0.02] md:hover:bg-white/10 md:hover:border-cyan-400/30 transition-all duration-300">
+                      <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl primesec-navy-chip border border-white/10 text-cyan-400 md:group-hover:border-cyan-400/50 md:group-hover:shadow-lg md:group-hover:shadow-cyan-500/20 transition-all duration-300">
                         <Icon className="h-5 w-5" />
                       </div>
                       <div>
-                        <h4 className="font-bold text-white text-base group-hover:text-cyan-300 transition-colors">{feat.title}</h4>
-                        <p className="mt-1.5 text-xs text-[#b8c7dd] group-hover:text-white/80 leading-relaxed transition-colors">{feat.desc}</p>
+                        <h4 className="font-bold text-white text-base md:group-hover:text-cyan-300 transition-colors">{feat.title}</h4>
+                        <p className="mt-1.5 text-xs text-[#b8c7dd] md:group-hover:text-white/80 leading-relaxed transition-colors">{feat.desc}</p>
                       </div>
                     </div>
                   );
@@ -72,7 +72,7 @@ export function PlanBanner() {
             </div>
 
             {/* Right Column: CTA Buttons & Quick Note */}
-            <div className="xl:col-span-4 flex flex-col justify-between bg-gradient-to-br from-white/[0.08] to-white/[0.03] border border-white/15 rounded-[28px] p-6 md:p-8 backdrop-blur-md shadow-xl hover:shadow-2xl hover:border-white/30 hover:from-white/[0.12] hover:to-white/[0.06] transition-all duration-300 xl:h-full">
+            <div className="xl:col-span-4 flex flex-col justify-between bg-gradient-to-br from-white/[0.08] to-white/[0.03] border border-white/15 rounded-[28px] p-6 md:p-8 backdrop-blur-md shadow-xl md:hover:shadow-2xl md:hover:border-white/30 md:hover:from-white/[0.12] md:hover:to-white/[0.06] transition-all duration-300 xl:h-full">
               <div>
                 <h3 className="font-extrabold text-xl text-white">Hemen Başlayın</h3>
                 <p className="mt-2 text-xs text-[#b8c7dd] leading-relaxed">
@@ -83,7 +83,7 @@ export function PlanBanner() {
               <div className="flex flex-col gap-3 my-6">
                 <Link
                   href="/kendi-sistemini-tasarla"
-                  className="inline-flex items-center justify-center gap-2 rounded-xl font-bold h-[58px] px-6 text-base w-full bg-white text-primary-600 border border-transparent hover:bg-cyan-100 hover:shadow-lg hover:scale-[1.02] active:scale-[0.98] transition-all duration-200 justify-center"
+                  className="inline-flex items-center justify-center gap-2 rounded-xl font-bold h-[58px] px-6 text-base w-full bg-white text-primary-600 border border-transparent md:hover:bg-cyan-100 md:hover:shadow-lg md:hover:scale-[1.02] md:active:scale-[0.98] transition-all duration-200 justify-center"
                 >
                   Kendi Sistemini Tasarla <ArrowRight className="h-4 w-4" />
                 </Link>

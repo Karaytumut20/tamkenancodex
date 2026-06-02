@@ -69,7 +69,7 @@ export function ServiceGrid() {
               <button
                 key={item}
                 onClick={() => setTab(item)}
-                className={cn("h-8 rounded-full px-4 text-xs font-extrabold transition-all duration-200", tab === item ? "primesec-navy-action text-white shadow-md hover:shadow-lg" : "border border-border hover:border-cyan-500 bg-white text-ink-muted hover:text-cyan-500 hover:bg-cyan-50/10")}
+                className={cn("h-8 rounded-full px-4 text-xs font-extrabold transition-all duration-200", tab === item ? "primesec-navy-action text-white shadow-md md:hover:shadow-lg" : "border border-border md:hover:border-cyan-500 bg-white text-ink-muted md:hover:text-cyan-500 md:hover:bg-cyan-50/10")}
               >
                 {item}
               </button>
@@ -86,7 +86,7 @@ export function ServiceGrid() {
                   key={service.title}
                   href={service.href}
                   className={cn(
-                    "group flex flex-col justify-between min-h-[260px] w-[280px] flex-shrink-0 overflow-hidden rounded-[24px] border border-border hover:border-cyan-500 hover:shadow-lg transition-all duration-300 bg-white p-5 hover:-translate-y-1"
+                    "group flex flex-col justify-between min-h-[260px] w-[280px] flex-shrink-0 overflow-hidden rounded-[24px] border border-border md:hover:border-cyan-500 md:hover:shadow-lg transition-all duration-300 bg-white p-5 md:hover:-translate-y-1"
                   )}
                   style={{ scrollSnapAlign: 'start' }}
                 >
@@ -96,7 +96,7 @@ export function ServiceGrid() {
                       <h3 className="mt-2 max-w-[220px] text-2xl font-black leading-tight tracking-[-0.04em] text-ink">{service.title}</h3>
                       <p className="mt-3 max-w-[260px] text-sm leading-6 text-ink-muted">{service.description}</p>
                     </div>
-                    <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full primesec-navy-action text-white group-hover:bg-cyan-500 transition-colors duration-300">
+                    <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full primesec-navy-action text-white md:group-hover:bg-cyan-500 transition-colors duration-300">
                       <ChevronRight className="h-4 w-4" />
                     </span>
                   </div>
@@ -104,8 +104,8 @@ export function ServiceGrid() {
                     <Image src={service.image} alt={`${service.title} hizmet görseli`} fill className="object-contain object-right-bottom" unoptimized />
                   </div>
                   <div className="mt-4 flex items-center gap-2">
-                    <span className="inline-flex h-8 items-center justify-center rounded-full primesec-navy-action px-4 text-xs font-extrabold text-white group-hover:bg-cyan-500 transition-colors duration-300">İncele</span>
-                    <span className="inline-flex h-8 items-center justify-center rounded-full bg-[#FFFFFF] px-4 text-xs font-extrabold text-ink-muted group-hover:text-cyan-500 transition-colors duration-300">Teklif Al</span>
+                    <span className="inline-flex h-8 items-center justify-center rounded-full primesec-navy-action px-4 text-xs font-extrabold text-white md:group-hover:bg-cyan-500 transition-colors duration-300">İncele</span>
+                    <span className="inline-flex h-8 items-center justify-center rounded-full bg-[#FFFFFF] px-4 text-xs font-extrabold text-ink-muted md:group-hover:text-cyan-500 transition-colors duration-300">Teklif Al</span>
                   </div>
                 </Link>
               ))}
@@ -128,7 +128,7 @@ export function ServiceGrid() {
                   key={service.title}
                   href={service.href}
                   className={cn(
-                    "group flex flex-col justify-between min-h-[260px] overflow-hidden rounded-[24px] border border-border hover:border-cyan-500 hover:shadow-lg transition-all duration-300 bg-white p-5 hover:-translate-y-1"
+                    "group flex flex-col justify-between min-h-[260px] overflow-hidden rounded-[24px] border border-border md:hover:border-cyan-500 md:hover:shadow-lg transition-all duration-300 bg-white p-5 md:hover:-translate-y-1"
                   )}
                 >
                   <div className="flex items-start justify-between gap-4">
@@ -137,7 +137,7 @@ export function ServiceGrid() {
                       <h3 className="mt-2 max-w-[220px] text-2xl font-black leading-tight tracking-[-0.04em] text-ink">{service.title}</h3>
                       <p className="mt-3 max-w-[260px] text-sm leading-6 text-ink-muted">{service.description}</p>
                     </div>
-                    <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full primesec-navy-action text-white group-hover:bg-cyan-500 transition-colors duration-300">
+                    <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full primesec-navy-action text-white md:group-hover:bg-cyan-500 transition-colors duration-300">
                       <ChevronRight className="h-4 w-4" />
                     </span>
                   </div>
@@ -145,15 +145,15 @@ export function ServiceGrid() {
                     <Image src={service.image} alt={`${service.title} hizmet görseli`} fill className="object-contain object-right-bottom" unoptimized />
                   </div>
                   <div className="mt-4 flex items-center gap-2">
-                    <span className="inline-flex h-8 items-center justify-center rounded-full primesec-navy-action px-4 text-xs font-extrabold text-white group-hover:bg-cyan-500 transition-colors duration-300">İncele</span>
-                    <span className="inline-flex h-8 items-center justify-center rounded-full bg-[#FFFFFF] px-4 text-xs font-extrabold text-ink-muted group-hover:text-cyan-500 transition-colors duration-300">Teklif Al</span>
+                    <span className="inline-flex h-8 items-center justify-center rounded-full primesec-navy-action px-4 text-xs font-extrabold text-white md:group-hover:bg-cyan-500 transition-colors duration-300">İncele</span>
+                    <span className="inline-flex h-8 items-center justify-center rounded-full bg-[#FFFFFF] px-4 text-xs font-extrabold text-ink-muted md:group-hover:text-cyan-500 transition-colors duration-300">Teklif Al</span>
                   </div>
                 </Link>
               );
             })}
           </div>
 
-          <aside className="flex min-h-[506px] flex-col justify-between rounded-[28px] border border-white/10 primesec-navy-surface p-7 text-white shadow-xl hover:shadow-2xl hover:border-cyan-300/40 transition-all duration-300">
+          <aside className="flex min-h-[506px] flex-col justify-between rounded-[28px] border border-white/10 primesec-navy-surface p-7 text-white shadow-xl md:hover:shadow-2xl md:hover:border-cyan-300/40 transition-all duration-300">
             <div>
               <p className="text-sm font-extrabold uppercase tracking-[0.14em] text-white/65">PrimeSec Plan</p>
               <h3 className="mt-4 text-3xl font-black leading-tight tracking-[-0.045em]">Güvenliğinizi Kendiniz Tasarlayın</h3>
@@ -167,10 +167,10 @@ export function ServiceGrid() {
               </p>
             </div>
             <div className="flex flex-col gap-2 mt-6">
-              <Link href="/kendi-sistemini-tasarla" className="flex h-12 items-center justify-center rounded-full bg-white px-5 text-sm font-extrabold text-primary-600 hover:bg-cyan-500 hover:text-white hover:shadow-lg transition-all duration-300">
+              <Link href="/kendi-sistemini-tasarla" className="flex h-12 items-center justify-center rounded-full bg-white px-5 text-sm font-extrabold text-primary-600 md:hover:bg-cyan-500 md:hover:text-white md:hover:shadow-lg transition-all duration-300">
                 Kendi Sistemini Tasarla
               </Link>
-              <Link href="/iletisim" className="flex h-12 items-center justify-center rounded-full bg-white/10 backdrop-blur-sm border border-white/20 px-5 text-sm font-extrabold text-white hover:bg-cyan-500 hover:border-cyan-500 transition-all duration-300">
+              <Link href="/iletisim" className="flex h-12 items-center justify-center rounded-full bg-white/10 backdrop-blur-sm border border-white/20 px-5 text-sm font-extrabold text-white md:hover:bg-cyan-500 md:hover:border-cyan-500 transition-all duration-300">
                 Teklif Al
               </Link>
             </div>

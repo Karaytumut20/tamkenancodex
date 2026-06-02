@@ -44,7 +44,7 @@ export function SystemBuilderCTA() {
             <div className="mt-8 flex flex-col gap-3 sm:flex-row">
               <Link
                 href="/kendi-sistemini-tasarla"
-                className="inline-flex items-center justify-center gap-2 rounded-xl font-bold h-[58px] px-6 text-base bg-white text-[#031a46] transition-all duration-200 hover:bg-cyan-100 hover:text-[#031a46] hover:shadow-lg hover:scale-[1.02] active:scale-[0.98]"
+                className="inline-flex items-center justify-center gap-2 rounded-xl font-bold h-[58px] px-6 text-base bg-white text-[#031a46] transition-all duration-200 md:hover:bg-cyan-100 md:hover:text-[#031a46] md:hover:shadow-lg md:hover:scale-[1.02] md:active:scale-[0.98]"
               >
                 Sistemini Tasarla
                 <ArrowRight className="h-4 w-4" />
@@ -53,7 +53,7 @@ export function SystemBuilderCTA() {
                 href="/kamera-sistemleri"
                 size="lg"
                 variant="secondaryDark"
-                className="border-white/25 text-white hover:border-cyan-500 hover:text-cyan-400 transition-all duration-200"
+                className="border-white/25 text-white md:hover:border-cyan-500 md:hover:text-cyan-400 transition-all duration-200"
               >
                 Kamera Sistemleri
               </ButtonLink>
@@ -64,12 +64,12 @@ export function SystemBuilderCTA() {
             {zones.map((zone) => {
               const Icon = zone.icon;
               return (
-                <div key={zone.title} className="flex items-start gap-3 rounded-xl border border-white/10 bg-white/[0.03] hover:bg-white/[0.08] hover:border-cyan-500/30 p-4 transition-all duration-300 group">
-                  <div className="mt-0.5 flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border border-cyan-300/20 primesec-navy-chip text-cyan-300 group-hover:border-cyan-400 group-hover:text-cyan-400 group-hover:scale-105 transition-all duration-300">
+                <div key={zone.title} className="flex items-start gap-3 rounded-xl border border-white/10 bg-white/[0.03] md:hover:bg-white/[0.08] md:hover:border-cyan-500/30 p-4 transition-all duration-300 group">
+                  <div className="mt-0.5 flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border border-cyan-300/20 primesec-navy-chip text-cyan-300 md:group-hover:border-cyan-400 md:group-hover:text-cyan-400 md:group-hover:scale-105 transition-all duration-300">
                     <Icon className="h-5 w-5" />
                   </div>
                   <div>
-                    <p className="text-sm font-extrabold text-white group-hover:text-cyan-300 transition-colors">{zone.title}</p>
+                    <p className="text-sm font-extrabold text-white md:group-hover:text-cyan-300 transition-colors">{zone.title}</p>
                     <p className="mt-1 text-xs leading-6 text-[#b8c7dd]">{zone.desc}</p>
                   </div>
                 </div>

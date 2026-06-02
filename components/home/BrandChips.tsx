@@ -22,7 +22,7 @@ export function BrandChips() {
       <div className="container-primesec">
         <h2 className="text-center text-[15px] font-extrabold uppercase tracking-[0.14em] text-ink">Güvenilir Markalar, Kaliteli Çözümler</h2>
         <div className="relative mt-8 overflow-hidden py-5 [mask-image:linear-gradient(90deg,transparent,black_10%,black_90%,transparent)]">
-          <div className="flex w-max animate-[brand-marquee_34s_linear_infinite] items-center gap-4 hover:[animation-play-state:paused]">
+          <div className="flex w-max animate-[brand-marquee_34s_linear_infinite] items-center gap-4 md:hover:[animation-play-state:paused]">
             {marqueeBrands.map((brand, index) => (
               <BrandLogo key={`${brand}-${index}`} brand={brand} />
             ))}
@@ -35,7 +35,7 @@ export function BrandChips() {
 
 function BrandLogo({ brand }: { brand: string }) {
   return (
-    <div className="flex h-16 w-[168px] shrink-0 items-center justify-center rounded-xl bg-white px-5 grayscale hover:grayscale-0 transition-all">
+    <div className="flex h-16 w-[168px] shrink-0 items-center justify-center rounded-xl bg-white px-5 grayscale md:hover:grayscale-0 transition-all">
       <div className="flex items-center gap-3 text-[#111827]">
         <span className="relative flex h-8 w-8 items-center justify-center">
           <span className="absolute inset-0 rotate-45 rounded-[7px] border-2 border-current opacity-80" />
