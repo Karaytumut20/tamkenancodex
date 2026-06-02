@@ -48,13 +48,15 @@ export function WhyPrimeSec() {
             return (
               <div
                 key={reason.title}
-                className="rounded-2xl border border-white/10 bg-white/5 backdrop-blur-md p-6 hover:bg-white/10 transition-all duration-300 group"
+                className="rounded-2xl border border-white/10 bg-white/5 backdrop-blur-md p-6 hover:bg-white/10 transition-all duration-300 group flex items-center gap-4"
               >
-                <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-white/10 text-cyan-400 group-hover:bg-white/20 transition-all duration-300 mb-4">
+                <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-lg bg-white/10 text-cyan-400 group-hover:bg-white/20 transition-all duration-300">
                   <Icon className="h-6 w-6" />
                 </div>
-                <h3 className="font-bold text-lg text-white">{reason.title}</h3>
-                <p className="mt-2 text-sm text-white/70">{reason.desc}</p>
+                <div>
+                  <h3 className="font-bold text-lg text-white leading-snug">{reason.title}</h3>
+                  <p className="mt-2 text-sm leading-6 text-white/70">{reason.desc}</p>
+                </div>
               </div>
             );
           })}
