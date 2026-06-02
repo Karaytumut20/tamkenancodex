@@ -79,8 +79,8 @@ export function ServiceGrid() {
 
         <div className="grid gap-4 xl:grid-cols-[1fr_1fr_330px]">
           {/* Mobile: Horizontal Scroll */}
-          <div className="md:hidden -mx-3 px-3 overflow-x-auto">
-            <div className="flex gap-4 pb-4" style={{ scrollSnapType: 'x mandatory' }}>
+          <div className="md:hidden -mx-3 px-3 overflow-x-auto pt-4 pb-4">
+            <div className="flex gap-4" style={{ scrollSnapType: 'x mandatory' }}>
               {services.map((service, index) => (
                 <Link
                   key={service.title}

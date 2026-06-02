@@ -44,7 +44,10 @@ export function ServiceShowcase() {
   function scroll(direction: "left" | "right") {
     const node = scrollerRef.current;
     if (!node) return;
-    const amount = 300;
+    const card = node.querySelector("a");
+    const cardWidth = card ? card.getBoundingClientRect().width : 280;
+    const gap = 20; // gap-5 is 20px
+    const amount = cardWidth + gap;
     node.scrollBy({ left: direction === "left" ? -amount : amount, behavior: "smooth" });
   }
 
@@ -63,7 +66,7 @@ export function ServiceShowcase() {
             <h2 className="mt-3 text-[clamp(30px,3.2vw,48px)] font-extrabold leading-none tracking-[-0.045em] text-ink">Geniş güvenlik ürün yelpazemiz</h2>
             <p className="mt-4 max-w-2xl text-sm leading-7 text-ink-muted">Ev ve iş yeriniz için akıllı alarm sistemlerinden yüksek çözünürlüklü kameralara kadar aradığınız tüm ürünler.</p>
           </div>
-          <div className="hidden items-center gap-2 md:flex">
+          <div className="flex items-center gap-2 justify-end">
             <button aria-label="Önceki ürünler" onClick={() => scroll("left")} className="flex h-10 w-10 items-center justify-center rounded-full border border-primary-600 bg-white text-primary-600 primesec-navy-action-hover hover:text-white transition-all shadow-sm hover:shadow-lg">
               <ArrowLeft className="h-4 w-4" />
             </button>

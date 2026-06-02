@@ -32,26 +32,22 @@ export function ProductCarousel() {
     return () => window.clearInterval(timer);
   }, [paused, slides.length]);
 
-  function scrollToSlide(index: number) {
+  function handlePrev() {
     const node = scrollerRef.current;
     if (!node) return;
-    node.scrollTo({ left: index * (node.scrollWidth / slides.length), behavior: "smooth" });
-  }
-
-  function handlePrev() {
-    setActive((current) => {
-      const prev = (current - 1 + slides.length) % slides.length;
-      scrollToSlide(prev);
-      return prev;
-    });
+    const card = node.querySelector("a");
+    const cardWidth = card ? card.getBoundingClientRect().width : 280;
+    const gap = 16; // gap-4 is 16px
+    node.scrollBy({ left: -(cardWidth + gap), behavior: "smooth" });
   }
 
   function handleNext() {
-    setActive((current) => {
-      const next = (current + 1) % slides.length;
-      scrollToSlide(next);
-      return next;
-    });
+    const node = scrollerRef.current;
+    if (!node) return;
+    const card = node.querySelector("a");
+    const cardWidth = card ? card.getBoundingClientRect().width : 280;
+    const gap = 16; // gap-4 is 16px
+    node.scrollBy({ left: cardWidth + gap, behavior: "smooth" });
   }
 
   function handlePointerDown(event: PointerEvent<HTMLDivElement>) {

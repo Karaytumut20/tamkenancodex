@@ -131,7 +131,7 @@ export function FaqBlog() {
             </div>
           </div>
 
-          <div className="relative overflow-hidden -mx-3">
+          <div className="relative overflow-hidden -mx-3 pt-4 pb-4">
             <div
               className="flex transition-transform duration-500 ease-in-out"
               style={{
