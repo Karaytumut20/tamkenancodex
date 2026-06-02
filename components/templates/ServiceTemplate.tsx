@@ -131,7 +131,7 @@ export function ServiceTemplate({ page, kind = "service" }: { page: ServicePage;
       </section>
 
       {/* ── 2. Benefits Deck (Dark and High Contrast) ── */}
-      <section className="bg-[#031a46] py-16 md:py-24 relative overflow-hidden text-white border-t border-b border-white/5">
+      <section className="hero-bg py-16 md:py-24 relative overflow-hidden text-white border-t border-b border-white/5">
         {/* Radial Glow */}
         <div className="absolute inset-0 z-0 pointer-events-none">
           <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[70vw] h-[50vh] bg-[radial-gradient(circle_at_center,rgba(0,102,255,0.15),transparent_70%)] blur-[100px]" />
@@ -218,7 +218,7 @@ export function ServiceTemplate({ page, kind = "service" }: { page: ServicePage;
               key={block.title}
               className="rounded-[32px] border border-border bg-[#FFFFFF] p-8 transition-all group"
             >
-              <div className="h-2.5 w-12 bg-primary-600 rounded-full mb-6 group-hover:w-20 transition-all duration-300" />
+              <div className="h-2.5 w-12 primesec-navy-action rounded-full mb-6 group-hover:w-20 transition-all duration-300" />
               <h3 className="text-2xl font-extrabold tracking-tight text-ink">{block.title}</h3>
               <p className="mt-4 text-base leading-7 text-ink-muted">{block.text}</p>
             </article>
@@ -245,7 +245,7 @@ export function ServiceTemplate({ page, kind = "service" }: { page: ServicePage;
 
             {page.process.map((step, index) => (
               <div key={step} className="relative z-10 flex flex-col items-center text-center group">
-                <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-primary-600 text-white font-black group-hover:scale-110 transition-transform duration-300">
+                <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl primesec-navy-action text-white font-black group-hover:scale-110 transition-transform duration-300">
                   {index + 1}
                 </div>
                 <h3 className="mt-6 text-xl font-extrabold text-ink">{step}</h3>
@@ -313,7 +313,7 @@ export function ServiceTemplate({ page, kind = "service" }: { page: ServicePage;
       {/* ── 8. Call to Action (CTA) Card ── */}
       <section className="bg-white py-16 md:py-20">
         <Container>
-          <div className="rounded-[40px] bg-gradient-to-br from-primary-600 to-blue-800 p-8 md:p-16 text-white relative overflow-hidden">
+          <div className="rounded-[40px] primesec-navy-surface p-8 md:p-16 text-white relative overflow-hidden">
             {/* Grid graphic */}
             <div className="absolute inset-0 pointer-events-none" />
 

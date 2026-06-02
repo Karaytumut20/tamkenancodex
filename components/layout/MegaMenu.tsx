@@ -24,7 +24,7 @@ export function MegaMenu({ menuKey, onNavigate }: Props) {
                 href={persona.href}
                 key={persona.title}
                 onClick={onNavigate}
-                className={`group flex min-h-[86px] items-center justify-between rounded-xl border px-5 hover:bg-surface transition-colors ${
+                className={`group flex min-h-[86px] items-center justify-between rounded-xl border px-5 hover:bg-slate-50/50 hover:border-primary-600 hover:-translate-y-0.5 hover:shadow-md transition-all duration-300 ${
                   index === 0 ? "border-primary-500 bg-white" : "border-border bg-white"
                 }`}
               >
@@ -32,7 +32,7 @@ export function MegaMenu({ menuKey, onNavigate }: Props) {
                   <span className="block text-lg font-extrabold text-ink">{persona.title}</span>
                   <span className="mt-1 block max-w-[260px] text-sm leading-5 text-ink-muted">{persona.description}</span>
                 </span>
-                <span className={`flex h-7 w-7 shrink-0 items-center justify-center rounded-full border ${index === 0 ? "border-primary-600 text-primary-600" : "border-border text-ink-muted group-hover:text-primary-600"}`}>
+                <span className={`flex h-7 w-7 shrink-0 items-center justify-center rounded-full border ${index === 0 ? "border-primary-600 text-primary-600 font-bold" : "border-border text-ink-muted group-hover:border-primary-600 group-hover:text-primary-600"} transition-all duration-300`}>
                   <ChevronRight className="h-4 w-4" />
                 </span>
               </Link>
@@ -46,15 +46,15 @@ export function MegaMenu({ menuKey, onNavigate }: Props) {
                 href={item.href}
                 key={item.title}
                 onClick={onNavigate}
-                className={`group grid min-h-[58px] grid-cols-[54px_1fr_auto] items-center gap-4 rounded-lg px-4 hover:bg-surface transition-colors ${
+                className={`group grid grid-cols-[54px_1fr_auto] items-center gap-4 rounded-xl border border-transparent px-4 hover:border-border hover:bg-slate-50/70 hover:translate-x-1.5 transition-all duration-300 py-2.5 ${
                   index === 1 ? "bg-surface" : ""
                 }`}
               >
-                <span className="relative h-11 w-11 overflow-hidden rounded-xl bg-surface border border-border">
+                <span className="relative h-11 w-11 overflow-hidden rounded-xl bg-surface border border-border group-hover:border-primary-600/30 group-hover:bg-white transition-colors duration-300">
                   <Image src={item.image} alt="" fill className="object-contain p-2" unoptimized />
                 </span>
-                <span className="text-[15px] font-bold text-ink group-hover:text-primary-600">{item.title}</span>
-                <ChevronRight className="h-4 w-4 text-ink-lighter group-hover:text-primary-600" />
+                <span className="text-[15px] font-bold text-ink group-hover:text-primary-600 transition-colors">{item.title}</span>
+                <ChevronRight className="h-4 w-4 text-ink-lighter group-hover:text-primary-600 group-hover:translate-x-0.5 transition-all" />
               </Link>
             ))}
           </div>
@@ -67,7 +67,7 @@ export function MegaMenu({ menuKey, onNavigate }: Props) {
           <Link
             href="/kendi-sistemini-tasarla"
             onClick={onNavigate}
-            className="inline-flex h-10 w-10 items-center justify-center rounded-full border border-primary-600 text-primary-600 hover:bg-primary-600 hover:text-white transition-colors"
+            className="inline-flex h-10 w-10 items-center justify-center rounded-full border border-primary-600 text-primary-600 primesec-navy-action-hover hover:text-white transition-colors"
             aria-label={`${menu.title} icin sistem tasarla`}
           >
             <ArrowUpRight className="h-5 w-5" />

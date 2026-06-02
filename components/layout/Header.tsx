@@ -46,31 +46,32 @@ export function Header() {
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.35 }}
       onMouseLeave={() => setActiveMenu(null)}
-      className="sticky top-0 z-50 bg-white px-0 py-0 border-b border-border"
+      className="sticky top-0 z-50 bg-white px-0 border-b border-border"
     >
-      <div className="flex h-[72px] w-full items-center lg:h-[76px]">
+      <div className="flex h-[84px] w-full items-center lg:h-[92px]">
         <div className="container-primesec flex w-full items-center justify-between gap-5">
           <div onMouseEnter={() => setActiveMenu(null)}>
             <Logo dark={false} />
           </div>
-          <nav className="hidden items-center gap-1 lg:flex" aria-label="Ana menü">
+          <nav className="hidden items-center gap-1 lg:flex h-full" aria-label="Ana menü">
             {mainNavigation.map((item) => (
-              <div key={item.href} className="relative" onMouseEnter={() => setActiveMenu((item.menuKey as MegaMenuKey) ?? null)}>
+              <div key={item.href} className="relative h-full flex items-center" onMouseEnter={() => setActiveMenu((item.menuKey as MegaMenuKey) ?? null)}>
                 <Link
                   href={item.href}
-                  className="group relative flex h-9 items-center gap-1 rounded-full px-3 text-[12px] font-bold text-ink hover:text-primary-600 transition-colors"
+                  className="group relative flex h-full items-center gap-1.5 px-3 text-[13px] font-extrabold text-ink hover:text-primary-600 transition-colors"
                 >
-                  {item.label}
-                  {item.menuKey ? <ChevronDown className={`h-3.5 w-3.5 ${activeMenu === item.menuKey ? "rotate-180 text-primary-600" : "text-ink-lighter"}`} /> : null}
+                  <span>{item.label}</span>
+                  {item.menuKey ? <ChevronDown className={`h-3.5 w-3.5 transition-transform duration-200 ${activeMenu === item.menuKey ? "rotate-180 text-primary-600" : "text-ink-muted"}`} /> : null}
+                  <span className={`absolute bottom-0 left-3 right-3 h-[2.5px] primesec-navy-action transform scale-x-0 group-hover:scale-x-100 transition-transform duration-200 origin-left ${activeMenu === item.menuKey ? "scale-x-100" : ""}`} />
                 </Link>
               </div>
             ))}
           </nav>
           <div className="hidden items-center gap-3 xl:flex" onMouseEnter={() => setActiveMenu(null)}>
-            <ButtonLink href="/iletisim" variant="outlineBlue" size="sm" className="h-8 rounded-full border-border bg-transparent px-4 text-xs text-ink hover:border-primary-600 hover:text-primary-600">
+            <ButtonLink href="/iletisim" variant="outlineBlue" size="sm" className="h-10 rounded-full border-border bg-transparent px-5 text-[13px] text-ink hover:border-primary-600 hover:text-primary-600 flex items-center">
               <Phone className="h-4 w-4" /> Teklif Al
             </ButtonLink>
-            <ButtonLink href="/kendi-sistemini-tasarla" size="sm" className="h-8 rounded-full bg-primary-600 px-5 text-xs text-white font-bold hover:bg-primary-500 hover:scale-105 transition-all">
+            <ButtonLink href="/kendi-sistemini-tasarla" size="sm" className="h-10 rounded-full primesec-navy-action px-6 text-[13px] text-white font-bold hover:scale-[1.02] transition-all flex items-center">
               Kendi Sistemini Tasarla <SlidersHorizontal className="h-4 w-4" />
             </ButtonLink>
           </div>

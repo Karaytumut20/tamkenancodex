@@ -211,7 +211,7 @@ function ContactForm() {
         <input required name="kvkkConsent" type="checkbox" className="mt-1 h-5 w-5 shrink-0 rounded border-border" />
         <span>KVKK kapsamında iletişime geçilmesini kabul ediyorum.</span>
       </label>
-      <button className="h-12 w-full rounded-xl bg-primary-600 text-white font-extrabold hover:bg-primary-500 transition-colors">
+      <button className="h-12 w-full rounded-xl primesec-navy-action text-white font-extrabold transition-colors">
         Bilgilerimi Gönder
       </button>
     </form>

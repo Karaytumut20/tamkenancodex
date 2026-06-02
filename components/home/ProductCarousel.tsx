@@ -2,7 +2,7 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { ChevronRight } from "lucide-react";
+import { ChevronLeft, ChevronRight } from "lucide-react";
 import { useEffect, useMemo, useRef, useState, type PointerEvent } from "react";
 import { products } from "@/data/products";
 
@@ -38,6 +38,22 @@ export function ProductCarousel() {
     node.scrollTo({ left: index * (node.scrollWidth / slides.length), behavior: "smooth" });
   }
 
+  function handlePrev() {
+    setActive((current) => {
+      const prev = (current - 1 + slides.length) % slides.length;
+      scrollToSlide(prev);
+      return prev;
+    });
+  }
+
+  function handleNext() {
+    setActive((current) => {
+      const next = (current + 1) % slides.length;
+      scrollToSlide(next);
+      return next;
+    });
+  }
+
   function handlePointerDown(event: PointerEvent<HTMLDivElement>) {
     const node = scrollerRef.current;
     if (!node) return;
@@ -65,16 +81,29 @@ export function ProductCarousel() {
   }
 
   return (
-    <section className="bg-white py-12" onMouseEnter={() => setPaused(true)} onMouseLeave={() => setPaused(false)}>
+    <section className="bg-white pt-16 pb-24 md:pt-24 md:pb-36" onMouseEnter={() => setPaused(true)} onMouseLeave={() => setPaused(false)}>
       <div className="container-primesec">
         <div className="mb-6 flex items-end justify-between gap-4">
           <div>
             <p className="text-sm font-extrabold uppercase tracking-[0.14em] text-primary-600">Ürünler</p>
             <h2 className="mt-3 text-[clamp(30px,3.2vw,48px)] font-extrabold leading-none tracking-[-0.045em] text-ink">Öne çıkan güvenlik ürünleri</h2>
           </div>
-          <Link href="/urunler" className="hidden items-center gap-2 rounded-full bg-primary-600 px-5 py-3 text-sm font-extrabold text-white md:inline-flex">
-            Tüm ürünler <ChevronRight className="h-4 w-4" />
-          </Link>
+          <div className="flex items-center gap-2">
+            <button
+              onClick={handlePrev}
+              className="flex h-12 w-12 items-center justify-center rounded-full primesec-navy-action text-white transition-all duration-200 shadow-sm"
+              aria-label="Önceki ürünler"
+            >
+              <ChevronLeft className="h-5 w-5" />
+            </button>
+            <button
+              onClick={handleNext}
+              className="flex h-12 w-12 items-center justify-center rounded-full primesec-navy-action text-white transition-all duration-200 shadow-sm"
+              aria-label="Sonraki ürünler"
+            >
+              <ChevronRight className="h-5 w-5" />
+            </button>
+          </div>
         </div>
 
         <div
@@ -100,7 +129,7 @@ export function ProductCarousel() {
               onClick={(event) => {
                 if (drag.current.moved) event.preventDefault();
               }}
-              className="group flex w-[78%] shrink-0 snap-start flex-col overflow-hidden rounded-[24px] bg-white border border-border p-4  md:w-[36%] xl:w-[23.5%]"
+              className="group flex w-[78%] shrink-0 snap-start flex-col overflow-hidden rounded-[24px] bg-white border border-border hover:border-primary-600 transition-colors duration-200 p-4  md:w-[36%] xl:w-[23.5%]"
             >
               <div className="flex items-center justify-between">
                 <p className="text-sm font-extrabold text-ink">{product.brand}</p>
@@ -109,7 +138,6 @@ export function ProductCarousel() {
                 </span>
               </div>
               <div className="relative mt-4 h-48 w-full rounded-[20px] bg-white flex items-center justify-center">
-                {index === 1 ? <span className="absolute right-4 top-4 z-10 h-4 w-4 rounded-full bg-red-500" /> : null}
                 <Image src={product.image} alt={`${product.name} ürün görseli`} fill className="object-contain p-6" unoptimized />
               </div>
               <div className="flex flex-1 flex-col justify-between pt-4">
@@ -122,10 +150,10 @@ export function ProductCarousel() {
           ))}
         </div>
 
-        <div className="mt-6 hidden justify-center gap-2 md:flex">
-          {slides.map((_, index) => (
-            <button key={index} aria-label={`${index + 1}. ürün grubuna git`} onClick={() => { setActive(index); scrollToSlide(index); }} className={`h-2 rounded-full transition-all ${active === index ? "w-8 bg-primary-600" : "w-2 bg-border-strong"}`} />
-          ))}
+        <div className="mt-10 flex justify-center">
+          <Link href="/urunler" className="inline-flex items-center gap-2 rounded-full primesec-navy-action px-8 py-4 text-sm font-extrabold text-white hover:scale-[1.02] active:scale-[0.98] transition-all duration-200 shadow-md hover:shadow-lg hover:shadow-primary-600/20">
+            Tüm Ürünler <ChevronRight className="h-4 w-4" />
+          </Link>
         </div>
       </div>
     </section>

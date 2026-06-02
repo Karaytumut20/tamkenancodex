@@ -2,10 +2,10 @@ import { BrandChips } from "@/components/home/BrandChips";
 import { Hero } from "@/components/home/Hero";
 import { ProductCarousel } from "@/components/home/ProductCarousel";
 import { ServiceGrid } from "@/components/home/ServiceGrid";
-import { StatsBand } from "@/components/home/StatsBand";
+import { PlanBanner } from "@/components/home/PlanBanner";
 import { SystemBuilderCTA } from "@/components/home/SystemBuilderCTA";
-import { TrustBar } from "@/components/home/TrustBar";
-import { WhyFaqBlog } from "@/components/home/WhyFaqBlog";
+import { WhyPrimeSec } from "@/components/home/WhyPrimeSec";
+import { FaqBlog } from "@/components/home/FaqBlog";
 import { JsonLd } from "@/components/seo/JsonLd";
 import { buildMetadata } from "@/lib/seo";
 import { siteConfig } from "@/data/site";
@@ -29,12 +29,12 @@ export default function HomePage() {
       />
       <Hero />
       <ServiceGrid />
+      <PlanBanner />
       <ProductCarousel />
       <SystemBuilderCTA />
       <BrandChips />
-      <StatsBand />
-      <WhyFaqBlog />
-      <TrustBar />
+      <WhyPrimeSec />
+      <FaqBlog />
     </>
   );
 }

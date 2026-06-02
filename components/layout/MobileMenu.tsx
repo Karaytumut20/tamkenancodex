@@ -50,7 +50,7 @@ export function MobileMenu({ open, onClose }: { open: boolean; onClose: () => vo
             {/* Header */}
             <div className="flex items-center justify-between border-b border-border p-5">
               <div className="flex items-center gap-2">
-                <div className="h-8 w-1 rounded-full bg-gradient-to-b from-primary-400 to-primary-600" />
+                <div className="h-8 w-1 rounded-full primesec-navy-action" />
                 <span className="text-lg font-extrabold text-ink">Menü</span>
               </div>
               <button
@@ -78,9 +78,8 @@ export function MobileMenu({ open, onClose }: { open: boolean; onClose: () => vo
                         >
                           <span>{item.label}</span>
                           <ChevronDown
-                            className={`h-4 w-4 text-primary-600 duration-300 ${
-                              active === item.menuKey ? "rotate-180" : ""
-                            }`}
+                            className={`h-4 w-4 text-primary-600 duration-300 ${active === item.menuKey ? "rotate-180" : ""
+                              }`}
                           />
                         </button>
                         <AnimatePresence>

@@ -113,7 +113,7 @@ export function FloatingContact() {
             exit={{ scale: 0, opacity: 0 }}
             transition={{ duration: 0.25, ease: "easeOut" }}
             onClick={() => setIsOpen(true)}
-            className="relative flex h-14 w-14 items-center justify-center rounded-full bg-primary-600 text-white hover:bg-primary-500 hover:scale-105 active:scale-95 transition-all outline-none"
+            className="relative flex h-14 w-14 items-center justify-center rounded-full primesec-navy-action text-white hover:scale-105 active:scale-95 transition-all outline-none"
             aria-label="İletişim paneli"
           >
             <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-primary-400 opacity-20" />

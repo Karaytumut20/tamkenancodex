@@ -4,7 +4,7 @@ import { ShieldCheck } from "lucide-react";
 export function Logo({ dark = true }: { dark?: boolean }) {
   return (
     <Link href="/" className="flex min-w-[190px] items-center gap-3" aria-label="PrimeSec Teknoloji ana sayfa">
-      <span className="flex h-11 w-11 items-center justify-center rounded-xl bg-gradient-to-br from-primary-400 to-primary-700 text-white">
+      <span className="flex h-11 w-11 items-center justify-center rounded-xl primesec-navy-action text-white">
         <ShieldCheck className="h-6 w-6" />
       </span>
       <span className="leading-none">

@@ -8,11 +8,11 @@
   --color-navy-900: #062a66;
   --color-navy-850: #083278;
   --color-navy-800: #0a3a8a;
-  --color-primary-700: #005BEA;
-  --color-primary-600: #006BFF;
-  --color-primary-500: #1683FF;
-  --color-primary-400: #3BA0FF;
-  --color-primary-300: #70BDFF;
+  --color-primary-700: #031a46;
+  --color-primary-600: #042154;
+  --color-primary-500: #062a66;
+  --color-primary-400: #083278;
+  --color-primary-300: #0a3a8a;
   --color-cyan-500: #18BFFF;
   --color-cyan-400: #4CD9FF;
   --color-green-600: #00B85A;
@@ -106,17 +106,42 @@ button {
   }
 }
 
-.hero-bg {
+.hero-bg,
+.primesec-navy-bg {
   background:
-    radial-gradient(circle at 70% 20%, rgba(0, 107, 255, 0.22), transparent 34%),
-    radial-gradient(circle at 20% 10%, rgba(24, 191, 255, 0.12), transparent 28%),
+    radial-gradient(ellipse at 50% -18%, rgba(137, 218, 255, 0.34), transparent 36%),
+    radial-gradient(circle at 70% 20%, rgba(0, 107, 255, 0.26), transparent 34%),
+    radial-gradient(circle at 20% 10%, rgba(24, 191, 255, 0.15), transparent 28%),
     linear-gradient(135deg, #031a46 0%, #062a66 52%, #031a46 100%);
 }
 
-.final-bg {
+.final-bg,
+.primesec-navy-surface {
   background:
-    radial-gradient(circle at 75% 20%, rgba(0, 107, 255, 0.28), transparent 32%),
-    linear-gradient(135deg, #031a46 0%, #062a66 60%, #031a46 100%);
+    radial-gradient(ellipse at 48% -20%, rgba(139, 220, 255, 0.32), transparent 38%),
+    radial-gradient(circle at 78% 18%, rgba(0, 107, 255, 0.3), transparent 34%),
+    radial-gradient(circle at 12% 0%, rgba(24, 191, 255, 0.13), transparent 30%),
+    linear-gradient(135deg, #031a46 0%, #062a66 56%, #031a46 100%);
+}
+
+.primesec-navy-action {
+  background:
+    radial-gradient(ellipse at 50% -32%, rgba(147, 225, 255, 0.4), transparent 52%),
+    linear-gradient(135deg, #062a66 0%, #083278 48%, #031a46 100%);
+  box-shadow: 0 16px 32px rgba(3, 26, 70, 0.18);
+}
+
+.primesec-navy-action-hover:hover {
+  background:
+    radial-gradient(ellipse at 50% -32%, rgba(147, 225, 255, 0.4), transparent 52%),
+    linear-gradient(135deg, #062a66 0%, #083278 48%, #031a46 100%);
+  box-shadow: 0 16px 32px rgba(3, 26, 70, 0.18);
+}
+
+.primesec-navy-chip {
+  background:
+    radial-gradient(ellipse at 50% 0%, rgba(127, 215, 255, 0.18), transparent 52%),
+    rgba(8, 28, 68, 0.78);
 }
 
 .gradient-text {

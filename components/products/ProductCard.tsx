@@ -21,8 +21,8 @@ export function ProductCard({ product }: { product: Product }) {
       </h2>
       <p className="mt-2 line-clamp-2 text-sm leading-6 text-ink-muted">{product.description}</p>
       <div className="mt-auto grid gap-2 pt-4">
-        <ButtonLink href={`/urunler/${product.slug}`} variant="outlineBlue" className="w-full">Detayları İncele</ButtonLink>
-        <ButtonLink href={productWhatsappUrl(product)} className="w-full">
+        <ButtonLink href={`/urunler/${product.slug}`} variant="primary" className="w-full">Detayları İncele</ButtonLink>
+        <ButtonLink href={productWhatsappUrl(product)} variant="whatsapp" className="w-full">
           <MessageCircle className="h-4 w-4" /> WhatsApp'tan Teklif Al
         </ButtonLink>
       </div>

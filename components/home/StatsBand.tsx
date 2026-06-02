@@ -11,7 +11,7 @@ const stats = [
 export function StatsBand() {
   return (
     <section className="bg-transparent py-10">
-      <div className="container-primesec rounded-[28px] border border-white/10 bg-[#031a46] p-7">
+      <div className="container-primesec rounded-[28px] border border-white/10 primesec-navy-surface p-7">
         <div className="grid gap-6 md:grid-cols-3 xl:grid-cols-5">
           {stats.map(([value, label, Icon]) => (
             <div key={label as string} className="flex items-center gap-4">

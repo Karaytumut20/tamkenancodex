@@ -171,7 +171,7 @@ function Stepper({ step }: { step: number }) {
 
       <div className="relative grid grid-cols-4 gap-2">
         <div className="absolute left-[12.5%] right-[12.5%] top-4 h-0.5 bg-border">
-          <div className="h-full bg-primary-600 duration-300" style={{ width: `${((currentStep - 1) / (labels.length - 1)) * 100}%` }} />
+          <div className="h-full primesec-navy-action duration-300" style={{ width: `${((currentStep - 1) / (labels.length - 1)) * 100}%` }} />
         </div>
         {labels.map((label, index) => {
           const active = currentStep >= index + 1;
@@ -180,7 +180,7 @@ function Stepper({ step }: { step: number }) {
             <div key={label} className="relative z-10 flex min-w-0 flex-col items-center text-center">
               <span className={cn(
                 "flex h-8 w-8 items-center justify-center rounded-full border-2 text-sm font-extrabold duration-300",
-                active ? "border-primary-600 bg-primary-600 text-white" : "border-border bg-surface text-ink-muted",
+                active ? "border-primary-600 primesec-navy-action text-white" : "border-border bg-surface text-ink-muted",
                 current ? "ring-4 ring-primary-600/10" : ""
               )}>
                 {index + 1}
@@ -213,10 +213,10 @@ function StepBlock({ title, children }: { title: string; children: ReactNode }) 
 function SelectionCard({ title, description, selected, onClick, icon, image }: { title: string; description: string; selected: boolean; onClick: () => void; icon: ReactNode; image: string }) {
   return (
     <button onClick={onClick} className={cn("relative flex min-h-[168px] items-center gap-5 rounded-2xl border-2 bg-surface p-5 text-left", selected ? "border-primary-600 bg-white" : "border-border hover:border-primary-200 hover:bg-white transition-colors")}>
-      {selected ? <span className="absolute right-4 top-4 flex h-7 w-7 items-center justify-center rounded-full bg-primary-600 text-white"><Check className="h-4 w-4" /></span> : null}
+      {selected ? <span className="absolute right-4 top-4 flex h-7 w-7 items-center justify-center rounded-full primesec-navy-action text-white"><Check className="h-4 w-4" /></span> : null}
       <span className="relative flex h-24 w-24 shrink-0 items-center justify-center rounded-2xl bg-white border border-border">
         <Image src={image} alt="" fill className="object-contain p-3" unoptimized />
-        <span className="absolute -bottom-2 -right-2 flex h-9 w-9 items-center justify-center rounded-xl bg-primary-600 text-white">{icon}</span>
+        <span className="absolute -bottom-2 -right-2 flex h-9 w-9 items-center justify-center rounded-xl primesec-navy-action text-white">{icon}</span>
       </span>
       <span>
         <span className="block text-xl font-extrabold text-ink">{title}</span>
@@ -269,7 +269,7 @@ function ProductSection({ title, badge, products: items, selected, onToggle }: {
           const active = selected.includes(item);
           return (
             <button key={item} onClick={() => onToggle(item)} className={cn("relative flex min-h-[148px] flex-col items-center justify-between gap-3 rounded-xl border-2 bg-white p-4   ", active ? "border-primary-500 bg-white" : "border-border")}>
-              <span className={cn("absolute right-3 top-3 flex h-5 w-5 items-center justify-center rounded border", active ? "border-primary-600 bg-primary-600 text-white" : "border-border-strong bg-white")}>{active ? <Check className="h-3 w-3" /> : null}</span>
+              <span className={cn("absolute right-3 top-3 flex h-5 w-5 items-center justify-center rounded border", active ? "border-primary-600 primesec-navy-action text-white" : "border-border-strong bg-white")}>{active ? <Check className="h-3 w-3" /> : null}</span>
               <div className="flex flex-1 items-center justify-center pt-2">
                 <span className="relative h-14 w-14 block">
                   <Image src={product?.image ?? "/images/alarm-sistemi.svg"} alt={`${item} ürün görseli`} fill className="object-contain" unoptimized />

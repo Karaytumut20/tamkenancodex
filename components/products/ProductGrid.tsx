@@ -109,7 +109,7 @@ export function ProductGrid() {
           <div className="rounded-2xl border border-border bg-white p-8 text-center">
             <h3 className="text-2xl font-extrabold text-ink">Bu filtrelerle ürün bulunamadı</h3>
             <p className="mt-3 text-ink-muted">Arama kelimesini sadeleştirin veya filtreleri temizleyerek tüm ürünleri tekrar görüntüleyin.</p>
-            <button onClick={clearFilters} className="mt-5 h-11 rounded-xl bg-primary-600 px-5 text-sm font-extrabold text-white">Filtreleri Temizle</button>
+            <button onClick={clearFilters} className="mt-5 h-11 rounded-xl primesec-navy-action px-5 text-sm font-extrabold text-white">Filtreleri Temizle</button>
           </div>
         )}
       </div>

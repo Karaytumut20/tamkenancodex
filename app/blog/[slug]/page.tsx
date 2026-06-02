@@ -182,7 +182,7 @@ export default async function BlogDetailPage({ params }: { params: Promise<{ slu
                 <ButtonLink
                   href="/kendi-sistemini-tasarla"
                   size="xl"
-                  className="bg-primary-600 text-white font-extrabold hover:bg-primary-500 rounded-2xl px-8"
+                  className="primesec-navy-action text-white font-extrabold rounded-2xl px-8"
                 >
                   Kendi Sistemini Tasarla
                 </ButtonLink>

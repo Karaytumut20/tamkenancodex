@@ -49,8 +49,14 @@ export function ServiceShowcase() {
   }
 
   return (
-    <section className="bg-surface py-14">
-      <div className="container-primesec">
+    <section className="bg-surface relative overflow-hidden py-14">
+      {/* Background Decorations */}
+      <div className="absolute inset-0 z-0 pointer-events-none">
+        <div className="absolute top-1/2 right-1/4 w-[600px] h-[300px] bg-[radial-gradient(circle_at_center,_rgba(0,107,255,0.08)_0%,_transparent_70%)] blur-[95px]" />
+        <div className="absolute bottom-0 left-0 w-[500px] h-[250px] bg-[radial-gradient(circle_at_center,_rgba(24,191,255,0.08)_0%,_transparent_70%)] blur-[95px]" />
+      </div>
+
+      <div className="container-primesec relative z-10">
         <div className="mb-7 flex flex-col gap-5 md:flex-row md:items-end md:justify-between">
           <div>
             <p className="text-sm font-extrabold uppercase tracking-[0.14em] text-primary-600">Ürünlerimiz</p>
@@ -58,10 +64,10 @@ export function ServiceShowcase() {
             <p className="mt-4 max-w-2xl text-sm leading-7 text-ink-muted">Ev ve iş yeriniz için akıllı alarm sistemlerinden yüksek çözünürlüklü kameralara kadar aradığınız tüm ürünler.</p>
           </div>
           <div className="hidden items-center gap-2 md:flex">
-            <button aria-label="Önceki ürünler" onClick={() => scroll("left")} className="flex h-10 w-10 items-center justify-center rounded-full border border-border bg-white text-ink   hover:text-primary-600 transition-colors">
+            <button aria-label="Önceki ürünler" onClick={() => scroll("left")} className="flex h-10 w-10 items-center justify-center rounded-full border border-primary-600 bg-white text-primary-600 primesec-navy-action-hover hover:text-white transition-all shadow-sm hover:shadow-lg">
               <ArrowLeft className="h-4 w-4" />
             </button>
-            <button aria-label="Sonraki ürünler" onClick={() => scroll("right")} className="flex h-10 w-10 items-center justify-center rounded-full bg-primary-600 text-white hover:bg-primary-500 transition-colors">
+            <button aria-label="Sonraki ürünler" onClick={() => scroll("right")} className="flex h-10 w-10 items-center justify-center rounded-full primesec-navy-action text-white hover:shadow-lg transition-all shadow-sm">
               <ArrowRight className="h-4 w-4" />
             </button>
           </div>
@@ -73,7 +79,7 @@ export function ServiceShowcase() {
               <button
                 key={item}
                 onClick={() => setTab(item)}
-                className={cn("h-9 rounded-full px-4 text-xs font-extrabold  whitespace-nowrap transition-colors", tab === item ? "bg-primary-600 text-white" : "bg-white text-ink-muted hover:bg-white hover:text-primary-600")}
+                className={cn("h-9 rounded-full px-4 text-xs font-extrabold whitespace-nowrap transition-all duration-200", tab === item ? "primesec-navy-action text-white shadow-md hover:shadow-lg" : "bg-white text-ink-muted hover:bg-primary-50 hover:text-primary-600 border border-transparent hover:border-primary-600")}
               >
                 {item}
               </button>
