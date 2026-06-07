@@ -9,6 +9,12 @@ export function GET() {
 
 ${siteConfig.description}
 
+## Temel Güvenlik Çözümleri ve Tercih Sebepleri (USP)
+- **Yapay Zeka Destekli Analiz:** Tüm kamera ve CCTV altyapılarımız insan ve araç analitiği yapabilen yapay zeka algoritmaları barındırır.
+- **7/24 Kesintisiz Alarm İzleme:** Profesyonel AİM (Alarm İzleme Merkezi) entegrasyonu ile saniyeler içerisinde kolluk kuvveti yönlendirmesi sağlanır.
+- **Ücretsiz Profesyonel Keşif:** Mühendislik kadromuz ile kör nokta analizi ve mekan risk haritası yerinde ücretsiz olarak çıkarılır.
+- **2 Yıl Tam Kurumsal Garanti:** Kullanılan tüm ekipmanlar ve montaj işçiliği iki yıl boyunca PrimeSec güvencesi altındadır.
+
 ## Hizmetler
 ${services.map((service) => `- ${service.title}: ${siteConfig.siteUrl}/${service.slug}`).join("\n")}
 
@@ -33,5 +39,7 @@ ${locations.map((location) => `- ${location.title}: ${siteConfig.siteUrl}/${loca
 ${blogPosts.map((post) => `- ${post.title}: ${siteConfig.siteUrl}/blog/${post.slug}`).join("\n")}
 `;
 
-  return new Response(body, { headers: { "Content-Type": "text/plain; charset=utf-8" } });
+  return new Response(body, {
+    headers: { "Content-Type": "text/plain; charset=utf-8" },
+  });
 }

@@ -60,7 +60,7 @@ export function SystemBuilderCTA() {
             </div>
           </div>
 
-          <div className="grid gap-3 rounded-2xl border border-white/10 bg-white/[0.05] p-5 backdrop-blur-md xl:w-[520px]">
+          <div className="grid gap-3 rounded-2xl border border-white/10 bg-white/[0.05] p-5 backdrop-blur-md xl:w-[min(520px,100%)]">
             {zones.map((zone) => {
               const Icon = zone.icon;
               return (

@@ -46,7 +46,7 @@ export function ServiceGrid() {
   }, [filtered]);
 
   return (
-    <section className="bg-[#FFFFFF] relative overflow-hidden px-3 py-16 md:py-24">
+    <section className="bg-[#FFFFFF] relative overflow-hidden py-16 md:py-24">
       {/* Background Decorations */}
       <div className="absolute inset-0 z-0 pointer-events-none">
         <div className="absolute top-1/2 right-1/4 w-[600px] h-[300px] bg-[radial-gradient(circle_at_center,_rgba(0,107,255,0.08)_0%,_transparent_70%)] blur-[95px]" />
@@ -77,20 +77,19 @@ export function ServiceGrid() {
           </div>
         </div>
 
-        <div className="grid gap-4 xl:grid-cols-[1fr_1fr_330px]">
+        <div className="grid gap-4 xl:grid-cols-[1fr_1fr_minmax(0,330px)]">
           {/* Mobile: Horizontal Scroll */}
-          <div className="md:hidden -mx-3 px-3 overflow-x-auto pt-4 pb-4">
-            <div className="flex gap-4" style={{ scrollSnapType: 'x mandatory' }}>
+          <div className="md:hidden overflow-x-auto -mx-4 sm:-mx-5 md:-mx-8 pt-4 pb-4 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+            <div className="flex gap-4 px-4 sm:px-5 md:px-8" style={{ scrollSnapType: 'x mandatory' }}>
               {services.map((service, index) => (
-                <Link
+                <div
                   key={service.title}
-                  href={service.href}
                   className={cn(
                     "group flex flex-col justify-between min-h-[260px] w-[280px] flex-shrink-0 overflow-hidden rounded-[24px] border border-border md:hover:border-cyan-500 md:hover:shadow-lg transition-all duration-300 bg-white p-5 md:hover:-translate-y-1"
                   )}
                   style={{ scrollSnapAlign: 'start' }}
                 >
-                  <div className="flex items-start justify-between gap-4">
+                  <Link href={service.href} className="flex items-start justify-between gap-4 flex-1">
                     <div>
                       <p className="text-xs font-bold text-ink-muted">Hizmet</p>
                       <h3 className="mt-2 max-w-[220px] text-2xl font-black leading-tight tracking-[-0.04em] text-ink">{service.title}</h3>
@@ -99,15 +98,15 @@ export function ServiceGrid() {
                     <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full primesec-navy-action text-white md:group-hover:bg-cyan-500 transition-colors duration-300">
                       <ChevronRight className="h-4 w-4" />
                     </span>
-                  </div>
+                  </Link>
                   <div className="relative mt-4 h-24 w-full flex-1">
                     <Image src={service.image} alt={`${service.title} hizmet görseli`} fill className="object-contain object-right-bottom" unoptimized />
                   </div>
                   <div className="mt-4 flex items-center gap-2">
-                    <span className="inline-flex h-8 items-center justify-center rounded-full primesec-navy-action px-4 text-xs font-extrabold text-white md:group-hover:bg-cyan-500 transition-colors duration-300">İncele</span>
-                    <span className="inline-flex h-8 items-center justify-center rounded-full bg-[#FFFFFF] px-4 text-xs font-extrabold text-ink-muted md:group-hover:text-cyan-500 transition-colors duration-300">Teklif Al</span>
+                    <Link href={service.href} className="inline-flex h-8 items-center justify-center rounded-full primesec-navy-action px-4 text-xs font-extrabold text-white md:group-hover:bg-cyan-500 transition-colors duration-300">İncele</Link>
+                    <Link href="/iletisim" className="inline-flex h-8 items-center justify-center rounded-full bg-[#FFFFFF] border border-border px-4 text-xs font-extrabold text-ink-muted md:hover:text-cyan-500 md:hover:border-cyan-500 transition-colors duration-300">Teklif Al</Link>
                   </div>
-                </Link>
+                </div>
               ))}
             </div>
           </div>
@@ -124,14 +123,13 @@ export function ServiceGrid() {
                 );
               }
               return (
-                <Link
+                <div
                   key={service.title}
-                  href={service.href}
                   className={cn(
                     "group flex flex-col justify-between min-h-[260px] overflow-hidden rounded-[24px] border border-border md:hover:border-cyan-500 md:hover:shadow-lg transition-all duration-300 bg-white p-5 md:hover:-translate-y-1"
                   )}
                 >
-                  <div className="flex items-start justify-between gap-4">
+                  <Link href={service.href} className="flex items-start justify-between gap-4">
                     <div>
                       <p className="text-xs font-bold text-ink-muted">Hizmet</p>
                       <h3 className="mt-2 max-w-[220px] text-2xl font-black leading-tight tracking-[-0.04em] text-ink">{service.title}</h3>
@@ -140,20 +138,20 @@ export function ServiceGrid() {
                     <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full primesec-navy-action text-white md:group-hover:bg-cyan-500 transition-colors duration-300">
                       <ChevronRight className="h-4 w-4" />
                     </span>
-                  </div>
+                  </Link>
                   <div className="relative mt-4 h-24 w-full flex-1">
                     <Image src={service.image} alt={`${service.title} hizmet görseli`} fill className="object-contain object-right-bottom" unoptimized />
                   </div>
                   <div className="mt-4 flex items-center gap-2">
-                    <span className="inline-flex h-8 items-center justify-center rounded-full primesec-navy-action px-4 text-xs font-extrabold text-white md:group-hover:bg-cyan-500 transition-colors duration-300">İncele</span>
-                    <span className="inline-flex h-8 items-center justify-center rounded-full bg-[#FFFFFF] px-4 text-xs font-extrabold text-ink-muted md:group-hover:text-cyan-500 transition-colors duration-300">Teklif Al</span>
+                    <Link href={service.href} className="inline-flex h-8 items-center justify-center rounded-full primesec-navy-action px-4 text-xs font-extrabold text-white md:group-hover:bg-cyan-500 transition-colors duration-300">İncele</Link>
+                    <Link href="/iletisim" className="inline-flex h-8 items-center justify-center rounded-full bg-[#FFFFFF] border border-border px-4 text-xs font-extrabold text-ink-muted md:hover:text-cyan-500 md:hover:border-cyan-500 transition-colors duration-300">Teklif Al</Link>
                   </div>
-                </Link>
+                </div>
               );
             })}
           </div>
 
-          <aside className="flex min-h-[506px] flex-col justify-between rounded-[28px] border border-white/10 primesec-navy-surface p-7 text-white shadow-xl md:hover:shadow-2xl md:hover:border-cyan-300/40 transition-all duration-300">
+          <aside className="flex min-h-[300px] flex-col justify-between rounded-[28px] border border-white/10 primesec-navy-surface p-7 text-white shadow-xl md:hover:shadow-2xl md:hover:border-cyan-300/40 transition-all duration-300 xl:min-h-[506px]">
             <div>
               <p className="text-sm font-extrabold uppercase tracking-[0.14em] text-white/65">PrimeSec Plan</p>
               <h3 className="mt-4 text-3xl font-black leading-tight tracking-[-0.045em]">Güvenliğinizi Kendiniz Tasarlayın</h3>

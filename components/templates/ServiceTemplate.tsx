@@ -86,7 +86,7 @@ Bu hizmet için detaylı bilgi ve teklif alabilir miyim?`);
       <section className="bg-white py-16 md:py-20 border-t border-border">
         <Container className="grid gap-12 xl:grid-cols-12 xl:items-center">
           {/* Left: Detail copy */}
-          <article className="xl:col-span-7 space-y-6">
+          <article className="xl:col-span-7 space-y-6 min-w-0">
             <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full border border-border bg-white text-primary-700 text-xs font-extrabold tracking-wide uppercase">
               <Sparkles className="h-3.5 w-3.5" /> Detaylı Hizmet Rehberi
             </div>
@@ -260,7 +260,7 @@ Bu hizmet için detaylı bilgi ve teklif alabilir miyim?`);
             </p>
           </div>
 
-          <div className="relative grid gap-8 md:grid-cols-4">
+          <div className="relative grid gap-6 grid-cols-2 sm:gap-6 md:grid-cols-4">
             {/* Connecting line — starts at center of circle 1, ends at center of circle 4 */}
             <div className="absolute top-[24px] left-[12.5%] right-[12.5%] h-[2px] bg-border hidden md:block" />
 
@@ -350,7 +350,7 @@ Bu hizmet için detaylı bilgi ve teklif alabilir miyim?`);
                   Seçtiğiniz hizmet için en uygun ürünleri, doğru konumlandırma planını ve satış sonrası destek kapsamını uzman kadromuzla belirleyin.
                 </p>
               </div>
-              <div>
+              <div className="mt-4 w-full lg:mt-0 lg:shrink-0">
                 <Link
                   href="/kendi-sistemini-tasarla"
                   className="inline-flex items-center justify-center rounded-2xl font-extrabold h-[58px] px-8 text-lg bg-white text-primary-600 transition-all duration-200 hover:bg-cyan-100 hover:shadow-lg hover:scale-[1.02] active:scale-[0.98] shrink-0"

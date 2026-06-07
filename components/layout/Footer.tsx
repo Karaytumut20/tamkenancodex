@@ -17,25 +17,50 @@ export async function Footer() {
   return (
     <footer className="primesec-navy-bg text-white">
       <Container className="py-10 md:py-16 lg:pt-24">
-        <div className="grid gap-8 md:grid-cols-2 xl:grid-cols-5">
-          <div className="md:pr-4">
+        {/* 
+          Layout:
+          - Mobile  (< 640px):  single column
+          - Tablet  (640-1279): 2 columns
+          - Desktop (1280px+):  logo col + 4 link columns (5-col grid)
+        */}
+        <div className="grid gap-8 sm:grid-cols-2 xl:grid-cols-5">
+          {/* Brand column — spans full width on mobile/tablet */}
+          <div className="sm:col-span-2 xl:col-span-1 xl:pr-4">
             <Logo />
-            <p className="mt-4 text-sm leading-6 text-[#b8c7dd] md:mt-5 md:leading-7">{settings.description}</p>
+            <p className="mt-4 text-sm leading-6 text-[#b8c7dd] md:mt-5 md:leading-7">
+              {settings.description}
+            </p>
             <FooterContact settings={settings} />
           </div>
-          <div className="grid grid-cols-2 gap-x-5 gap-y-7 md:contents">
-            <FooterColumn title="Hizmetler" links={serviceLinks.map((service) => ({ label: service.title, href: `/${service.slug}` }))} />
-            <FooterColumn title="Urunler" links={products.slice(0, 10).map((product) => ({ label: product.name, href: `/urunler/${product.slug}` }))} />
-            <FooterColumn title="Markalar" links={brands.slice(0, 10).map((brand) => ({ label: brand, href: `/urunler?marka=${brand}` }))} />
-            <FooterColumn title="Hizmet Bolgeleri" links={locations.slice(0, 8).map((location) => ({ label: location.title, href: `/${location.slug}` }))} />
+
+          {/* Link columns — 2-up on tablet, each in own column on desktop */}
+          <div className="grid grid-cols-2 gap-x-5 gap-y-8 sm:col-span-2 sm:grid-cols-2 xl:col-span-4 xl:grid-cols-4">
+            <FooterColumn
+              title="Hizmetler"
+              links={serviceLinks.map((service) => ({ label: service.title, href: `/${service.slug}` }))}
+            />
+            <FooterColumn
+              title="Ürünler"
+              links={products.slice(0, 10).map((product) => ({ label: product.name, href: `/urunler/${product.slug}` }))}
+            />
+            <FooterColumn
+              title="Markalar"
+              links={brands.slice(0, 10).map((brand) => ({ label: brand, href: `/urunler?marka=${brand}` }))}
+            />
+            <FooterColumn
+              title="Hizmet Bölgeleri"
+              links={locations.slice(0, 8).map((location) => ({ label: location.title, href: `/${location.slug}` }))}
+            />
           </div>
         </div>
+
+        {/* Bottom bar */}
         <div className="mt-8 flex flex-col gap-3 border-t border-white/10 pt-5 text-sm text-[#b8c7dd] md:mt-12 md:flex-row md:items-center md:justify-between md:gap-4 md:pt-7">
-          <p>© 2026 {settings.name}. Tum haklari saklidir.</p>
+          <p>© 2026 {settings.name}. Tüm hakları saklıdır.</p>
           <div className="flex flex-wrap gap-x-4 gap-y-2">
             <Link href="/kvkk" className="hover:text-primary-300">KVKK</Link>
-            <Link href="/gizlilik-politikasi" className="hover:text-primary-300">Gizlilik Politikasi</Link>
-            <Link href="/cerez-politikasi" className="hover:text-primary-300">Cerez Politikasi</Link>
+            <Link href="/gizlilik-politikasi" className="hover:text-primary-300">Gizlilik Politikası</Link>
+            <Link href="/cerez-politikasi" className="hover:text-primary-300">Çerez Politikası</Link>
           </div>
         </div>
       </Container>

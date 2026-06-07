@@ -11,6 +11,8 @@ import { buildMetadata } from "@/lib/seo";
 import { siteConfig } from "@/data/site";
 import { getBlogPosts, getProducts, getSiteContentBlock } from "@/lib/db";
 
+export const revalidate = 3600;
+
 export const metadata = buildMetadata({
   title: "CCTV Kamera, Alarm ve Güvenlik Sistemleri | PrimeSec Teknoloji",
   description: "PrimeSec Teknoloji ile alarm, kamera, akıllı ev, yangın ihbar, PDKS ve network güvenlik sistemleri için keşif ve teklif alın.",

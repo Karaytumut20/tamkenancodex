@@ -1,28 +1,81 @@
 import type { MetadataRoute } from "next";
-import { blogPosts } from "@/data/blog";
-import { corporatePages } from "@/data/corporate";
-import { locations } from "@/data/locations";
-import { products } from "@/data/products";
-import { services } from "@/data/services";
 import { siteConfig } from "@/data/site";
+import {
+  getProducts,
+  getServices,
+  getBlogPosts,
+  getServiceAreas,
+  getCorporatePages,
+} from "@/lib/db";
 
-export default function sitemap(): MetadataRoute.Sitemap {
-  const paths = [
-    "",
-    "urunler",
-    "blog",
-    "kendi-sistemini-tasarla",
-    ...products.map((product) => `urunler/${product.slug}`),
-    ...blogPosts.map((post) => `blog/${post.slug}`),
-    ...services.map((service) => service.slug),
-    ...locations.map((location) => location.slug),
-    ...corporatePages.map((page) => page.slug),
-  ];
+export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
+  const [products, services, posts, locations, corporate] = await Promise.all([
+    getProducts(),
+    getServices(),
+    getBlogPosts(),
+    getServiceAreas(),
+    getCorporatePages(),
+  ]);
 
-  return paths.map((path) => ({
-    url: `${siteConfig.siteUrl}/${path}`.replace(/\/$/, ""),
-    lastModified: new Date("2026-05-28"),
-    changeFrequency: path ? "weekly" : "daily",
-    priority: path ? 0.75 : 1,
+  const currentRuntimeDate = new Date();
+
+  const buildPaths = () => {
+    const paths = [
+      { url: "", priority: 1, changeFrequency: "daily" },
+      { url: "urunler", priority: 0.9, changeFrequency: "daily" },
+      { url: "blog", priority: 0.9, changeFrequency: "daily" },
+      {
+        url: "kendi-sistemini-tasarla",
+        priority: 0.9,
+        changeFrequency: "weekly",
+      },
+    ];
+
+    products
+      .filter((p: any) => p.sitemapInclude !== false)
+      .forEach((p: any) =>
+        paths.push({
+          url: `urunler/${p.slug}`,
+          priority: 0.8,
+          changeFrequency: "weekly",
+        }),
+      );
+
+    posts
+      .filter((p: any) => p.sitemapInclude !== false)
+      .forEach((p: any) =>
+        paths.push({
+          url: `blog/${p.slug}`,
+          priority: 0.7,
+          changeFrequency: "weekly",
+        }),
+      );
+
+    services
+      .filter((p: any) => p.sitemapInclude !== false)
+      .forEach((p: any) =>
+        paths.push({ url: p.slug, priority: 0.8, changeFrequency: "weekly" }),
+      );
+
+    locations
+      .filter((p: any) => p.sitemapInclude !== false)
+      .forEach((p: any) =>
+        paths.push({ url: p.slug, priority: 0.7, changeFrequency: "weekly" }),
+      );
+
+    corporate
+      .filter((p: any) => p.sitemapInclude !== false)
+      .forEach((p: any) =>
+        paths.push({ url: p.slug, priority: 0.6, changeFrequency: "monthly" }),
+      );
+
+    return paths;
+  };
+
+  return buildPaths().map((item) => ({
+    url: `${siteConfig.siteUrl}/${item.url}`.replace(/\/$/, ""),
+    lastModified: currentRuntimeDate,
+    changeFrequency: item.changeFrequency as any,
+    priority: item.priority,
   }));
 }

@@ -3,7 +3,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { ChevronLeft, ChevronRight } from "lucide-react";
-import { useEffect, useMemo, useRef, useState, type PointerEvent } from "react";
+import { useEffect, useRef, useState, type PointerEvent } from "react";
 import { products as staticProducts, type Product } from "@/data/products";
 
 import { cn } from "@/lib/cn";
@@ -57,24 +57,28 @@ export function ProductCarousel({ initialProducts }: ProductCarouselProps) {
     drag.current = { active: true, startX: event.clientX, scrollLeft: node.scrollLeft, moved: false };
     setPaused(true);
     setIsDragging(true);
-    node.setPointerCapture(event.pointerId);
+    // NOT using setPointerCapture — it redirects click events away from child Links
   }
 
   function handlePointerMove(event: PointerEvent<HTMLDivElement>) {
     const node = scrollerRef.current;
     if (!node || !drag.current.active) return;
     const delta = event.clientX - drag.current.startX;
-    if (Math.abs(delta) > 6) drag.current.moved = true;
+    if (Math.abs(delta) > 5) drag.current.moved = true;
     node.scrollLeft = drag.current.scrollLeft - delta;
   }
 
-  function finishDrag(event: PointerEvent<HTMLDivElement>) {
-    const node = scrollerRef.current;
-    if (!node || !drag.current.active) return;
+  function finishDrag() {
+    if (!drag.current.active) return;
     drag.current.active = false;
     setIsDragging(false);
-    node.releasePointerCapture(event.pointerId);
-    window.setTimeout(() => setPaused(false), 800);
+    // setTimeout(0) runs AFTER the click event fires, so:
+    // - on drag: moved=true → click is blocked → then reset to false ✓
+    // - on plain click: moved=false → click passes through ✓
+    window.setTimeout(() => {
+      drag.current.moved = false;
+      setPaused(false);
+    }, 0);
   }
 
   return (
@@ -108,8 +112,9 @@ export function ProductCarousel({ initialProducts }: ProductCarouselProps) {
           onPointerDown={handlePointerDown}
           onPointerMove={handlePointerMove}
           onPointerUp={finishDrag}
+          onPointerLeave={finishDrag}
           onPointerCancel={finishDrag}
-          className={cn("flex cursor-grab gap-4 overflow-x-auto md:active:cursor-grabbing [&::-webkit-scrollbar]:hidden", isDragging ? "snap-none" : "snap-x snap-mandatory")}
+          className={cn("flex cursor-grab gap-4 overflow-x-auto md:active:cursor-grabbing [scrollbar-width:none] [&::-webkit-scrollbar]:hidden", isDragging ? "snap-none" : "snap-x snap-mandatory")}
         >
           {productsList.map((product, index) => (
             <Link

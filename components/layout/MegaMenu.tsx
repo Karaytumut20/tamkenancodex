@@ -14,21 +14,21 @@ export function MegaMenu({ menuKey, onNavigate }: Props) {
   const menu = megaMenus[menuKey];
 
   return (
-    <div className="absolute left-0 top-full z-50 hidden w-screen border-y border-border bg-white lg:block">
+    <div className="absolute left-0 top-full z-50 hidden w-screen border-y border-border bg-white lg:block overflow-hidden">
       <div className="container-primesec grid min-h-[330px] grid-cols-12">
-        <div className="col-span-4 border-r border-border py-6 pr-6 xl:col-span-4">
+        <div className="col-span-4 border-r border-border py-6 pr-6">
           <p className="mb-4 text-xs font-extrabold uppercase tracking-[0.14em] text-primary-600">{menu.eyebrow}</p>
           <div className="space-y-4">
-            {menu.personas.map((persona, index) => (
+            {menu.personas.map((persona) => (
               <Link
                 href={persona.href}
                 key={persona.title}
                 onClick={onNavigate}
                 className="group flex min-h-[86px] items-center justify-between rounded-xl border border-border bg-white px-5 hover:bg-slate-50/50 hover:border-cyan-500 hover:-translate-y-0.5 hover:shadow-md transition-all duration-300"
               >
-                <span >
+                <span>
                   <span className="block text-lg font-extrabold text-ink">{persona.title}</span>
-                  <span className="mt-1 block max-w-[260px] text-sm leading-5 text-ink-muted">{/* SEO/Copy Update: Professional ve açıklayıcı metin buraya gelmeli */}</span>
+                  <span className="mt-1 block max-w-[260px] text-sm leading-5 text-ink-muted"></span>
                 </span>
                 <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full border border-border text-ink-muted group-hover:border-cyan-500 group-hover:text-cyan-500 transition-all duration-300">
                   <ChevronRight className="h-4 w-4" />
@@ -37,9 +37,9 @@ export function MegaMenu({ menuKey, onNavigate }: Props) {
             ))}
           </div>
         </div>
-        <div className="col-span-5 border-r border-border py-6 px-7 xl:col-span-5">
+        <div className="col-span-5 border-r border-border py-6 px-7">
           <div className="grid gap-3">
-            {menu.items.map((item, index) => (
+            {menu.items.map((item) => (
               <Link
                 href={item.href}
                 key={item.title}
@@ -47,10 +47,10 @@ export function MegaMenu({ menuKey, onNavigate }: Props) {
                 className="group grid grid-cols-[54px_1fr_auto] items-center gap-4 rounded-xl border border-transparent px-4 hover:border-border hover:bg-slate-50/70 hover:translate-x-1.5 transition-all duration-300 py-2.5"
               >
                 <span className="relative h-11 w-11 overflow-hidden rounded-xl bg-surface border border-border group-hover:border-cyan-500/30 group-hover:bg-white transition-colors duration-300">
-                  <Image src={item.image} alt="{item.title}" fill className="object-contain p-2" unoptimized />
+                  <Image src={item.image} alt={item.title} fill className="object-contain p-2" unoptimized />
                 </span>
-                <span className="text-[15px] font-bold text-ink group-hover:text-cyan-500 transition-colors">{item.title}</span>
-                <ChevronRight className="h-4 w-4 text-ink-lighter group-hover:text-cyan-500 group-hover:translate-x-0.5 transition-all" />
+                <span className="text-[15px] font-bold text-ink group-hover:text-cyan-500 transition-colors min-w-0 truncate">{item.title}</span>
+                <ChevronRight className="h-4 w-4 text-ink-muted group-hover:text-cyan-500 group-hover:translate-x-0.5 transition-all shrink-0" />
               </Link>
             ))}
           </div>

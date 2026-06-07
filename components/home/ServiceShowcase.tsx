@@ -13,6 +13,7 @@ export function ServiceShowcase() {
   const [tab, setTab] = useState("Tümü");
   const [isDragging, setIsDragging] = useState(false);
   const scrollerRef = useRef<HTMLDivElement>(null);
+  // hasMoved is tracked in a ref so click handler sees the latest value
   const drag = useRef({ active: false, startX: 0, scrollLeft: 0, moved: false });
 
   const filtered = useMemo(() => (tab === "Tümü" ? products : products.filter((p) => p.category === tab)), [tab]);
@@ -20,6 +21,7 @@ export function ServiceShowcase() {
   function handlePointerDown(event: PointerEvent<HTMLDivElement>) {
     const node = scrollerRef.current;
     if (!node) return;
+    // Reset moved flag on every new pointer down
     drag.current = { active: true, startX: event.clientX, scrollLeft: node.scrollLeft, moved: false };
     setIsDragging(true);
     node.setPointerCapture(event.pointerId);
@@ -29,7 +31,7 @@ export function ServiceShowcase() {
     const node = scrollerRef.current;
     if (!node || !drag.current.active) return;
     const delta = event.clientX - drag.current.startX;
-    if (Math.abs(delta) > 6) drag.current.moved = true;
+    if (Math.abs(delta) > 5) drag.current.moved = true;
     node.scrollLeft = drag.current.scrollLeft - delta;
   }
 
@@ -39,6 +41,8 @@ export function ServiceShowcase() {
     drag.current.active = false;
     setIsDragging(false);
     node.releasePointerCapture(event.pointerId);
+    // Reset moved after a tick so click handler can still read it
+    window.setTimeout(() => { drag.current.moved = false; }, 50);
   }
 
   function scroll(direction: "left" | "right") {
@@ -77,18 +81,26 @@ export function ServiceShowcase() {
         </div>
 
         <div className="mb-6">
-          <div className="grid grid-cols-2 gap-2 md:flex md:flex-wrap">
+          <div className="flex gap-2 overflow-x-auto pb-2 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
             {tabs.map((item) => (
               <button
                 key={item}
                 onClick={() => setTab(item)}
-                className={cn("h-9 rounded-full px-4 text-xs font-extrabold whitespace-nowrap transition-all duration-200", tab === item ? "primesec-navy-action text-white shadow-md md:hover:shadow-lg" : "bg-white text-ink-muted md:hover:bg-primary-50 md:hover:text-primary-600 border border-transparent md:hover:border-primary-600")}
+                className={cn(
+                  "h-9 shrink-0 rounded-full px-4 text-xs font-extrabold whitespace-nowrap transition-all duration-200",
+                  tab === item
+                    ? "primesec-navy-action text-white shadow-md"
+                    : "bg-white text-ink-muted border border-transparent hover:border-primary-600 hover:text-primary-600"
+                )}
               >
                 {item}
               </button>
             ))}
-            <Link href="/urunler" className="inline-flex h-9 items-center justify-center gap-1 rounded-full bg-white px-4 text-xs font-extrabold text-primary-600 md:hover:bg-white md:hover:text-primary-600 transition-colors md:ml-auto md:bg-transparent">
-              Tüm Ürünleri Gör <ChevronRight className="h-4 w-4" />
+            <Link
+              href="/urunler"
+              className="inline-flex h-9 shrink-0 items-center justify-center gap-1 rounded-full bg-white px-4 text-xs font-extrabold text-primary-600 hover:text-primary-600 transition-colors ml-auto"
+            >
+              Tüm Ürünleri Gör <ChevronRight className="h-4 w-4 shrink-0" />
             </Link>
           </div>
         </div>
@@ -99,7 +111,7 @@ export function ServiceShowcase() {
           onPointerMove={handlePointerMove}
           onPointerUp={finishDrag}
           onPointerCancel={finishDrag}
-          className={cn("flex cursor-grab gap-5 overflow-x-auto pb-4 md:active:cursor-grabbing [&::-webkit-scrollbar]:hidden", isDragging ? "snap-none" : "snap-x snap-mandatory")}
+          className={cn("flex cursor-grab gap-5 overflow-x-auto pb-4 md:active:cursor-grabbing [scrollbar-width:none] [&::-webkit-scrollbar]:hidden", isDragging ? "snap-none" : "snap-x snap-mandatory")}
         >
           {filtered.map((product) => (
             <Link

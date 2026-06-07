@@ -2,6 +2,7 @@
 @tailwind components;
 @tailwind utilities;
 
+/* ─── Design Tokens ────────────────────────────────────────────────────── */
 :root {
   --color-navy-1000: #1c273e;
   --color-navy-950: #22314e;
@@ -18,38 +19,51 @@
   --color-green-600: #2b3d60;
   --color-green-500: #3d6b93;
   --color-green-400: #4f81ac;
-  --color-red-500: #EF233C;
-  --color-orange-500: #FF8A00;
-  --color-white: #FFFFFF;
-  --color-surface: #F9FAFB;
-  --color-surface-soft: #F3F4F6;
-  --color-border: #E5E5E5;
-  --color-border-strong: #CCCCCC;
-  --color-text-dark: #06142E;
-  --color-text-muted: #5D6B82;
-  --color-text-light: #FFFFFF;
-  --color-text-light-muted: #B8C7DD;
+  --color-red-500: #ef233c;
+  --color-orange-500: #ff8a00;
+  --color-white: #ffffff;
+  --color-surface: #f9fafb;
+  --color-surface-soft: #f3f4f6;
+  --color-border: #e5e5e5;
+  --color-border-strong: #cccccc;
+  --color-text-dark: #06142e;
+  --color-text-muted: #5d6b82;
+  --color-text-light: #ffffff;
+  --color-text-light-muted: #b8c7dd;
 }
 
-* {
+/* ─── Box Model Reset ──────────────────────────────────────────────────── */
+*,
+*::before,
+*::after {
   box-sizing: border-box;
+  /* Prevent flex/grid children from overflowing */
+  min-width: 0;
 }
 
+/* ─── HTML / Body ──────────────────────────────────────────────────────── */
 html {
   scroll-behavior: smooth;
   overflow-x: hidden;
+  /* Prevent iOS font inflation */
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
 }
 
 body {
   margin: 0;
-  background: #F9FAFB;
-  color: #06142E;
-  font-family: "Google Sans", Inter, Arial, sans-serif;
+  background: #f9fafb;
+  color: #06142e;
+  font-family: var(--font-google-sans), "Google Sans", Inter, Arial, sans-serif;
   text-rendering: geometricPrecision;
   color-scheme: light;
   overflow-x: hidden;
+  /* Respect notch/safe areas on mobile */
+  padding-left: env(safe-area-inset-left);
+  padding-right: env(safe-area-inset-right);
 }
 
+/* ─── Base Elements ────────────────────────────────────────────────────── */
 a {
   color: inherit;
   text-decoration: none;
@@ -66,28 +80,74 @@ button {
   cursor: pointer;
 }
 
+/* Images never exceed their container */
+img,
+video,
+svg {
+  max-width: 100%;
+}
+
 :focus-visible {
   outline: 3px solid rgba(61, 107, 147, 0.42);
   outline-offset: 3px;
 }
 
+/* ─── Container System ─────────────────────────────────────────────────── */
+/*
+  Padding-based container: works from 320px up to 4K (2560px+).
+  No percentage widths — uses padding-inline to enforce gutters.
+  Max-width 1760px keeps content readable on ultra-wide monitors.
+*/
 .container-primesec {
-  width: min(calc(100% - 40px), 1760px);
+  width: 100%;
+  max-width: 1760px;
   margin-inline: auto;
+  padding-inline: 16px;
 }
 
+/* sm: 480px+ */
+@media (min-width: 480px) {
+  .container-primesec {
+    padding-inline: 20px;
+  }
+}
+
+/* md: 768px+ */
 @media (min-width: 768px) {
   .container-primesec {
-    width: min(calc(100% - 64px), 1760px);
+    padding-inline: 32px;
   }
 }
 
+/* lg: 1024px+ */
+@media (min-width: 1024px) {
+  .container-primesec {
+    padding-inline: 48px;
+  }
+}
+
+/* xl: 1440px+ */
 @media (min-width: 1440px) {
   .container-primesec {
-    width: min(calc(100% - 96px), 1760px);
+    padding-inline: 64px;
   }
 }
 
+/* 2xl: 1920px+ */
+@media (min-width: 1920px) {
+  .container-primesec {
+    padding-inline: 80px;
+  }
+}
+
+/* 4K: 2560px+ */
+@media (min-width: 2560px) {
+  .container-primesec {
+    padding-inline: 96px;
+  }
+}
+
+/* ─── Desktop Grid ─────────────────────────────────────────────────────── */
 .desktop-grid {
   display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));
@@ -108,27 +168,48 @@ button {
   }
 }
 
+/* ─── Backgrounds ──────────────────────────────────────────────────────── */
 .hero-bg,
 .primesec-navy-bg {
   background:
-    radial-gradient(ellipse at 50% -18%, rgba(79, 129, 172, 0.34), transparent 36%),
+    radial-gradient(
+      ellipse at 50% -18%,
+      rgba(79, 129, 172, 0.34),
+      transparent 36%
+    ),
     radial-gradient(circle at 70% 20%, rgba(34, 49, 78, 0.26), transparent 34%),
-    radial-gradient(circle at 20% 10%, rgba(61, 107, 147, 0.15), transparent 28%),
+    radial-gradient(
+      circle at 20% 10%,
+      rgba(61, 107, 147, 0.15),
+      transparent 28%
+    ),
     linear-gradient(135deg, #1c273e 0%, #2b3d60 52%, #1c273e 100%);
 }
 
 .final-bg,
 .primesec-navy-surface {
   background:
-    radial-gradient(ellipse at 48% -20%, rgba(79, 129, 172, 0.32), transparent 38%),
+    radial-gradient(
+      ellipse at 48% -20%,
+      rgba(79, 129, 172, 0.32),
+      transparent 38%
+    ),
     radial-gradient(circle at 78% 18%, rgba(34, 49, 78, 0.3), transparent 34%),
-    radial-gradient(circle at 12% 0%, rgba(61, 107, 147, 0.13), transparent 30%),
+    radial-gradient(
+      circle at 12% 0%,
+      rgba(61, 107, 147, 0.13),
+      transparent 30%
+    ),
     linear-gradient(135deg, #1c273e 0%, #2b3d60 56%, #1c273e 100%);
 }
 
 .primesec-navy-action {
   background:
-    radial-gradient(ellipse at 50% -32%, rgba(79, 129, 172, 0.4), transparent 52%),
+    radial-gradient(
+      ellipse at 50% -32%,
+      rgba(79, 129, 172, 0.4),
+      transparent 52%
+    ),
     linear-gradient(135deg, #2b3d60 0%, #344972 48%, #1c273e 100%);
   box-shadow: 0 16px 32px rgba(28, 39, 62, 0.18);
 }
@@ -141,10 +222,15 @@ button {
 
 .primesec-navy-chip {
   background:
-    radial-gradient(ellipse at 50% 0%, rgba(79, 129, 172, 0.18), transparent 52%),
+    radial-gradient(
+      ellipse at 50% 0%,
+      rgba(79, 129, 172, 0.18),
+      transparent 52%
+    ),
     rgba(34, 49, 78, 0.78);
 }
 
+/* ─── Typography ───────────────────────────────────────────────────────── */
 .gradient-text {
   background: linear-gradient(135deg, #4f81ac 0%, #3d6b93 45%, #2b3d60 100%);
   -webkit-background-clip: text;
@@ -153,19 +239,20 @@ button {
 }
 
 .display-xl {
-  font-size: clamp(38px, 5vw, 84px);
+  font-size: clamp(32px, 5vw, 84px);
   line-height: 0.98;
   font-weight: 800;
   letter-spacing: -0.045em;
 }
 
 .section-title {
-  font-size: clamp(30px, 3vw, 48px);
+  font-size: clamp(26px, 3vw, 48px);
   line-height: 1.05;
   font-weight: 800;
   letter-spacing: -0.035em;
 }
 
+/* ─── Glass ────────────────────────────────────────────────────────────── */
 .glass-card {
   background: rgba(6, 26, 53, 0.72);
   border: 1px solid rgba(59, 160, 255, 0.32);
@@ -176,6 +263,7 @@ button {
   border: 1px solid rgba(22, 131, 255, 0.28);
 }
 
+/* ─── Line Clamp ───────────────────────────────────────────────────────── */
 .line-clamp-2 {
   display: -webkit-box;
   -webkit-line-clamp: 2;
@@ -183,23 +271,51 @@ button {
   overflow: hidden;
 }
 
+/* ─── Product Card Image ───────────────────────────────────────────────── */
+/* Fluid heights via clamp-like breakpoints */
 .product-card-image {
-  height: 176px;
+  height: 160px;
 }
 
 .product-card-whatsapp {
   gap: 4px;
 }
 
+@media (min-width: 480px) {
+  .product-card-image {
+    height: 176px;
+  }
+}
+
+@media (min-width: 640px) {
+  .product-card-image {
+    height: 200px;
+  }
+}
+
+@media (min-width: 1024px) {
+  .product-card-image {
+    height: 220px;
+  }
+}
+
+@media (min-width: 1440px) {
+  .product-card-image {
+    height: 240px;
+  }
+}
+
+/* ─── Product Grid List ────────────────────────────────────────────────── */
 .product-grid-list {
   display: grid;
   grid-template-columns: 1fr;
-  gap: 16px;
+  gap: 14px;
 }
 
-@media (min-width: 520px) {
+@media (min-width: 480px) {
   .product-grid-list {
     grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 16px;
   }
 }
 
@@ -210,35 +326,34 @@ button {
   }
 }
 
-@media (min-width: 640px) {
-  .product-card-image {
-    height: 208px;
+@media (min-width: 1440px) {
+  .product-grid-list {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 24px;
   }
 }
 
-@media (min-width: 1024px) {
-  .product-card-image {
-    height: 224px;
-  }
-}
-
+/* ─── Marquee Animation ────────────────────────────────────────────────── */
 @keyframes brand-marquee {
   from {
     transform: translateX(0);
   }
-
   to {
     transform: translateX(-50%);
   }
 }
 
+/* ─── Mobile Menu Body State ───────────────────────────────────────────── */
 body.mobile-menu-open .floating-contact-container {
   opacity: 0;
   pointer-events: none;
   visibility: hidden;
-  transition: opacity 0.2s ease, visibility 0.2s ease;
+  transition:
+    opacity 0.2s ease,
+    visibility 0.2s ease;
 }
 
+/* ─── Scrollbar Hide Utility ───────────────────────────────────────────── */
 .scrollbar-none::-webkit-scrollbar {
   display: none;
 }

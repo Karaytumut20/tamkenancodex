@@ -8,6 +8,26 @@ import { AdminLayoutStyles } from "@/components/layout/AdminLayoutStyles";
 import { JsonLd } from "@/components/seo/JsonLd";
 import { siteConfig } from "@/data/site";
 import { getMenuItems, getSiteSettings } from "@/lib/db";
+import { localBusinessSchema } from "@/data/schemas";
+import { Inter, Monoton } from "next/font/google";
+
+const googleSans = Inter({
+  subsets: ["latin"],
+  weight: ["400", "500", "700", "800"],
+  variable: "--font-google-sans",
+  display: "swap",
+});
+
+const monoton = Monoton({
+  subsets: ["latin"],
+  weight: ["400"],
+  variable: "--font-monoton",
+  display: "swap",
+});
+
+// Cache the layout for 1 hour — navigation & settings revalidate on the server,
+// so each page transition doesn't block on a Supabase round-trip.
+export const revalidate = 3600;
 
 export const metadata: Metadata = {
   metadataBase: new URL(siteConfig.siteUrl),
@@ -23,19 +43,17 @@ export const viewport = {
   initialScale: 1,
 };
 
-export default async function RootLayout({ children }: Readonly<{ children: ReactNode }>) {
+export default async function RootLayout({
+  children,
+}: Readonly<{ children: ReactNode }>) {
   const [settings, headerNavigation] = await Promise.all([
     getSiteSettings(),
     getMenuItems("header"),
   ]);
 
   return (
-    <html lang="tr">
-      <head>
-        <link rel="preconnect" href="https://fonts.googleapis.com" />
-        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
-        <link href="https://fonts.googleapis.com/css2?family=Google+Sans:ital,opsz,wght@0,17..18,400..700;1,17..18,400..700&family=Monoton&display=swap" rel="stylesheet" />
-      </head>
+    <html lang="tr" className={`${googleSans.variable} ${monoton.variable}`}>
+      <head />
       <body>
         <AdminLayoutStyles />
         <JsonLd
@@ -56,10 +74,11 @@ export default async function RootLayout({ children }: Readonly<{ children: Reac
               name: settings.name,
               url: settings.siteUrl,
             },
+            localBusinessSchema(),
           ]}
         />
         <Header navigation={headerNavigation} />
-        <main>{children}</main>
+        <main className="overflow-x-hidden">{children}</main>
         <Footer />
         <FloatingContact />
       </body>

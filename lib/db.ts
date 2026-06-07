@@ -5,7 +5,10 @@ import { products as staticProducts, type Product } from "@/data/products";
 import { services as staticServices, type ServicePage } from "@/data/services";
 import { blogPosts as staticBlogPosts, type BlogPost } from "@/data/blog";
 import { locations as staticLocations } from "@/data/locations";
-import { corporatePages as staticCorporatePages, type CorporatePage } from "@/data/corporate";
+import {
+  corporatePages as staticCorporatePages,
+  type CorporatePage,
+} from "@/data/corporate";
 import { mainNavigation as staticMainNavigation } from "@/data/navigation";
 import { siteConfig } from "@/data/site";
 
@@ -25,8 +28,8 @@ function getSupabase() {
   supabaseInstance = createClient(env.url, env.anonKey, {
     auth: {
       persistSession: false,
-      autoRefreshToken: false
-    }
+      autoRefreshToken: false,
+    },
   });
   return supabaseInstance;
 }
@@ -39,32 +42,45 @@ function settingValue(value: unknown) {
   return typeof value === "string" ? value : undefined;
 }
 
-export const getSiteSettings = cache(async function getSiteSettings(): Promise<SiteSettings> {
-  try {
-    const supabase = getSupabase();
-    const { data, error } = await supabase.from("site_settings").select("key, value");
-    if (error || !data) return siteConfig;
+export const getSiteSettings = cache(
+  async function getSiteSettings(): Promise<SiteSettings> {
+    try {
+      const supabase = getSupabase();
+      const { data, error } = await supabase
+        .from("site_settings")
+        .select("key, value");
+      if (error || !data) return siteConfig;
 
-    const settings = new Map((data as any[]).map((row) => [String(row.key), row.value]));
-    return {
-      ...siteConfig,
-      name: settingValue(settings.get("site.name")) ?? siteConfig.name,
-      legalName: settingValue(settings.get("site.legalName")) ?? siteConfig.legalName,
-      siteUrl: settingValue(settings.get("site.url")) ?? siteConfig.siteUrl,
-      description: settingValue(settings.get("site.description")) ?? siteConfig.description,
-      phone: settingValue(settings.get("contact.phone")) ?? siteConfig.phone,
-      whatsapp: settingValue(settings.get("contact.whatsapp")) ?? siteConfig.whatsapp,
-      email: settingValue(settings.get("contact.email")) ?? siteConfig.email,
-      address: settingValue(settings.get("contact.address")) ?? siteConfig.address,
-      city: settingValue(settings.get("contact.city")) ?? siteConfig.city,
-    };
-  } catch (err) {
-    console.error("Error in getSiteSettings:", err);
-    return siteConfig;
-  }
-});
+      const settings = new Map(
+        (data as any[]).map((row) => [String(row.key), row.value]),
+      );
+      return {
+        ...siteConfig,
+        name: settingValue(settings.get("site.name")) ?? siteConfig.name,
+        legalName:
+          settingValue(settings.get("site.legalName")) ?? siteConfig.legalName,
+        siteUrl: settingValue(settings.get("site.url")) ?? siteConfig.siteUrl,
+        description:
+          settingValue(settings.get("site.description")) ??
+          siteConfig.description,
+        phone: settingValue(settings.get("contact.phone")) ?? siteConfig.phone,
+        whatsapp:
+          settingValue(settings.get("contact.whatsapp")) ?? siteConfig.whatsapp,
+        email: settingValue(settings.get("contact.email")) ?? siteConfig.email,
+        address:
+          settingValue(settings.get("contact.address")) ?? siteConfig.address,
+        city: settingValue(settings.get("contact.city")) ?? siteConfig.city,
+      };
+    } catch (err) {
+      console.error("Error in getSiteSettings:", err);
+      return siteConfig;
+    }
+  },
+);
 
-export const getMenuItems = cache(async function getMenuItems(menuKey: string): Promise<NavigationItem[]> {
+export const getMenuItems = cache(async function getMenuItems(
+  menuKey: string,
+): Promise<NavigationItem[]> {
   try {
     const supabase = getSupabase();
     const { data, error } = await supabase
@@ -90,41 +106,59 @@ export const getMenuItems = cache(async function getMenuItems(menuKey: string): 
   }
 });
 
-export const getCorporatePages = cache(async function getCorporatePages(): Promise<CorporatePage[]> {
-  try {
-    const supabase = getSupabase();
-    const { data: dbPages, error } = await supabase
-      .from("pages")
-      .select("*")
-      .eq("status", "published")
-      .order("updated_at", { ascending: false });
+export const getCorporatePages = cache(
+  async function getCorporatePages(): Promise<any[]> {
+    try {
+      const supabase = getSupabase();
+      const { data: dbPages, error } = await supabase
+        .from("pages")
+        .select("*")
+        .eq("status", "published")
+        .order("updated_at", { ascending: false });
 
-    if (error || !dbPages || dbPages.length === 0) {
+      if (error || !dbPages || dbPages.length === 0) {
+        return staticCorporatePages;
+      }
+
+      return (dbPages as any[]).map((page) => {
+        const body = page.content
+          ? String(page.content)
+              .split("\n\n")
+              .map((paragraph) => paragraph.trim())
+              .filter(Boolean)
+          : [];
+
+        return {
+          id: page.id,
+          slug: page.slug,
+          title: page.h1 || page.title,
+          metaTitle: page.meta_title || `${page.title} | PrimeSec Teknoloji`,
+          description: page.meta_description || page.excerpt || "",
+          body: body.length > 0 ? body : [page.excerpt || ""].filter(Boolean),
+          cta:
+            page.cta_label ||
+            page.excerpt ||
+            "PrimeSec ekibiyle ihtiyacınızı netleştirelim.",
+          robotsIndex: page.robots_index ?? "index",
+          robotsFollow: page.robots_follow ?? "follow",
+          canonicalUrl: page.canonical_url,
+          ogTitle: page.og_title,
+          ogDescription: page.og_description,
+          twitterTitle: page.twitter_title,
+          twitterDescription: page.twitter_description,
+          twitterImage: page.twitter_image_url,
+          schemaType: page.schema_type ?? "WebPage",
+          jsonLd: page.json_ld ?? {},
+          sitemapInclude: page.sitemap_include ?? true,
+          redirectTo: page.redirect_to,
+        };
+      });
+    } catch (err) {
+      console.error("Error in getCorporatePages:", err);
       return staticCorporatePages;
     }
-
-    return (dbPages as any[]).map((page) => {
-      const body = page.content
-        ? String(page.content)
-            .split("\n\n")
-            .map((paragraph) => paragraph.trim())
-            .filter(Boolean)
-        : [];
-
-      return {
-        slug: page.slug,
-        title: page.h1 || page.title,
-        metaTitle: page.meta_title || `${page.title} | PrimeSec Teknoloji`,
-        description: page.meta_description || page.excerpt || "",
-        body: body.length > 0 ? body : [page.excerpt || ""].filter(Boolean),
-        cta: page.cta_label || page.excerpt || "PrimeSec ekibiyle ihtiyacinizi netlestirelim.",
-      };
-    });
-  } catch (err) {
-    console.error("Error in getCorporatePages:", err);
-    return staticCorporatePages;
-  }
-});
+  },
+);
 
 export type SiteContentBlock = {
   sectionKey: string;
@@ -140,7 +174,9 @@ export type SiteContentBlock = {
   items?: unknown[];
 };
 
-export const getSiteContentBlock = cache(async function getSiteContentBlock(sectionKey: string): Promise<SiteContentBlock | null> {
+export const getSiteContentBlock = cache(async function getSiteContentBlock(
+  sectionKey: string,
+): Promise<SiteContentBlock | null> {
   try {
     const supabase = getSupabase();
     const { data, error } = await supabase
@@ -176,11 +212,10 @@ export const getSiteContentBlock = cache(async function getSiteContentBlock(sect
 // PRODUCTS
 // ─────────────────────────────────────────────────────────────────────────────
 
-export const getProducts = cache(async function getProducts(): Promise<Product[]> {
+export const getProducts = cache(async function getProducts(): Promise<any[]> {
   try {
     const supabase = getSupabase();
-    
-    // Fetch products with categories and brands
+
     const { data: dbProducts, error } = await supabase
       .from("products")
       .select("*, categories(name), brands(name)")
@@ -188,15 +223,19 @@ export const getProducts = cache(async function getProducts(): Promise<Product[]
       .order("sort_order", { ascending: true });
 
     if (error || !dbProducts || dbProducts.length === 0) {
-      console.warn("Using fallback products due to DB error or empty table:", error);
+      console.warn(
+        "Using fallback products due to DB error or empty table:",
+        error,
+      );
       return staticProducts;
     }
 
     return (dbProducts as any[]).map((p) => {
       const categoryName = p.categories?.name || "Güvenlik Sistemleri";
       const brandName = p.brands?.name || "PrimeSec";
-      
+
       return {
+        id: p.id,
         slug: p.slug,
         name: p.title,
         code: p.sku || "",
@@ -211,7 +250,11 @@ export const getProducts = cache(async function getProducts(): Promise<Product[]
           ? p.features.map((f: any) =>
               typeof f === "string"
                 ? { title: f, description: "", active: true }
-                : { title: String(f?.title ?? ""), description: String(f?.description ?? ""), active: f?.active !== false }
+                : {
+                    title: String(f?.title ?? ""),
+                    description: String(f?.description ?? ""),
+                    active: f?.active !== false,
+                  },
             )
           : [],
         showFeatures: p.show_features !== false,
@@ -219,7 +262,11 @@ export const getProducts = cache(async function getProducts(): Promise<Product[]
           ? p.installation_steps.map((f: any) =>
               typeof f === "string"
                 ? { title: f, description: "", active: true }
-                : { title: String(f?.title ?? ""), description: String(f?.description ?? ""), active: f?.active !== false }
+                : {
+                    title: String(f?.title ?? ""),
+                    description: String(f?.description ?? ""),
+                    active: f?.active !== false,
+                  },
             )
           : [],
         specsTitle: p.specs_title || undefined,
@@ -229,7 +276,11 @@ export const getProducts = cache(async function getProducts(): Promise<Product[]
           ? p.benefits.map((f: any) =>
               typeof f === "string"
                 ? { title: f, description: "", active: true }
-                : { title: String(f?.title ?? ""), description: String(f?.description ?? ""), active: f?.active !== false }
+                : {
+                    title: String(f?.title ?? ""),
+                    description: String(f?.description ?? ""),
+                    active: f?.active !== false,
+                  },
             )
           : [],
         benefitsTitle: p.benefits_title || undefined,
@@ -237,8 +288,29 @@ export const getProducts = cache(async function getProducts(): Promise<Product[]
         showBenefits: p.show_benefits !== false,
         faqs: Array.isArray(p.faqs) ? p.faqs : [],
         gallery: Array.isArray(p.gallery)
-          ? p.gallery.map((g: any) => (typeof g === "object" && g ? String(g.url ?? "") : String(g))).filter(Boolean)
+          ? p.gallery
+              .map((g: any) =>
+                typeof g === "object" && g ? String(g.url ?? "") : String(g),
+              )
+              .filter(Boolean)
           : [],
+
+        // SEO & Admin Extras
+        metaTitle: p.meta_title,
+        metaDescription: p.meta_description,
+        robotsIndex: p.robots_index ?? "index",
+        robotsFollow: p.robots_follow ?? "follow",
+        canonicalUrl: p.canonical_url,
+        ogTitle: p.og_title,
+        ogDescription: p.og_description,
+        twitterTitle: p.twitter_title,
+        twitterDescription: p.twitter_description,
+        twitterImage: p.twitter_image_url,
+        schemaType: p.schema_type ?? "Product",
+        jsonLd: p.json_ld ?? {},
+        sitemapInclude: p.sitemap_include ?? true,
+        redirectTo: p.redirect_to,
+        relatedProductIds: p.related_product_ids || [],
       };
     });
   } catch (err) {
@@ -247,7 +319,9 @@ export const getProducts = cache(async function getProducts(): Promise<Product[]
   }
 });
 
-export const getProductBySlug = cache(async function getProductBySlug(slug: string): Promise<Product | null> {
+export const getProductBySlug = cache(async function getProductBySlug(
+  slug: string,
+): Promise<any | null> {
   try {
     const supabase = getSupabase();
     const { data: p, error } = await supabase
@@ -258,7 +332,6 @@ export const getProductBySlug = cache(async function getProductBySlug(slug: stri
       .maybeSingle();
 
     if (error || !p) {
-      // Fallback
       return staticProducts.find((item) => item.slug === slug) || null;
     }
 
@@ -267,6 +340,7 @@ export const getProductBySlug = cache(async function getProductBySlug(slug: stri
     const brandName = pData.brands?.name || "PrimeSec";
 
     return {
+      id: pData.id,
       slug: pData.slug,
       name: pData.title,
       code: pData.sku || "",
@@ -281,7 +355,11 @@ export const getProductBySlug = cache(async function getProductBySlug(slug: stri
         ? pData.features.map((f: any) =>
             typeof f === "string"
               ? { title: f, description: "", active: true }
-              : { title: String(f?.title ?? ""), description: String(f?.description ?? ""), active: f?.active !== false }
+              : {
+                  title: String(f?.title ?? ""),
+                  description: String(f?.description ?? ""),
+                  active: f?.active !== false,
+                },
           )
         : [],
       showFeatures: pData.show_features !== false,
@@ -289,7 +367,11 @@ export const getProductBySlug = cache(async function getProductBySlug(slug: stri
         ? pData.installation_steps.map((f: any) =>
             typeof f === "string"
               ? { title: f, description: "", active: true }
-              : { title: String(f?.title ?? ""), description: String(f?.description ?? ""), active: f?.active !== false }
+              : {
+                  title: String(f?.title ?? ""),
+                  description: String(f?.description ?? ""),
+                  active: f?.active !== false,
+                },
           )
         : [],
       specsTitle: pData.specs_title || undefined,
@@ -299,7 +381,11 @@ export const getProductBySlug = cache(async function getProductBySlug(slug: stri
         ? pData.benefits.map((f: any) =>
             typeof f === "string"
               ? { title: f, description: "", active: true }
-              : { title: String(f?.title ?? ""), description: String(f?.description ?? ""), active: f?.active !== false }
+              : {
+                  title: String(f?.title ?? ""),
+                  description: String(f?.description ?? ""),
+                  active: f?.active !== false,
+                },
           )
         : [],
       benefitsTitle: pData.benefits_title || undefined,
@@ -307,8 +393,29 @@ export const getProductBySlug = cache(async function getProductBySlug(slug: stri
       showBenefits: pData.show_benefits !== false,
       faqs: Array.isArray(pData.faqs) ? pData.faqs : [],
       gallery: Array.isArray(pData.gallery)
-        ? pData.gallery.map((g: any) => (typeof g === "object" && g ? String(g.url ?? "") : String(g))).filter(Boolean)
+        ? pData.gallery
+            .map((g: any) =>
+              typeof g === "object" && g ? String(g.url ?? "") : String(g),
+            )
+            .filter(Boolean)
         : [],
+
+      // SEO & Admin Extras
+      metaTitle: pData.meta_title,
+      metaDescription: pData.meta_description,
+      robotsIndex: pData.robots_index ?? "index",
+      robotsFollow: pData.robots_follow ?? "follow",
+      canonicalUrl: pData.canonical_url,
+      ogTitle: pData.og_title,
+      ogDescription: pData.og_description,
+      twitterTitle: pData.twitter_title,
+      twitterDescription: pData.twitter_description,
+      twitterImage: pData.twitter_image_url,
+      schemaType: pData.schema_type ?? "Product",
+      jsonLd: pData.json_ld ?? {},
+      sitemapInclude: pData.sitemap_include ?? true,
+      redirectTo: pData.redirect_to,
+      relatedProductIds: pData.related_product_ids || [],
     };
   } catch (err) {
     console.error("Error in getProductBySlug:", err);
@@ -320,7 +427,7 @@ export const getProductBySlug = cache(async function getProductBySlug(slug: stri
 // SERVICES
 // ─────────────────────────────────────────────────────────────────────────────
 
-export const getServices = cache(async function getServices(): Promise<ServicePage[]> {
+export const getServices = cache(async function getServices(): Promise<any[]> {
   try {
     const supabase = getSupabase();
     const { data: dbServices, error } = await supabase
@@ -336,10 +443,12 @@ export const getServices = cache(async function getServices(): Promise<ServicePa
     return (dbServices as any[]).map((s) => {
       const categoryName = s.categories?.name || "Güvenlik Sistemleri";
       return {
+        id: s.id,
         slug: s.slug,
         title: s.title,
         metaTitle: s.meta_title || `${s.title} | PrimeSec Teknoloji`,
-        description: s.hero_description || s.intro_content || "",
+        description:
+          s.meta_description || s.hero_description || s.intro_content || "",
         heroImage: s.image_url || "/images/alarm-sistemi.svg",
         category: categoryName,
         keywords: [s.title, "Güvenlik sistemleri", "PrimeSec Teknoloji"],
@@ -347,6 +456,20 @@ export const getServices = cache(async function getServices(): Promise<ServicePa
         useCases: Array.isArray(s.usage_areas) ? s.usage_areas : [],
         process: Array.isArray(s.process_steps) ? s.process_steps : [],
         faqs: Array.isArray(s.faqs) ? s.faqs : [],
+
+        // SEO & Admin Extras
+        robotsIndex: s.robots_index ?? "index",
+        robotsFollow: s.robots_follow ?? "follow",
+        canonicalUrl: s.canonical_url,
+        ogTitle: s.og_title,
+        ogDescription: s.og_description,
+        twitterTitle: s.twitter_title,
+        twitterDescription: s.twitter_description,
+        twitterImage: s.twitter_image_url,
+        schemaType: s.schema_type ?? "Service",
+        jsonLd: s.json_ld ?? {},
+        sitemapInclude: s.sitemap_include ?? true,
+        redirectTo: s.redirect_to,
       };
     });
   } catch (err) {
@@ -355,7 +478,9 @@ export const getServices = cache(async function getServices(): Promise<ServicePa
   }
 });
 
-export const getServiceBySlug = cache(async function getServiceBySlug(slug: string): Promise<ServicePage | null> {
+export const getServiceBySlug = cache(async function getServiceBySlug(
+  slug: string,
+): Promise<any | null> {
   try {
     const supabase = getSupabase();
     const { data: s, error } = await supabase
@@ -372,10 +497,15 @@ export const getServiceBySlug = cache(async function getServiceBySlug(slug: stri
     const sData = s as any;
     const categoryName = sData.categories?.name || "Güvenlik Sistemleri";
     return {
+      id: sData.id,
       slug: sData.slug,
       title: sData.title,
       metaTitle: sData.meta_title || `${sData.title} | PrimeSec Teknoloji`,
-      description: sData.hero_description || sData.intro_content || "",
+      description:
+        sData.meta_description ||
+        sData.hero_description ||
+        sData.intro_content ||
+        "",
       heroImage: sData.image_url || "/images/alarm-sistemi.svg",
       category: categoryName,
       keywords: [sData.title, "Güvenlik sistemleri", "PrimeSec Teknoloji"],
@@ -383,6 +513,20 @@ export const getServiceBySlug = cache(async function getServiceBySlug(slug: stri
       useCases: Array.isArray(sData.usage_areas) ? sData.usage_areas : [],
       process: Array.isArray(sData.process_steps) ? sData.process_steps : [],
       faqs: Array.isArray(sData.faqs) ? sData.faqs : [],
+
+      // SEO & Admin Extras
+      robotsIndex: sData.robots_index ?? "index",
+      robotsFollow: sData.robots_follow ?? "follow",
+      canonicalUrl: sData.canonical_url,
+      ogTitle: sData.og_title,
+      ogDescription: sData.og_description,
+      twitterTitle: sData.twitter_title,
+      twitterDescription: sData.twitter_description,
+      twitterImage: sData.twitter_image_url,
+      schemaType: sData.schema_type ?? "Service",
+      jsonLd: sData.json_ld ?? {},
+      sitemapInclude: sData.sitemap_include ?? true,
+      redirectTo: sData.redirect_to,
     };
   } catch (err) {
     console.error("Error in getServiceBySlug:", err);
@@ -394,7 +538,9 @@ export const getServiceBySlug = cache(async function getServiceBySlug(slug: stri
 // BLOG POSTS
 // ─────────────────────────────────────────────────────────────────────────────
 
-export const getBlogPosts = cache(async function getBlogPosts(): Promise<BlogPost[]> {
+export const getBlogPosts = cache(async function getBlogPosts(): Promise<
+  any[]
+> {
   try {
     const supabase = getSupabase();
     const { data: dbPosts, error } = await supabase
@@ -409,21 +555,49 @@ export const getBlogPosts = cache(async function getBlogPosts(): Promise<BlogPos
 
     return (dbPosts as any[]).map((post) => {
       const categoryName = post.categories?.name || "Satın Alma Rehberleri";
-      const dateStr = post.published_at ? new Date(post.published_at).toISOString().split("T")[0] : new Date(post.created_at).toISOString().split("T")[0];
-      
-      const paragraphs = post.content ? post.content.split("\n\n").map((p: string) => p.trim()).filter(Boolean) : [];
+      const dateStr = post.published_at
+        ? new Date(post.published_at).toISOString().split("T")[0]
+        : new Date(post.created_at).toISOString().split("T")[0];
+
+      const paragraphs = post.content
+        ? post.content
+            .split("\n\n")
+            .map((p: string) => p.trim())
+            .filter(Boolean)
+        : [];
 
       return {
+        id: post.id,
         slug: post.slug,
         title: post.title,
-        description: post.excerpt || "",
+        metaTitle: post.meta_title || `${post.title} | PrimeSec Blog`,
+        description: post.meta_description || post.excerpt || "",
         category: categoryName,
         date: dateStr,
-        updatedAt: post.updated_at ? new Date(post.updated_at).toISOString().split("T")[0] : dateStr,
+        updatedAt: post.updated_at
+          ? new Date(post.updated_at).toISOString().split("T")[0]
+          : dateStr,
         readTime: post.reading_time || "5 dk",
         image: post.cover_image_url || "/images/blog-security.svg",
-        body: paragraphs.length > 0 ? paragraphs : ["Güvenlik sistemi hakkında detaylar."],
+        body:
+          paragraphs.length > 0
+            ? paragraphs
+            : ["Güvenlik sistemi hakkında detaylar."],
         faqs: Array.isArray(post.faqs) ? post.faqs : [],
+
+        // SEO & Admin Extras
+        robotsIndex: post.robots_index ?? "index",
+        robotsFollow: post.robots_follow ?? "follow",
+        canonicalUrl: post.canonical_url,
+        ogTitle: post.og_title,
+        ogDescription: post.og_description,
+        twitterTitle: post.twitter_title,
+        twitterDescription: post.twitter_description,
+        twitterImage: post.twitter_image_url,
+        schemaType: post.schema_type ?? "Article",
+        jsonLd: post.json_ld ?? {},
+        sitemapInclude: post.sitemap_include ?? true,
+        redirectTo: post.redirect_to,
       };
     });
   } catch (err) {
@@ -432,7 +606,9 @@ export const getBlogPosts = cache(async function getBlogPosts(): Promise<BlogPos
   }
 });
 
-export const getBlogPostBySlug = cache(async function getBlogPostBySlug(slug: string): Promise<BlogPost | null> {
+export const getBlogPostBySlug = cache(async function getBlogPostBySlug(
+  slug: string,
+): Promise<any | null> {
   try {
     const supabase = getSupabase();
     const { data: post, error } = await supabase
@@ -448,21 +624,49 @@ export const getBlogPostBySlug = cache(async function getBlogPostBySlug(slug: st
 
     const postData = post as any;
     const categoryName = postData.categories?.name || "Satın Alma Rehberleri";
-    const dateStr = postData.published_at ? new Date(postData.published_at).toISOString().split("T")[0] : new Date(postData.created_at).toISOString().split("T")[0];
-    
-    const paragraphs = postData.content ? postData.content.split("\n\n").map((p: string) => p.trim()).filter(Boolean) : [];
+    const dateStr = postData.published_at
+      ? new Date(postData.published_at).toISOString().split("T")[0]
+      : new Date(postData.created_at).toISOString().split("T")[0];
+
+    const paragraphs = postData.content
+      ? postData.content
+          .split("\n\n")
+          .map((p: string) => p.trim())
+          .filter(Boolean)
+      : [];
 
     return {
+      id: postData.id,
       slug: postData.slug,
       title: postData.title,
-      description: postData.excerpt || "",
+      metaTitle: postData.meta_title || `${postData.title} | PrimeSec Blog`,
+      description: postData.meta_description || postData.excerpt || "",
       category: categoryName,
       date: dateStr,
-      updatedAt: postData.updated_at ? new Date(postData.updated_at).toISOString().split("T")[0] : dateStr,
+      updatedAt: postData.updated_at
+        ? new Date(postData.updated_at).toISOString().split("T")[0]
+        : dateStr,
       readTime: postData.reading_time || "5 dk",
       image: postData.cover_image_url || "/images/blog-security.svg",
-      body: paragraphs.length > 0 ? paragraphs : ["Güvenlik sistemi hakkında detaylar."],
+      body:
+        paragraphs.length > 0
+          ? paragraphs
+          : ["Güvenlik sistemi hakkında detaylar."],
       faqs: Array.isArray(postData.faqs) ? postData.faqs : [],
+
+      // SEO & Admin Extras
+      robotsIndex: postData.robots_index ?? "index",
+      robotsFollow: postData.robots_follow ?? "follow",
+      canonicalUrl: postData.canonical_url,
+      ogTitle: postData.og_title,
+      ogDescription: postData.og_description,
+      twitterTitle: postData.twitter_title,
+      twitterDescription: postData.twitter_description,
+      twitterImage: postData.twitter_image_url,
+      schemaType: postData.schema_type ?? "Article",
+      jsonLd: postData.json_ld ?? {},
+      sitemapInclude: postData.sitemap_include ?? true,
+      redirectTo: postData.redirect_to,
     };
   } catch (err) {
     console.error("Error in getBlogPostBySlug:", err);
@@ -474,7 +678,9 @@ export const getBlogPostBySlug = cache(async function getBlogPostBySlug(slug: st
 // SERVICE AREAS (LOCATIONS)
 // ─────────────────────────────────────────────────────────────────────────────
 
-export const getServiceAreas = cache(async function getServiceAreas(): Promise<ServicePage[]> {
+export const getServiceAreas = cache(async function getServiceAreas(): Promise<
+  any[]
+> {
   try {
     const supabase = getSupabase();
     const { data: dbAreas, error } = await supabase
@@ -491,12 +697,17 @@ export const getServiceAreas = cache(async function getServiceAreas(): Promise<S
       const city = area.city;
       const title = area.title;
       return {
+        id: area.id,
         slug: area.slug,
         title: title,
         metaTitle: area.meta_title || `${title} | PrimeSec Teknoloji`,
-        description: area.description || "",
-        heroImage: area.slug.includes("kamera") ? "/images/kamera-sistemi.svg" : "/images/local-security.svg",
-        category: area.slug.includes("kamera") ? "Kamera Sistemleri" : "Alarm Sistemleri",
+        description: area.meta_description || area.description || "",
+        heroImage: area.slug.includes("kamera")
+          ? "/images/kamera-sistemi.svg"
+          : "/images/local-security.svg",
+        category: area.slug.includes("kamera")
+          ? "Kamera Sistemleri"
+          : "Alarm Sistemleri",
         keywords: [title, `${city} güvenlik sistemleri`, "PrimeSec Teknoloji"],
         benefits: [
           `${city} ve çevresine hızlı keşif planı`,
@@ -504,12 +715,46 @@ export const getServiceAreas = cache(async function getServiceAreas(): Promise<S
           "Alarm, kamera ve akıllı sistem entegrasyonu",
           "Kurulum sonrası teknik destek",
         ],
-        useCases: [`${city} konut projeleri`, `${city} mağaza ve ofisleri`, "Depo, üretim ve ortak alanlar"],
-        process: ["Bölge ihtiyacının analizi", "Ürün ve kamera/sensör planı", "Kurulum ve mobil ayarlar", "Bakım ve destek"],
-        faqs: Array.isArray(area.faqs) && area.faqs.length > 0 ? area.faqs : [
-          { question: `${city} için keşif süreci nasıl ilerler?`, answer: "İhtiyaç bilgilerinizi aldıktan sonra uygun gün ve saat için keşif planı oluştururuz." },
-          { question: "Yerel servis desteği var mı?", answer: "PrimeSec Teknoloji yakın hizmet ağında kurulum ve satış sonrası destek sağlar." },
+        useCases: [
+          `${city} konut projeleri`,
+          `${city} mağaza ve ofisleri`,
+          "Depo, üretim ve ortak alanlar",
         ],
+        process: [
+          "Bölge ihtiyacının analizi",
+          "Ürün ve kamera/sensör planı",
+          "Kurulum ve mobil ayarlar",
+          "Bakım ve destek",
+        ],
+        faqs:
+          Array.isArray(area.faqs) && area.faqs.length > 0
+            ? area.faqs
+            : [
+                {
+                  question: `${city} için keşif süreci nasıl ilerler?`,
+                  answer:
+                    "İhtiyaç bilgilerinizi aldıktan sonra uygun gün ve saat için keşif planı oluştururuz.",
+                },
+                {
+                  question: "Yerel servis desteği var mı?",
+                  answer:
+                    "PrimeSec Teknoloji yakın hizmet ağında kurulum ve satış sonrası destek sağlar.",
+                },
+              ],
+
+        // SEO & Admin Extras
+        robotsIndex: area.robots_index ?? "index",
+        robotsFollow: area.robots_follow ?? "follow",
+        canonicalUrl: area.canonical_url,
+        ogTitle: area.og_title,
+        ogDescription: area.og_description,
+        twitterTitle: area.twitter_title,
+        twitterDescription: area.twitter_description,
+        twitterImage: area.twitter_image_url,
+        schemaType: area.schema_type ?? "LocalBusiness",
+        jsonLd: area.json_ld ?? {},
+        sitemapInclude: area.sitemap_include ?? true,
+        redirectTo: area.redirect_to,
       };
     });
   } catch (err) {
@@ -518,7 +763,9 @@ export const getServiceAreas = cache(async function getServiceAreas(): Promise<S
   }
 });
 
-export const getServiceAreaBySlug = cache(async function getServiceAreaBySlug(slug: string): Promise<ServicePage | null> {
+export const getServiceAreaBySlug = cache(async function getServiceAreaBySlug(
+  slug: string,
+): Promise<any | null> {
   try {
     const supabase = getSupabase();
     const { data: area, error } = await supabase
@@ -537,12 +784,17 @@ export const getServiceAreaBySlug = cache(async function getServiceAreaBySlug(sl
     const title = areaData.title;
 
     return {
+      id: areaData.id,
       slug: areaData.slug,
       title: title,
       metaTitle: areaData.meta_title || `${title} | PrimeSec Teknoloji`,
-      description: areaData.description || "",
-      heroImage: areaData.slug.includes("kamera") ? "/images/kamera-sistemi.svg" : "/images/local-security.svg",
-      category: areaData.slug.includes("kamera") ? "Kamera Sistemleri" : "Alarm Sistemleri",
+      description: areaData.meta_description || areaData.description || "",
+      heroImage: areaData.slug.includes("kamera")
+        ? "/images/kamera-sistemi.svg"
+        : "/images/local-security.svg",
+      category: areaData.slug.includes("kamera")
+        ? "Kamera Sistemleri"
+        : "Alarm Sistemleri",
       keywords: [title, `${city} güvenlik sistemleri`, "PrimeSec Teknoloji"],
       benefits: [
         `${city} ve çevresine hızlı keşif planı`,
@@ -550,12 +802,46 @@ export const getServiceAreaBySlug = cache(async function getServiceAreaBySlug(sl
         "Alarm, kamera ve akıllı sistem entegrasyonu",
         "Kurulum sonrası teknik destek",
       ],
-      useCases: [`${city} konut projeleri`, `${city} mağaza ve ofisleri`, "Depo, üretim ve ortak alanlar"],
-      process: ["Bölge ihtiyacının analizi", "Ürün ve kamera/sensör planı", "Kurulum ve mobil ayarlar", "Bakım ve destek"],
-      faqs: Array.isArray(areaData.faqs) && areaData.faqs.length > 0 ? areaData.faqs : [
-        { question: `${city} için keşif süreci nasıl ilerler?`, answer: "İhtiyaç bilgilerinizi aldıktan sonra uygun gün ve saat için keşif planı oluştururuz." },
-        { question: "Yerel servis desteği var mı?", answer: "PrimeSec Teknoloji yakın hizmet ağında kurulum ve satış sonrası destek sağlar." },
+      useCases: [
+        `${city} konut projeleri`,
+        `${city} mağaza ve ofisleri`,
+        "Depo, üretim ve ortak alanlar",
       ],
+      process: [
+        "Bölge ihtiyacının analizi",
+        "Ürün ve kamera/sensör planı",
+        "Kurulum ve mobil ayarlar",
+        "Bakım ve destek",
+      ],
+      faqs:
+        Array.isArray(areaData.faqs) && areaData.faqs.length > 0
+          ? areaData.faqs
+          : [
+              {
+                question: `${city} için keşif süreci nasıl ilerler?`,
+                answer:
+                  "İhtiyaç bilgilerinizi aldıktan sonra uygun gün ve saat için keşif planı oluştururuz.",
+              },
+              {
+                question: "Yerel servis desteği var mı?",
+                answer:
+                  "PrimeSec Teknoloji yakın hizmet ağında kurulum ve satış sonrası destek sağlar.",
+              },
+            ],
+
+      // SEO & Admin Extras
+      robotsIndex: areaData.robots_index ?? "index",
+      robotsFollow: areaData.robots_follow ?? "follow",
+      canonicalUrl: areaData.canonical_url,
+      ogTitle: areaData.og_title,
+      ogDescription: areaData.og_description,
+      twitterTitle: areaData.twitter_title,
+      twitterDescription: areaData.twitter_description,
+      twitterImage: areaData.twitter_image_url,
+      schemaType: areaData.schema_type ?? "LocalBusiness",
+      jsonLd: areaData.json_ld ?? {},
+      sitemapInclude: areaData.sitemap_include ?? true,
+      redirectTo: areaData.redirect_to,
     };
   } catch (err) {
     console.error("Error in getServiceAreaBySlug:", err);

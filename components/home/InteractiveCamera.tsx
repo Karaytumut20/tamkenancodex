@@ -321,7 +321,7 @@ export function InteractiveCamera() {
   return (
     <div 
       ref={containerRef}
-      className="relative w-full h-[400px] lg:h-[500px] bg-slate-950 border border-slate-800 rounded-3xl overflow-hidden flex items-center justify-center select-none group"
+      className="relative w-full h-[280px] xs:h-[340px] sm:h-[400px] lg:h-[500px] bg-slate-950 border border-slate-800 rounded-2xl sm:rounded-3xl overflow-hidden flex items-center justify-center select-none group"
     >
       {/* Sci-Fi Hologram grid overlay */}
       <div 
@@ -355,7 +355,7 @@ export function InteractiveCamera() {
       />
 
       {/* HUD 1: Telemetry Data (Bottom Left) */}
-      <div className="absolute bottom-6 left-6 z-20 font-mono text-[9px] sm:text-[10px] text-cyan-400 bg-slate-950/80 border border-slate-800 px-4 py-3 rounded-xl backdrop-blur-md flex flex-col gap-1">
+      <div className="absolute bottom-3 left-3 sm:bottom-6 sm:left-6 z-20 font-mono text-[8px] sm:text-[9px] lg:text-[10px] text-cyan-400 bg-slate-950/80 border border-slate-800 px-2 sm:px-4 py-2 sm:py-3 rounded-lg sm:rounded-xl backdrop-blur-md flex flex-col gap-1">
         <div className="flex items-center gap-2 border-b border-slate-800 pb-1 mb-1">
           <Cpu className="w-3.5 h-3.5 text-cyan-400" />
           <span className="font-bold text-cyan-300">REALTIME 3D FEED</span>
@@ -373,7 +373,7 @@ export function InteractiveCamera() {
       </div>
 
       {/* HUD 2: System Feeds (Top Left) */}
-      <div className="absolute top-6 left-6 z-20 font-mono text-[10px] text-cyan-400 bg-slate-950/80 border border-slate-800 px-4 py-3 rounded-xl backdrop-blur-md flex flex-col gap-1">
+      <div className="absolute top-3 left-3 sm:top-6 sm:left-6 z-20 font-mono text-[8px] sm:text-[10px] text-cyan-400 bg-slate-950/80 border border-slate-800 px-2 sm:px-4 py-2 sm:py-3 rounded-lg sm:rounded-xl backdrop-blur-md flex flex-col gap-1">
         <div className="flex items-center gap-2 font-bold text-red-500">
           <span className="relative flex h-2.5 w-2.5">
             <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
@@ -388,7 +388,7 @@ export function InteractiveCamera() {
       </div>
 
       {/* HUD 3: Proximity and Radar Status (Top Right) */}
-      <div className="absolute top-6 right-6 z-20 font-mono text-[10px] text-right text-cyan-400 bg-slate-950/80 border border-slate-800 px-4 py-3 rounded-xl backdrop-blur-md flex flex-col gap-1">
+      <div className="absolute top-3 right-3 sm:top-6 sm:right-6 z-20 font-mono text-[8px] sm:text-[10px] text-right text-cyan-400 bg-slate-950/80 border border-slate-800 px-2 sm:px-4 py-2 sm:py-3 rounded-lg sm:rounded-xl backdrop-blur-md flex flex-col gap-1">
         <div className="flex items-center gap-2 justify-end font-bold">
           <span className="text-cyan-300 uppercase">{systemStatus}</span>
           <Shield className="w-3.5 h-3.5 text-emerald-400" />

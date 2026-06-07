@@ -4,6 +4,8 @@ import { ServiceTemplate } from "@/components/templates/ServiceTemplate";
 import { buildMetadata } from "@/lib/seo";
 import { getCorporatePages, getServices, getServiceAreas } from "@/lib/db";
 
+export const revalidate = 3600;
+
 async function getAllPages() {
   const dbServices = await getServices();
   const dbAreas = await getServiceAreas();

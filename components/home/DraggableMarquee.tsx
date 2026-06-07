@@ -85,30 +85,19 @@ export function DraggableMarquee({ children }: { children: React.ReactNode }) {
   };
 
   return (
-    <>
-      <style>{`
-        .hide-scrollbar::-webkit-scrollbar {
-          display: none;
-        }
-        .hide-scrollbar {
-          -ms-overflow-style: none;
-          scrollbar-width: none;
-        }
-      `}</style>
-      <div
-        ref={scrollRef}
-        onMouseDown={handleMouseDown}
-        onMouseUp={handleMouseUp}
-        onMouseMove={handleMouseMove}
-        onTouchStart={handleTouchStart}
-        onTouchEnd={handleMouseUp}
-        onTouchMove={handleTouchMove}
-        className="hide-scrollbar flex w-full overflow-x-auto overflow-y-hidden cursor-grab active:cursor-grabbing select-none"
-      >
-        <div className="flex w-max items-center gap-10 sm:gap-14 md:gap-20 px-8 py-4">
-          {children}
-        </div>
+    <div
+      ref={scrollRef}
+      onMouseDown={handleMouseDown}
+      onMouseUp={handleMouseUp}
+      onMouseMove={handleMouseMove}
+      onTouchStart={handleTouchStart}
+      onTouchEnd={handleMouseUp}
+      onTouchMove={handleTouchMove}
+      className="flex w-full overflow-x-auto overflow-y-hidden cursor-grab active:cursor-grabbing select-none [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+    >
+      <div className="flex w-max items-center gap-10 sm:gap-14 md:gap-20 px-8 py-4">
+        {children}
       </div>
-    </>
+    </div>
   );
 }

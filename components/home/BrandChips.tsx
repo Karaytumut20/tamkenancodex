@@ -24,16 +24,18 @@ export async function BrandChips() {
   const marqueeBrands = [...dynamicBrands, ...dynamicBrands, ...dynamicBrands, ...dynamicBrands];
 
   return (
-    <section className="overflow-hidden bg-white py-16 md:py-24">
+    <section className="bg-white py-12 md:py-16 overflow-hidden">
       <div className="container-primesec">
-        <h2 className="text-center text-[15px] font-extrabold uppercase tracking-[0.14em] text-ink">Güvenilir Markalar, Kaliteli Çözümler</h2>
-        <div className="relative mt-8 py-5">
-          <DraggableMarquee>
-            {marqueeBrands.map((brand, index) => (
-              <BrandLogo key={`${brand.id}-${index}`} brand={brand} />
-            ))}
-          </DraggableMarquee>
-        </div>
+        <h2 className="text-center text-[13px] sm:text-[15px] font-extrabold uppercase tracking-[0.14em] text-ink">
+          Güvenilir Markalar, Kaliteli Çözümler
+        </h2>
+      </div>
+      <div className="relative mt-8 py-5">
+        <DraggableMarquee>
+          {marqueeBrands.map((brand, index) => (
+            <BrandLogo key={`${brand.id}-${index}`} brand={brand} />
+          ))}
+        </DraggableMarquee>
       </div>
     </section>
   );

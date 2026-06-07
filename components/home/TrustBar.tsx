@@ -9,16 +9,16 @@ const items = [
 
 export function TrustBar() {
   return (
-    <section className="bg-transparent py-10">
-      <div className="container-primesec grid gap-5 rounded-[30px] border border-border bg-white p-7 md:grid-cols-2 xl:grid-cols-4">
+    <section className="bg-transparent py-8 md:py-10">
+      <div className="container-primesec grid gap-4 rounded-[30px] border border-border bg-white p-5 sm:grid-cols-2 md:gap-5 md:p-7 xl:grid-cols-4">
         {items.map(([title, subtitle, Icon]) => (
-          <div key={title as string} className="flex items-center gap-4">
-            <span className="flex h-12 w-12 items-center justify-center rounded-xl bg-surface text-primary-600 shrink-0">
-              <Icon className="h-6 w-6" />
+          <div key={title as string} className="flex items-center gap-3 sm:gap-4">
+            <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-surface text-primary-600 sm:h-12 sm:w-12">
+              <Icon className="h-5 w-5 sm:h-6 sm:w-6" />
             </span>
             <span>
-              <span className="block font-extrabold text-ink">{title as string}</span>
-              <span className="text-sm text-ink-muted">{subtitle as string}</span>
+              <span className="block text-sm font-extrabold text-ink sm:text-base">{title as string}</span>
+              <span className="text-xs text-ink-muted sm:text-sm">{subtitle as string}</span>
             </span>
           </div>
         ))}

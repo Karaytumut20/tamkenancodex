@@ -4,6 +4,8 @@ import { Container } from "@/components/ui/Container";
 import { buildMetadata } from "@/lib/seo";
 import { getProducts } from "@/lib/db";
 
+export const revalidate = 3600;
+
 export const metadata = buildMetadata({
   title: "Tüm Ürünler ve Güvenlik Sistemleri | PrimeSec Teknoloji",
   description: "Alarm, kamera, akıllı ev, yangın, PDKS, kapı geçiş, araç takip ve network ürünlerini filtreleyerek inceleyin.",

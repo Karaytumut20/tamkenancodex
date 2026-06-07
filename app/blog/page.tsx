@@ -4,6 +4,8 @@ import { Container } from "@/components/ui/Container";
 import { buildMetadata } from "@/lib/seo";
 import { getBlogPosts } from "@/lib/db";
 
+export const revalidate = 3600;
+
 export const metadata = buildMetadata({
   title: "Güvenlik Sistemleri Blog | PrimeSec Teknoloji",
   description: "Alarm, kamera, akıllı ev, yangın güvenliği, PDKS ve yerel güvenlik rehberleri için PrimeSec blog yazıları.",

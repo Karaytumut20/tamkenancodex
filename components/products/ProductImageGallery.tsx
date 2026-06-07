@@ -31,7 +31,7 @@ export function ProductImageGallery({
     <div className="flex flex-col-reverse md:flex-row gap-6 items-stretch w-full max-w-5xl mx-auto">
       {/* Thumbnails list on Left side (desktop) / Bottom (mobile) */}
       {allImages.length > 1 && (
-        <div className="flex flex-row md:flex-col gap-3 shrink-0 py-2 px-1 overflow-x-auto md:overflow-y-auto max-w-full md:max-h-[480px] scrollbar-none justify-center md:justify-start">
+        <div className="flex flex-row md:flex-col gap-3 shrink-0 py-2 px-1 overflow-x-auto md:overflow-y-auto max-w-full md:max-h-[480px] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden justify-center md:justify-start">
           {allImages.map((img, idx) => (
             <button
               key={idx}

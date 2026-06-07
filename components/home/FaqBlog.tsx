@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import Link from "next/link";
 import { Plus, ChevronRight, ChevronLeft } from "lucide-react";
 import { cn } from "@/lib/cn";
 import { Container } from "@/components/ui/Container";
@@ -140,7 +141,7 @@ export function FaqBlog({ initialBlogPosts }: FaqBlogProps) {
             </div>
           </div>
 
-          <div className="relative overflow-hidden -mx-3 pt-4 pb-4">
+          <div className="relative overflow-hidden">
             <div
               className="flex transition-transform duration-500 ease-in-out"
               style={{
@@ -150,9 +151,10 @@ export function FaqBlog({ initialBlogPosts }: FaqBlogProps) {
               {postsList.map((post) => (
                 <div
                   key={post.slug}
-                  className="w-full md:w-1/3 shrink-0 px-3"
+                  className="w-full shrink-0 px-2 sm:px-3"
+                  style={{ flex: `0 0 ${100 / itemsPerView}%` }}
                 >
-                  <a
+                  <Link
                     href={`/blog/${post.slug}`}
                     className="group flex w-full flex-col overflow-hidden rounded-[24px] border border-white bg-white p-4 transition md:hover:-translate-y-1 md:hover:border-cyan-500"
                   >
@@ -177,7 +179,7 @@ export function FaqBlog({ initialBlogPosts }: FaqBlogProps) {
                         </span>
                       </div>
                     </div>
-                  </a>
+                  </Link>
                 </div>
               ))}
             </div>
