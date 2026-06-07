@@ -4,7 +4,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { Sparkles, CheckCircle2, ArrowRight } from "lucide-react";
 
-export function Hero() {
+export function Hero({ content: _content }: { content?: unknown }) {
   return (
     <section className="hero-bg relative overflow-hidden pt-24 pb-10 font-sans sm:pt-28 sm:pb-14 lg:flex lg:min-h-screen lg:items-center lg:justify-center lg:py-0">
       

@@ -1,8 +1,8 @@
 import { BlogGrid } from "@/components/blog/BlogGrid";
 import { PageHero } from "@/components/templates/PageHero";
 import { Container } from "@/components/ui/Container";
-import { blogCategories, blogPosts } from "@/data/blog";
 import { buildMetadata } from "@/lib/seo";
+import { getBlogPosts } from "@/lib/db";
 
 export const metadata = buildMetadata({
   title: "Güvenlik Sistemleri Blog | PrimeSec Teknoloji",
@@ -10,13 +10,16 @@ export const metadata = buildMetadata({
   path: "/blog",
 });
 
-export default function BlogPage() {
+export default async function BlogPage() {
+  const dbPosts = await getBlogPosts();
+  const categories = Array.from(new Set(dbPosts.map((post) => post.category)));
+
   return (
     <>
       <PageHero title="Güvenlik Sistemleri Blog" description="Alarm, kamera, akıllı ev, yangın güvenliği ve yerel güvenlik rehberleriyle doğru sistemi seçmenizi kolaylaştırıyoruz." crumbs={[{ label: "Blog", href: "/blog" }]} />
       <section className="bg-surface py-12">
         <Container>
-          <BlogGrid posts={blogPosts} categories={blogCategories} />
+          <BlogGrid posts={dbPosts} categories={categories} />
         </Container>
       </section>
     </>

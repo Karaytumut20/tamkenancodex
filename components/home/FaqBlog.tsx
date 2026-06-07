@@ -6,13 +6,19 @@ import { cn } from "@/lib/cn";
 import { Container } from "@/components/ui/Container";
 import { ButtonLink } from "@/components/ui/Button";
 import { homeFaqs } from "@/data/faqs";
-import { blogPosts } from "@/data/blog";
+import { blogPosts as staticBlogPosts, type BlogPost } from "@/data/blog";
 import { whatsappUrl } from "@/lib/whatsapp";
 
-export function FaqBlog() {
+interface FaqBlogProps {
+  initialBlogPosts?: BlogPost[];
+}
+
+export function FaqBlog({ initialBlogPosts }: FaqBlogProps) {
   const [openFaq, setOpenFaq] = useState(0);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isMobile, setIsMobile] = useState(false);
+
+  const postsList = initialBlogPosts || staticBlogPosts;
 
   useEffect(() => {
     const handleResize = () => {
@@ -24,7 +30,7 @@ export function FaqBlog() {
   }, []);
 
   const itemsPerView = isMobile ? 1 : 3;
-  const maxIndex = blogPosts.length - itemsPerView;
+  const maxIndex = Math.max(0, postsList.length - itemsPerView);
 
   const handlePrev = () => {
     setCurrentIndex((prev) => (prev <= 0 ? maxIndex : prev - 1));
@@ -36,6 +42,7 @@ export function FaqBlog() {
 
   // Autoplay effect
   useEffect(() => {
+    if (maxIndex <= 0) return;
     const timer = setInterval(() => {
       handleNext();
     }, 4000);
@@ -59,7 +66,7 @@ export function FaqBlog() {
               <div className="mt-8 rounded-2xl border border-border bg-white/50 p-6 text-center transition-colors duration-200 md:hover:border-cyan-500">
                 <div className="mx-auto flex w-full max-w-sm flex-col items-center justify-center gap-4">
                   <div className="flex items-center justify-center gap-3">
-                    <span className="text-3xl font-black text-cyan-500 shrink-0">?</span>
+                     <span className="text-3xl font-black text-cyan-500 shrink-0">?</span>
                     <p className="font-bold text-ink">Başka sorunuz mu var?</p>
                   </div>
                   <ButtonLink
@@ -140,7 +147,7 @@ export function FaqBlog() {
                 transform: `translateX(-${currentIndex * (100 / itemsPerView)}%)`,
               }}
             >
-              {blogPosts.map((post) => (
+              {postsList.map((post) => (
                 <div
                   key={post.slug}
                   className="w-full md:w-1/3 shrink-0 px-3"

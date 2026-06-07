@@ -4,15 +4,21 @@ import Image from "next/image";
 import Link from "next/link";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { useEffect, useMemo, useRef, useState, type PointerEvent } from "react";
-import { products } from "@/data/products";
+import { products as staticProducts, type Product } from "@/data/products";
 
 import { cn } from "@/lib/cn";
 
-export function ProductCarousel() {
+interface ProductCarouselProps {
+  initialProducts?: Product[];
+}
+
+export function ProductCarousel({ initialProducts }: ProductCarouselProps) {
   const [paused, setPaused] = useState(false);
   const [isDragging, setIsDragging] = useState(false);
   const scrollerRef = useRef<HTMLDivElement>(null);
   const drag = useRef({ active: false, startX: 0, scrollLeft: 0, moved: false });
+
+  const productsList = initialProducts || staticProducts;
 
   useEffect(() => {
     if (paused) return;
@@ -105,7 +111,7 @@ export function ProductCarousel() {
           onPointerCancel={finishDrag}
           className={cn("flex cursor-grab gap-4 overflow-x-auto md:active:cursor-grabbing [&::-webkit-scrollbar]:hidden", isDragging ? "snap-none" : "snap-x snap-mandatory")}
         >
-          {products.map((product, index) => (
+          {productsList.map((product, index) => (
             <Link
               key={product.slug}
               href={`/urunler/${product.slug}`}

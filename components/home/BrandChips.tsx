@@ -1,4 +1,5 @@
-import { brands } from "@/data/products";
+import { getBrands, type Brand } from "@/lib/db";
+import { DraggableMarquee } from "./DraggableMarquee";
 
 const logoStyles: Record<string, string> = {
   Hikvision: "tracking-[-0.08em] font-black",
@@ -14,35 +15,44 @@ const logoStyles: Record<string, string> = {
   Ajax: "tracking-[0.08em] font-black",
 };
 
-export function BrandChips() {
-  const marqueeBrands = [...brands, ...brands];
+export async function BrandChips() {
+  const dynamicBrands = await getBrands();
+
+  if (dynamicBrands.length === 0) return null;
+
+  // 4 times duplicated to allow perfect looping in DraggableMarquee
+  const marqueeBrands = [...dynamicBrands, ...dynamicBrands, ...dynamicBrands, ...dynamicBrands];
 
   return (
     <section className="overflow-hidden bg-white py-16 md:py-24">
       <div className="container-primesec">
         <h2 className="text-center text-[15px] font-extrabold uppercase tracking-[0.14em] text-ink">Güvenilir Markalar, Kaliteli Çözümler</h2>
-        <div className="relative mt-8 overflow-hidden py-5 [mask-image:linear-gradient(90deg,transparent,black_10%,black_90%,transparent)]">
-          <div className="flex w-max animate-[brand-marquee_34s_linear_infinite] items-center gap-4 md:hover:[animation-play-state:paused]">
+        <div className="relative mt-8 py-5">
+          <DraggableMarquee>
             {marqueeBrands.map((brand, index) => (
-              <BrandLogo key={`${brand}-${index}`} brand={brand} />
+              <BrandLogo key={`${brand.id}-${index}`} brand={brand} />
             ))}
-          </div>
+          </DraggableMarquee>
         </div>
       </div>
     </section>
   );
 }
 
-function BrandLogo({ brand }: { brand: string }) {
+function BrandLogo({ brand }: { brand: Brand }) {
   return (
-    <div className="flex h-16 w-[168px] shrink-0 items-center justify-center rounded-xl bg-white px-5 grayscale md:hover:grayscale-0 transition-all">
-      <div className="flex items-center gap-3 text-[#111827]">
-        <span className="relative flex h-8 w-8 items-center justify-center">
-          <span className="absolute inset-0 rotate-45 rounded-[7px] border-2 border-current opacity-80" />
-          <span className="h-3.5 w-3.5 rounded-sm bg-current opacity-90" />
-        </span>
-        <span className={`text-[20px] leading-none ${logoStyles[brand] ?? "font-black"}`}>{brand}</span>
-      </div>
+    <div className="flex h-20 w-auto min-w-[180px] shrink-0 items-center justify-center rounded-xl bg-white px-8 grayscale md:hover:grayscale-0 transition-all shadow-sm border border-slate-100 mx-2 pointer-events-none select-none whitespace-nowrap">
+      {brand.logoUrl ? (
+        <img src={brand.logoUrl} alt={brand.name} className="max-h-10 max-w-full object-contain pointer-events-none" />
+      ) : (
+        <div className="flex items-center gap-3 text-[#111827] pointer-events-none">
+          <span className="relative flex h-8 w-8 items-center justify-center shrink-0">
+            <span className="absolute inset-0 rotate-45 rounded-[7px] border-2 border-current opacity-80" />
+            <span className="h-3.5 w-3.5 rounded-sm bg-current opacity-90" />
+          </span>
+          <span className={`text-[20px] leading-none ${logoStyles[brand.name] ?? "font-black"}`}>{brand.name}</span>
+        </div>
+      )}
     </div>
   );
 }

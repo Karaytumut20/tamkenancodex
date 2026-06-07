@@ -14,18 +14,18 @@ import { JsonLd } from "@/components/seo/JsonLd";
 import { PageHero } from "@/components/templates/PageHero";
 import { ButtonLink } from "@/components/ui/Button";
 import { Container } from "@/components/ui/Container";
-import { blogPosts } from "@/data/blog";
 import { siteConfig } from "@/data/site";
-import { products } from "@/data/products";
 import { buildMetadata } from "@/lib/seo";
+import { getBlogPostBySlug, getBlogPosts, getProducts } from "@/lib/db";
 
-export function generateStaticParams() {
-  return blogPosts.map((post) => ({ slug: post.slug }));
+export async function generateStaticParams() {
+  const posts = await getBlogPosts();
+  return posts.map((post) => ({ slug: post.slug }));
 }
 
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
-  const post = blogPosts.find((item) => item.slug === slug);
+  const post = await getBlogPostBySlug(slug);
   if (!post) return {};
   return buildMetadata({
     title: `${post.title} | PrimeSec Teknoloji`,
@@ -37,8 +37,11 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
 
 export default async function BlogDetailPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
-  const post = blogPosts.find((item) => item.slug === slug);
+  const post = await getBlogPostBySlug(slug);
   if (!post) notFound();
+
+  const allProducts = await getProducts();
+  const dbProducts = allProducts.slice(0, 3);
 
   return (
     <>
@@ -143,8 +146,8 @@ export default async function BlogDetailPage({ params }: { params: Promise<{ slu
                 <HelpCircle className="h-6 w-6 text-primary-600 shrink-0" /> Sıkça Sorulan Sorular
               </h2>
               <div className="space-y-4 not-prose mt-6">
-                {post.faqs.map((faq) => (
-                  <div key={faq.question} className="rounded-2xl border border-border bg-[#FFFFFF] p-6 hover:border-cyan-500 transition-colors duration-200">
+                {post.faqs.map((faq, index) => (
+                  <div key={`${faq.question}-${index}`} className="rounded-2xl border border-border bg-[#FFFFFF] p-6 hover:border-cyan-500 transition-colors duration-200">
                     <h3 className="font-extrabold text-ink text-base md:text-lg leading-snug">{faq.question}</h3>
                     <p className="mt-3 text-sm md:text-base leading-relaxed text-ink-muted">{faq.answer}</p>
                   </div>
@@ -156,7 +159,7 @@ export default async function BlogDetailPage({ params }: { params: Promise<{ slu
                 <Cpu className="h-6 w-6 text-primary-600 shrink-0" /> İlgili Güvenlik Çözümleri
               </h2>
               <div className="grid gap-4 sm:grid-cols-3 not-prose mt-6">
-                {products.slice(0, 3).map((product) => (
+                {dbProducts.map((product) => (
                   <Link
                     key={product.slug}
                     href={`/urunler/${product.slug}`}

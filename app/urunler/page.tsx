@@ -2,6 +2,7 @@ import { PageHero } from "@/components/templates/PageHero";
 import { ProductGrid } from "@/components/products/ProductGrid";
 import { Container } from "@/components/ui/Container";
 import { buildMetadata } from "@/lib/seo";
+import { getProducts } from "@/lib/db";
 
 export const metadata = buildMetadata({
   title: "Tüm Ürünler ve Güvenlik Sistemleri | PrimeSec Teknoloji",
@@ -9,7 +10,11 @@ export const metadata = buildMetadata({
   path: "/urunler",
 });
 
-export default function ProductsPage() {
+export default async function ProductsPage() {
+  const dbProducts = await getProducts();
+  const categories = Array.from(new Set(dbProducts.map((p) => p.category)));
+  const brands = Array.from(new Set(dbProducts.map((p) => p.brand)));
+
   return (
     <>
       <PageHero
@@ -19,7 +24,7 @@ export default function ProductsPage() {
       />
       <section className="bg-surface py-12">
         <Container>
-          <ProductGrid />
+          <ProductGrid initialProducts={dbProducts} initialCategories={categories} initialBrands={brands} />
         </Container>
       </section>
     </>

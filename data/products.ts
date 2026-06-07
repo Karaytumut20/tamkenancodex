@@ -6,11 +6,21 @@ export type Product = {
   brand: string;
   usage: string[];
   description: string;
+  longDescription?: string;
   image: string;
   tags: string[];
-  features: string[];
-  specs: Record<string, string>;
+  features: { title: string; description: string }[];
+  showFeatures?: boolean;
+  specs: { title: string; description: string }[];
+  specsTitle?: string;
+  specsDescription?: string;
+  showSpecs?: boolean;
+  benefits: { title: string; description: string }[];
+  benefitsTitle?: string;
+  benefitsDescription?: string;
+  showBenefits?: boolean;
   faqs: { question: string; answer: string }[];
+  gallery?: string[];
 };
 
 export const products: Product[] = [
@@ -24,8 +34,19 @@ export const products: Product[] = [
     description: "Alarm, mobil bildirim ve akıllı video takibini tek pakette birleştiren premium güvenlik çözümü.",
     image: "/images/alarm-sistemi.svg",
     tags: ["En Popüler", "Kablosuz", "Mobil Uyumlu"],
-    features: ["Mobil uygulama kontrolü", "Kameralı doğrulama", "Anında bildirim", "Genişletilebilir sensör yapısı"],
-    specs: { Bağlantı: "Wi-Fi / GSM", Garanti: "2 Yıl", Kullanım: "Ev ve iş yeri", Kurulum: "Profesyonel montaj" },
+    features: [
+      { title: "Mobil uygulama kontrolü", description: "" },
+      { title: "Kameralı doğrulama", description: "" },
+      { title: "Anında bildirim", description: "" },
+      { title: "Genişletilebilir sensör yapısı", description: "" },
+    ],
+    specs: [
+      { title: "Bağlantı", description: "Wi-Fi / GSM" },
+      { title: "Garanti", description: "2 Yıl" },
+      { title: "Kullanım", description: "Ev ve iş yeri" },
+      { title: "Kurulum", description: "Profesyonel montaj" }
+    ],
+    benefits: [],
     faqs: [
       { question: "PrimeSec Plus internetsiz çalışır mı?", answer: "GSM yedekleme ile kritik bildirimler internet kesintilerinde de sürdürülebilir." },
       { question: "Paket genişletilebilir mi?", answer: "Evet, manyetik kontak, panik butonu, su baskını ve kamera seçenekleri eklenebilir." },
@@ -41,8 +62,19 @@ export const products: Product[] = [
     description: "Yüksek çözünürlüklü kayıt, gece görüşü ve uzaktan izleme özellikli CCTV kamera sistemi.",
     image: "/images/kamera-sistemi.svg",
     tags: ["CCTV Kamera", "Gece Görüşü", "Uzaktan İzleme"],
-    features: ["4MP net görüntü", "NVR/DVR kayıt", "Mobil izleme", "Dış mekan dayanımı"],
-    specs: { Çözünürlük: "4MP", Kayıt: "NVR/DVR", Garanti: "2 Yıl", Marka: "Hikvision" },
+    features: [
+      { title: "4MP net görüntü", description: "" },
+      { title: "NVR/DVR kayıt", description: "" },
+      { title: "Mobil izleme", description: "" },
+      { title: "Dış mekan dayanımı", description: "" },
+    ],
+    specs: [
+      { title: "Çözünürlük", description: "4MP" },
+      { title: "Kayıt", description: "NVR/DVR" },
+      { title: "Garanti", description: "2 Yıl" },
+      { title: "Marka", description: "Hikvision" }
+    ],
+    benefits: [],
     faqs: [{ question: "CCTV kamera uzaktan izlenebilir mi?", answer: "Evet, mobil uygulama ile canlı ve geçmiş kayıtlar takip edilebilir." }],
   },
   {
@@ -55,8 +87,19 @@ export const products: Product[] = [
     description: "IP tabanlı yüksek çözünürlüklü güvenlik kamerası ve kayıt altyapısı.",
     image: "/images/kamera-sistemi.svg",
     tags: ["IP Kamera", "PoE", "Akıllı Analiz"],
-    features: ["PoE ile kolay kurulum", "Hareket algılama", "Yüksek çözünürlük", "Uzaktan kayıt erişimi"],
-    specs: { Çözünürlük: "5MP", Bağlantı: "PoE", Marka: "Dahua", Kullanım: "Profesyonel" },
+    features: [
+      { title: "PoE ile kolay kurulum", description: "" },
+      { title: "Hareket algılama", description: "" },
+      { title: "Yüksek çözünürlük", description: "" },
+      { title: "Uzaktan kayıt erişimi", description: "" },
+    ],
+    specs: [
+      { title: "Çözünürlük", description: "5MP" },
+      { title: "Bağlantı", description: "PoE" },
+      { title: "Marka", description: "Dahua" },
+      { title: "Kullanım", description: "Profesyonel" }
+    ],
+    benefits: [],
     faqs: [{ question: "IP kamera ile CCTV farkı nedir?", answer: "IP kameralar ağ üzerinden çalışır ve esnek kurulum imkanı sunar." }],
   },
   {
@@ -69,8 +112,19 @@ export const products: Product[] = [
     description: "Hareket algılama, akıllı bildirim ve canlı izleme özellikli video güvenlik çözümü.",
     image: "/images/akilli-ev.svg",
     tags: ["Akıllı Video", "Anında Bildirim"],
-    features: ["Canlı izleme", "Akıllı hareket analizi", "Bulut uyumlu kayıt", "Mobil bildirim"],
-    specs: { Bağlantı: "Wi-Fi", Bildirim: "Mobil", Garanti: "2 Yıl", Platform: "iOS / Android" },
+    features: [
+      { title: "Canlı izleme", description: "" },
+      { title: "Akıllı hareket analizi", description: "" },
+      { title: "Bulut uyumlu kayıt", description: "" },
+      { title: "Mobil bildirim", description: "" },
+    ],
+    specs: [
+      { title: "Bağlantı", description: "Wi-Fi" },
+      { title: "Bildirim", description: "Mobil" },
+      { title: "Garanti", description: "2 Yıl" },
+      { title: "Platform", description: "iOS / Android" }
+    ],
+    benefits: [],
     faqs: [{ question: "Akıllı video alarm ile çalışır mı?", answer: "Evet, alarm tetiklerinde video doğrulama için entegre edilebilir." }],
   },
   {
@@ -83,8 +137,19 @@ export const products: Product[] = [
     description: "Kapınıza gelenleri mobil cihazdan görmenizi ve konuşmanızı sağlayan akıllı zil.",
     image: "/images/akilli-ev.svg",
     tags: ["Görüntülü", "Mobil"],
-    features: ["Çift yönlü ses", "Gece görüşü", "Hareket algılama", "Mobil bildirim"],
-    specs: { Bağlantı: "Wi-Fi", Ses: "Çift yönlü", Görüntü: "HD", Kullanım: "İç/dış kapı" },
+    features: [
+      { title: "Çift yönlü ses", description: "" },
+      { title: "Gece görüşü", description: "" },
+      { title: "Hareket algılama", description: "" },
+      { title: "Mobil bildirim", description: "" },
+    ],
+    specs: [
+      { title: "Bağlantı", description: "Wi-Fi" },
+      { title: "Ses", description: "Çift yönlü" },
+      { title: "Görüntü", description: "HD" },
+      { title: "Kullanım", description: "İç/dış kapı" }
+    ],
+    benefits: [],
     faqs: [{ question: "Akıllı zil telefona bildirim gönderir mi?", answer: "Evet, kapı hareketlerinde ve zil çaldığında anlık bildirim gönderir." }],
   },
   {
@@ -97,8 +162,19 @@ export const products: Product[] = [
     description: "Kapı ve pencere açılışlarını algılayan kablosuz alarm sensörü.",
     image: "/images/manyetik-kontak.svg",
     tags: ["Sensör", "Kablosuz"],
-    features: ["Kolay montaj", "Düşük pil tüketimi", "Anında alarm", "Kapı/pencere uyumu"],
-    specs: { Bağlantı: "Kablosuz", Pil: "Uzun ömürlü", Kullanım: "Kapı/Pencere", Garanti: "2 Yıl" },
+    features: [
+      { title: "Kolay montaj", description: "" },
+      { title: "Düşük pil tüketimi", description: "" },
+      { title: "Anında alarm", description: "" },
+      { title: "Kapı/pencere uyumu", description: "" },
+    ],
+    specs: [
+      { title: "Bağlantı", description: "Kablosuz" },
+      { title: "Pil", description: "Uzun ömürlü" },
+      { title: "Kullanım", description: "Kapı/Pencere" },
+      { title: "Garanti", description: "2 Yıl" }
+    ],
+    benefits: [],
     faqs: [{ question: "Manyetik kontak nereye takılır?", answer: "Kapı ve pencerelerin açılır kanatlarına profesyonel şekilde monte edilir." }],
   },
   {
@@ -111,8 +187,19 @@ export const products: Product[] = [
     description: "Su kaçağı ve baskın riskini erken algılayan akıllı güvenlik sensörü.",
     image: "/images/alarm-sistemi.svg",
     tags: ["Su Baskını", "Akıllı Sensör"],
-    features: ["Erken uyarı", "Mobil bildirim", "Kablosuz çalışma", "Alarm entegrasyonu"],
-    specs: { Bağlantı: "Kablosuz", Bildirim: "Mobil", Kullanım: "Islak hacimler", Garanti: "2 Yıl" },
+    features: [
+      { title: "Erken uyarı", description: "" },
+      { title: "Mobil bildirim", description: "" },
+      { title: "Kablosuz çalışma", description: "" },
+      { title: "Alarm entegrasyonu", description: "" },
+    ],
+    specs: [
+      { title: "Bağlantı", description: "Kablosuz" },
+      { title: "Bildirim", description: "Mobil" },
+      { title: "Kullanım", description: "Islak hacimler" },
+      { title: "Garanti", description: "2 Yıl" }
+    ],
+    benefits: [],
     faqs: [{ question: "Su baskını alarmı nerede kullanılmalı?", answer: "Banyo, mutfak, kombi ve tesisat riski olan alanlarda önerilir." }],
   },
   {
@@ -125,8 +212,19 @@ export const products: Product[] = [
     description: "Duman ve yangın risklerini erken algılayan güvenilir yangın ihbar dedektörü.",
     image: "/images/yangin-alarm.svg",
     tags: ["Yangın İhbar", "Duman Dedektörü"],
-    features: ["Hızlı algılama", "Alarm paneli uyumu", "Düşük bakım", "Yüksek hassasiyet"],
-    specs: { Tip: "Duman dedektörü", Kullanım: "İç mekan", Garanti: "2 Yıl", Marka: "Teknim" },
+    features: [
+      { title: "Hızlı algılama", description: "" },
+      { title: "Alarm paneli uyumu", description: "" },
+      { title: "Düşük bakım", description: "" },
+      { title: "Yüksek hassasiyet", description: "" },
+    ],
+    specs: [
+      { title: "Tip", description: "Duman dedektörü" },
+      { title: "Kullanım", description: "İç mekan" },
+      { title: "Garanti", description: "2 Yıl" },
+      { title: "Marka", description: "Teknim" }
+    ],
+    benefits: [],
     faqs: [{ question: "Yangın alarmı zorunlu mudur?", answer: "Birçok işletme türünde mevzuat ve sigorta şartları açısından kritik bir güvenlik kalemidir." }],
   },
   {
@@ -139,8 +237,19 @@ export const products: Product[] = [
     description: "Personel giriş çıkışlarını kart, şifre veya biyometrik doğrulama ile izleyen PDKS çözümü.",
     image: "/images/pdks.svg",
     tags: ["PDKS", "Biyometrik", "Raporlama"],
-    features: ["Detaylı rapor", "Kartlı geçiş", "Biyometrik seçenek", "Bordro entegrasyonuna hazır"],
-    specs: { Doğrulama: "Kart / Parmak izi", Rapor: "Var", Kullanım: "İşletme", Garanti: "2 Yıl" },
+    features: [
+      { title: "Detaylı rapor", description: "" },
+      { title: "Kartlı geçiş", description: "" },
+      { title: "Biyometrik seçenek", description: "" },
+      { title: "Bordro entegrasyonuna hazır", description: "" },
+    ],
+    specs: [
+      { title: "Doğrulama", description: "Kart / Parmak izi" },
+      { title: "Rapor", description: "Var" },
+      { title: "Kullanım", description: "İşletme" },
+      { title: "Garanti", description: "2 Yıl" }
+    ],
+    benefits: [],
     faqs: [{ question: "PDKS bordro ile entegre olur mu?", answer: "Uygun yazılım altyapısı ile bordro süreçlerine veri sağlayabilir." }],
   },
   {
@@ -153,8 +262,19 @@ export const products: Product[] = [
     description: "Kamera, alarm, POS ve ofis cihazları için güvenilir ağ altyapısı kurulumu.",
     image: "/images/network.svg",
     tags: ["Network", "Altyapı", "Kablolama"],
-    features: ["Keşif ve planlama", "Yapısal kablolama", "Switch kurulumu", "Performans testi"],
-    specs: { Kapsam: "Keşif + kurulum", Kullanım: "Kurumsal", Test: "Var", Garanti: "Proje bazlı" },
+    features: [
+      { title: "Keşif ve planlama", description: "" },
+      { title: "Yapısal kablolama", description: "" },
+      { title: "Switch kurulumu", description: "" },
+      { title: "Performans testi", description: "" },
+    ],
+    specs: [
+      { title: "Kapsam", description: "Keşif + kurulum" },
+      { title: "Kullanım", description: "Kurumsal" },
+      { title: "Test", description: "Var" },
+      { title: "Garanti", description: "Proje bazlı" }
+    ],
+    benefits: [],
     faqs: [{ question: "Kamera sistemi için network gerekir mi?", answer: "IP kamera ve uzaktan izleme altyapılarında doğru network planı performansı doğrudan etkiler." }],
   },
 ];

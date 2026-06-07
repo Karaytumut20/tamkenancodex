@@ -7,8 +7,9 @@ import { motion, AnimatePresence } from "framer-motion";
 import { Button, ButtonLink } from "@/components/ui/Button";
 import { mainNavigation } from "@/data/navigation";
 import { megaMenus, type MegaMenuKey } from "@/data/mega-menu";
+import type { NavigationItem } from "@/lib/db";
 
-export function MobileMenu({ open, onClose }: { open: boolean; onClose: () => void }) {
+export function MobileMenu({ open, onClose, navigation = mainNavigation }: { open: boolean; onClose: () => void; navigation?: NavigationItem[] }) {
   const [active, setActive] = useState<string | null>(null);
 
   useEffect(() => {
@@ -64,15 +65,17 @@ export function MobileMenu({ open, onClose }: { open: boolean; onClose: () => vo
             {/* Navigation */}
             <div className="flex-1 overflow-y-auto px-4 pb-4 pt-2">
               <div className="space-y-2.5">
-                {mainNavigation.map((item) => (
+                {navigation.map((item) => {
+                  const canOpenMegaMenu = item.menuKey && item.menuKey in megaMenus;
+                  return (
                   <div
                     key={item.href}
                     className="overflow-hidden rounded-lg border border-slate-200 bg-white shadow-sm shadow-slate-200/40"
                   >
-                    {item.menuKey ? (
+                    {canOpenMegaMenu ? (
                       <>
                         <button
-                          onClick={() => setActive(active === item.menuKey ? null : item.menuKey)}
+                          onClick={() => setActive(active === item.menuKey ? null : item.menuKey ?? null)}
                           className="flex w-full items-center justify-between gap-4 px-4 py-3.5 text-left font-extrabold text-ink transition-colors hover:text-primary-600"
                         >
                           <span>{item.label}</span>
@@ -82,7 +85,7 @@ export function MobileMenu({ open, onClose }: { open: boolean; onClose: () => vo
                           />
                         </button>
                         <AnimatePresence>
-                          {item.menuKey && active === item.menuKey && (
+                          {canOpenMegaMenu && active === item.menuKey && (
                             <motion.div
                               initial={{ height: 0, opacity: 0 }}
                               animate={{ height: "auto", opacity: 1 }}
@@ -133,7 +136,7 @@ export function MobileMenu({ open, onClose }: { open: boolean; onClose: () => vo
                       </Link>
                     )}
                   </div>
-                ))}
+                )})}
               </div>
             </div>
 

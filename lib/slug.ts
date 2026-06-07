@@ -15,7 +15,10 @@ const trMap: Record<string, string> = {
 
 export function slugify(value: string) {
   return value
+    .trim()
     .replace(/[çğıöşüÇĞİÖŞÜ]/g, (letter) => trMap[letter] ?? letter)
+    .normalize("NFKD")
+    .replace(/[\u0300-\u036f]/g, "")
     .toLowerCase()
     .replace(/[^a-z0-9]+/g, "-")
     .replace(/(^-|-$)+/g, "");

@@ -39,7 +39,7 @@ export function FloatingContact() {
               animate={{ opacity: 1, y: 0, scale: 1 }}
               exit={{ opacity: 0, y: 30, scale: 0.95 }}
               transition={{ duration: 0.3, ease: [0.16, 1, 0.3, 1] }}
-              className="absolute bottom-16 right-0 w-[340px] overflow-hidden rounded-3xl border border-border bg-white p-5"
+              className="absolute bottom-16 right-0 w-[calc(100vw-3rem)] sm:w-[340px] overflow-hidden rounded-3xl border border-border bg-white p-5"
             >
               <div className="flex items-center justify-between border-b border-border pb-3">
                 <div>

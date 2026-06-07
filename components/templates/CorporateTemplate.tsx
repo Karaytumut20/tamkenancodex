@@ -8,6 +8,7 @@ import type { CorporatePage } from "@/data/corporate";
 import { siteConfig } from "@/data/site";
 import { homeFaqs } from "@/data/faqs";
 import { whatsappUrl } from "@/lib/whatsapp";
+import { ContactForm } from "@/components/templates/ContactForm";
 
 export function CorporateTemplate({ page }: { page: CorporatePage }) {
   const isContact = page.slug === "iletisim";
@@ -189,31 +190,4 @@ export function CorporateTemplate({ page }: { page: CorporatePage }) {
   );
 }
 
-function ContactForm() {
-  return (
-    <form action="/api/lead" method="post" className="mt-8 space-y-4 border-t border-border pt-6">
-      <input type="hidden" name="source" value="contact" />
-      <input name="company" className="hidden" tabIndex={-1} autoComplete="off" />
-      <h3 className="text-lg font-bold text-ink mb-1">Keşif & Teklif Formu</h3>
-      
-      {["Ad Soyad", "Telefon", "Şehir"].map((label) => (
-        <label key={label} className="block">
-          <span className="sr-only">{label}</span>
-          <input
-            name={label === "Ad Soyad" ? "name" : label === "Telefon" ? "phone" : "city"}
-            required
-            placeholder={label}
-            className="h-12 w-full rounded-xl border border-border bg-white text-ink placeholder-ink-lighter px-4 outline-none focus:border-primary-600 focus:bg-white transition-colors"
-          />
-        </label>
-      ))}
-      <label className="flex gap-3 text-sm leading-6 text-ink-muted">
-        <input required name="kvkkConsent" type="checkbox" className="mt-1 h-5 w-5 shrink-0 rounded border-border" />
-        <span>KVKK kapsamında iletişime geçilmesini kabul ediyorum.</span>
-      </label>
-      <button className="h-12 w-full rounded-xl primesec-navy-action text-white font-extrabold transition-colors">
-        Bilgilerimi Gönder
-      </button>
-    </form>
-  );
-}
+

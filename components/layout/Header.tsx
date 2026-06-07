@@ -13,8 +13,9 @@ import { mainNavigation } from "@/data/navigation";
 import { megaMenus, type MegaMenuKey } from "@/data/mega-menu";
 import { whatsappUrl } from "@/lib/whatsapp";
 import { cn } from "@/lib/cn";
+import type { NavigationItem } from "@/lib/db";
 
-export function Header() {
+export function Header({ navigation = mainNavigation }: { navigation?: NavigationItem[] }) {
   const pathname = usePathname();
   const [activeMenu, setActiveMenu] = useState<MegaMenuKey | null>(null);
   const [mobileOpen, setMobileOpen] = useState(false);
@@ -55,10 +56,11 @@ export function Header() {
             <Logo dark={false} isHeader={true} />
           </div>
           <nav className="hidden items-center gap-1 lg:flex h-full" aria-label="Ana menü">
-            {mainNavigation.map((item) => {
+            {navigation.map((item) => {
               const isOpen = activeMenu === item.menuKey;
+              const canOpenMegaMenu = item.menuKey && item.menuKey in megaMenus;
               return (
-                <div key={item.href} className="relative flex items-center" onMouseEnter={() => setActiveMenu((item.menuKey as MegaMenuKey) ?? null)}>
+                <div key={item.href} className="relative flex items-center" onMouseEnter={() => setActiveMenu(canOpenMegaMenu ? (item.menuKey as MegaMenuKey) : null)}>
                   <Link
                     href={item.href}
                     className={cn(
@@ -69,7 +71,7 @@ export function Header() {
                     )}
                   >
                     <span>{item.label}</span>
-                    {item.menuKey ? (
+                    {canOpenMegaMenu ? (
                       <ChevronDown
                         className={cn(
                           "h-3.5 w-3.5 transition-transform duration-200",
@@ -101,7 +103,7 @@ export function Header() {
         </div>
       </div>
       {activeMenu ? <MegaMenu menuKey={activeMenu} onNavigate={() => setActiveMenu(null)} /> : null}
-      <MobileMenu open={mobileOpen} onClose={() => setMobileOpen(false)} />
+      <MobileMenu open={mobileOpen} onClose={() => setMobileOpen(false)} navigation={navigation} />
     </motion.header>
   );
 }

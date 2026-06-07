@@ -4,8 +4,10 @@ import "./globals.css";
 import { Footer } from "@/components/layout/Footer";
 import { Header } from "@/components/layout/Header";
 import { FloatingContact } from "@/components/layout/FloatingContact";
+import { AdminLayoutStyles } from "@/components/layout/AdminLayoutStyles";
 import { JsonLd } from "@/components/seo/JsonLd";
 import { siteConfig } from "@/data/site";
+import { getMenuItems, getSiteSettings } from "@/lib/db";
 
 export const metadata: Metadata = {
   metadataBase: new URL(siteConfig.siteUrl),
@@ -16,7 +18,17 @@ export const metadata: Metadata = {
   description: siteConfig.description,
 };
 
-export default function RootLayout({ children }: Readonly<{ children: ReactNode }>) {
+export const viewport = {
+  width: "device-width",
+  initialScale: 1,
+};
+
+export default async function RootLayout({ children }: Readonly<{ children: ReactNode }>) {
+  const [settings, headerNavigation] = await Promise.all([
+    getSiteSettings(),
+    getMenuItems("header"),
+  ]);
+
   return (
     <html lang="tr">
       <head>
@@ -25,27 +37,28 @@ export default function RootLayout({ children }: Readonly<{ children: ReactNode 
         <link href="https://fonts.googleapis.com/css2?family=Google+Sans:ital,opsz,wght@0,17..18,400..700;1,17..18,400..700&family=Monoton&display=swap" rel="stylesheet" />
       </head>
       <body>
+        <AdminLayoutStyles />
         <JsonLd
           data={[
             {
               "@context": "https://schema.org",
               "@type": "Organization",
-              name: siteConfig.name,
-              legalName: siteConfig.legalName,
-              url: siteConfig.siteUrl,
-              email: siteConfig.email,
-              telephone: siteConfig.phone,
-              address: siteConfig.address,
+              name: settings.name,
+              legalName: settings.legalName,
+              url: settings.siteUrl,
+              email: settings.email,
+              telephone: settings.phone,
+              address: settings.address,
             },
             {
               "@context": "https://schema.org",
               "@type": "WebSite",
-              name: siteConfig.name,
-              url: siteConfig.siteUrl,
+              name: settings.name,
+              url: settings.siteUrl,
             },
           ]}
         />
-        <Header />
+        <Header navigation={headerNavigation} />
         <main>{children}</main>
         <Footer />
         <FloatingContact />

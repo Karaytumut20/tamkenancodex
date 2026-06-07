@@ -19,7 +19,7 @@ export function PageHero({ title, description, crumbs }: { title: string; descri
           </div>
         )}
         
-        <h1 className="text-[clamp(2.5rem,8vw,5.5rem)] leading-[1.05] font-bold tracking-[-0.04em] md:tracking-[-0.05em] text-white max-w-[900px]">
+        <h1 className="text-[clamp(2.5rem,8vw,5.5rem)] leading-[1.05] font-bold tracking-[-0.04em] md:tracking-[-0.05em] text-white max-w-[900px] break-words">
           {title}
         </h1>
 

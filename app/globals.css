@@ -37,6 +37,7 @@
 
 html {
   scroll-behavior: smooth;
+  overflow-x: hidden;
 }
 
 body {
@@ -46,6 +47,7 @@ body {
   font-family: "Google Sans", Inter, Arial, sans-serif;
   text-rendering: geometricPrecision;
   color-scheme: light;
+  overflow-x: hidden;
 }
 
 a {
@@ -235,4 +237,12 @@ body.mobile-menu-open .floating-contact-container {
   pointer-events: none;
   visibility: hidden;
   transition: opacity 0.2s ease, visibility 0.2s ease;
+}
+
+.scrollbar-none::-webkit-scrollbar {
+  display: none;
+}
+.scrollbar-none {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
 }

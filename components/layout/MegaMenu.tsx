@@ -26,9 +26,9 @@ export function MegaMenu({ menuKey, onNavigate }: Props) {
                 onClick={onNavigate}
                 className="group flex min-h-[86px] items-center justify-between rounded-xl border border-border bg-white px-5 hover:bg-slate-50/50 hover:border-cyan-500 hover:-translate-y-0.5 hover:shadow-md transition-all duration-300"
               >
-                <span>
+                <span >
                   <span className="block text-lg font-extrabold text-ink">{persona.title}</span>
-                  <span className="mt-1 block max-w-[260px] text-sm leading-5 text-ink-muted">{persona.description}</span>
+                  <span className="mt-1 block max-w-[260px] text-sm leading-5 text-ink-muted">{/* SEO/Copy Update: Professional ve açıklayıcı metin buraya gelmeli */}</span>
                 </span>
                 <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full border border-border text-ink-muted group-hover:border-cyan-500 group-hover:text-cyan-500 transition-all duration-300">
                   <ChevronRight className="h-4 w-4" />
@@ -47,7 +47,7 @@ export function MegaMenu({ menuKey, onNavigate }: Props) {
                 className="group grid grid-cols-[54px_1fr_auto] items-center gap-4 rounded-xl border border-transparent px-4 hover:border-border hover:bg-slate-50/70 hover:translate-x-1.5 transition-all duration-300 py-2.5"
               >
                 <span className="relative h-11 w-11 overflow-hidden rounded-xl bg-surface border border-border group-hover:border-cyan-500/30 group-hover:bg-white transition-colors duration-300">
-                  <Image src={item.image} alt="" fill className="object-contain p-2" unoptimized />
+                  <Image src={item.image} alt="{item.title}" fill className="object-contain p-2" unoptimized />
                 </span>
                 <span className="text-[15px] font-bold text-ink group-hover:text-cyan-500 transition-colors">{item.title}</span>
                 <ChevronRight className="h-4 w-4 text-ink-lighter group-hover:text-cyan-500 group-hover:translate-x-0.5 transition-all" />
@@ -73,3 +73,4 @@ export function MegaMenu({ menuKey, onNavigate }: Props) {
     </div>
   );
 }
+
