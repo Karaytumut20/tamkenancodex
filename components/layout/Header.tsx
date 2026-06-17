@@ -9,12 +9,17 @@ import { MegaMenu } from "@/components/layout/MegaMenu";
 import { MobileMenu } from "@/components/layout/MobileMenu";
 import { ButtonLink } from "@/components/ui/Button";
 import { mainNavigation } from "@/data/navigation";
-import { megaMenus, type MegaMenuKey } from "@/data/mega-menu";
+import { type MegaMenuKey } from "@/data/mega-menu";
 import { whatsappUrl } from "@/lib/whatsapp";
 import { cn } from "@/lib/cn";
-import type { NavigationItem } from "@/lib/db";
+import type { NavigationItem, MegaMenuData } from "@/lib/db";
 
-export function Header({ navigation = mainNavigation }: { navigation?: NavigationItem[] }) {
+type Props = {
+  navigation?: NavigationItem[];
+  megaMenusData?: Record<string, MegaMenuData | null>;
+};
+
+export function Header({ navigation = mainNavigation, megaMenusData = {} }: Props) {
   const pathname = usePathname();
   const [activeMenu, setActiveMenu] = useState<MegaMenuKey | null>(null);
   const [mobileOpen, setMobileOpen] = useState(false);
@@ -40,6 +45,15 @@ export function Header({ navigation = mainNavigation }: { navigation?: Navigatio
     };
   }, []);
 
+  // Valid mega menu keys from navigation items
+  const validMegaMenuKeys = navigation
+    .filter((item) => !!item.menuKey)
+    .map((item) => item.menuKey as MegaMenuKey);
+
+  const canOpenMegaMenu = (menuKey?: string): menuKey is MegaMenuKey => {
+    return !!menuKey && validMegaMenuKeys.includes(menuKey as MegaMenuKey);
+  };
+
   return (
     <header
       ref={ref}
@@ -52,16 +66,16 @@ export function Header({ navigation = mainNavigation }: { navigation?: Navigatio
             <Logo dark={false} isHeader={true} />
           </div>
 
-          {/* Desktop Navigation — visible at lg+ */}
-          <nav className="hidden min-w-0 flex-1 items-center gap-0.5 lg:flex" aria-label="Ana menü">
+          {/* Desktop Navigation — visible at xl+ */}
+          <nav className="hidden min-w-0 flex-1 items-center justify-center gap-0.5 xl:flex" aria-label="Ana menü">
             {navigation.map((item) => {
               const isOpen = activeMenu === item.menuKey;
-              const canOpenMegaMenu = item.menuKey && item.menuKey in megaMenus;
+              const hasMenu = canOpenMegaMenu(item.menuKey);
               return (
                 <div
                   key={item.href}
                   className="relative flex items-center"
-                  onMouseEnter={() => setActiveMenu(canOpenMegaMenu ? (item.menuKey as MegaMenuKey) : null)}
+                  onMouseEnter={() => setActiveMenu(hasMenu ? (item.menuKey as MegaMenuKey) : null)}
                 >
                   <Link
                     href={item.href}
@@ -73,7 +87,7 @@ export function Header({ navigation = mainNavigation }: { navigation?: Navigatio
                     )}
                   >
                     <span>{item.label}</span>
-                    {canOpenMegaMenu ? (
+                    {hasMenu ? (
                       <ChevronDown
                         className={cn(
                           "h-3.5 w-3.5 shrink-0 transition-transform duration-200",
@@ -87,9 +101,9 @@ export function Header({ navigation = mainNavigation }: { navigation?: Navigatio
             })}
           </nav>
 
-          {/* Desktop CTAs — visible at lg+ */}
+          {/* Desktop CTAs — visible at xl+ */}
           <div
-            className="hidden shrink-0 items-center gap-2 lg:flex"
+            className="hidden shrink-0 items-center gap-2 xl:flex"
             onMouseEnter={() => setActiveMenu(null)}
           >
             <ButtonLink
@@ -110,7 +124,7 @@ export function Header({ navigation = mainNavigation }: { navigation?: Navigatio
           </div>
 
           {/* Mobile / Tablet — hamburger + optional WhatsApp pill */}
-          <div className="flex shrink-0 items-center gap-2 lg:hidden" onMouseEnter={() => setActiveMenu(null)}>
+          <div className="flex shrink-0 items-center gap-2 xl:hidden" onMouseEnter={() => setActiveMenu(null)}>
             <ButtonLink
               href={whatsappUrl("Merhaba, PrimeSec Teknoloji'den bilgi almak istiyorum.")}
               variant="outlineBlue"
@@ -129,8 +143,14 @@ export function Header({ navigation = mainNavigation }: { navigation?: Navigatio
           </div>
         </div>
       </div>
-      {activeMenu ? <MegaMenu menuKey={activeMenu} onNavigate={() => setActiveMenu(null)} /> : null}
-      <MobileMenu open={mobileOpen} onClose={() => setMobileOpen(false)} navigation={navigation} />
+      {activeMenu ? (
+        <MegaMenu
+          menuKey={activeMenu}
+          onNavigate={() => setActiveMenu(null)}
+          menuData={megaMenusData[activeMenu] ?? null}
+        />
+      ) : null}
+      <MobileMenu open={mobileOpen} onClose={() => setMobileOpen(false)} navigation={navigation} megaMenusData={megaMenusData} />
     </header>
   );
 }

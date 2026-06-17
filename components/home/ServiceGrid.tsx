@@ -1,6 +1,5 @@
 "use client";
 
-import Image from "next/image";
 import Link from "next/link";
 import { ChevronRight } from "lucide-react";
 import { useMemo, useState } from "react";
@@ -14,7 +13,7 @@ type ServiceCard = {
   category: string;
 };
 
-const services: ServiceCard[] = [
+const defaultServices: ServiceCard[] = [
   { title: "CCTV Kamera", description: "Yüksek çözünürlüklü kamera ve kayıt sistemleri.", href: "/kamera-sistemleri/cctv-kamera", image: "/images/kamera-sistemi.svg", category: "Kamera" },
   { title: "Hırsız Alarm", description: "Ev ve iş yerleri için 7/24 alarm koruması.", href: "/alarm-sistemleri", image: "/images/alarm-sistemi.svg", category: "Alarm" },
   { title: "Akıllı Ev Sistemleri", description: "Konfor ve güvenliği tek uygulamada yönetin.", href: "/akilli-ev-sistemleri", image: "/images/akilli-ev.svg", category: "Akıllı Ev" },
@@ -25,11 +24,38 @@ const services: ServiceCard[] = [
   { title: "Araç Takip", description: "Filo ve araç güvenliği için canlı takip.", href: "/arac-takip-sistemleri", image: "/images/arac-takip.svg", category: "Kurumsal" },
 ];
 
-const tabs = ["Tümü", "Kamera", "Alarm", "Akıllı Ev", "Kurumsal", "Network"];
+const defaultTabs = ["Tümü", "Kamera", "Alarm", "Akıllı Ev", "Kurumsal", "Network"];
 
-export function ServiceGrid() {
+interface ServiceGridProps {
+  dynamicData?: {
+    tabs: any[];
+    services: any[];
+  };
+}
+
+export function ServiceGrid({ dynamicData }: ServiceGridProps) {
+  // Veritabanında veri yoksa varsayılanları kullan
+  const hasDynamicData = dynamicData && dynamicData.tabs && dynamicData.tabs.length > 0;
+  
+  const tabs = hasDynamicData 
+    ? ["Tümü", ...dynamicData.tabs.map(t => t.title)] 
+    : defaultTabs;
+    
+  const services = hasDynamicData
+    ? dynamicData.services.map(s => {
+        const tab = dynamicData.tabs.find(t => t.id === s.tab_id);
+        return {
+          title: s.title,
+          description: s.description || "",
+          href: s.link || "#",
+          image: s.image || "/images/kamera-sistemi.svg",
+          category: tab ? tab.title : "Tümü"
+        };
+      })
+    : defaultServices;
+
   const [tab, setTab] = useState("Tümü");
-  const filtered = useMemo(() => (tab === "Tümü" ? services : services.filter((service) => service.category === tab)), [tab]);
+  const filtered = useMemo(() => (tab === "Tümü" ? services : services.filter((service) => service.category === tab)), [tab, services]);
   const visible = useMemo(() => {
     const list = [...filtered.slice(0, 4)];
     while (list.length < 4) {
@@ -89,21 +115,17 @@ export function ServiceGrid() {
                   )}
                   style={{ scrollSnapAlign: 'start' }}
                 >
-                  <Link href={service.href} className="flex items-start justify-between gap-4 flex-1">
-                    <div>
+                  <Link href={service.href} className="flex items-start justify-between gap-4 w-full">
+                    <div className="flex-1">
                       <p className="text-xs font-bold text-ink-muted">Hizmet</p>
-                      <h3 className="mt-2 max-w-[220px] text-2xl font-black leading-tight tracking-[-0.04em] text-ink">{service.title}</h3>
-                      <p className="mt-3 max-w-[260px] text-sm leading-6 text-ink-muted">{service.description}</p>
+                      <h3 className="mt-2 text-2xl font-black leading-tight tracking-[-0.04em] text-ink break-words">{service.title}</h3>
+                      <p className="mt-3 text-sm leading-6 text-ink-muted break-words">{service.description}</p>
                     </div>
                     <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full primesec-navy-action text-white md:group-hover:bg-cyan-500 transition-colors duration-300">
                       <ChevronRight className="h-4 w-4" />
                     </span>
                   </Link>
-                  <div className="relative mt-4 h-24 w-full flex-1">
-                    <Image src={service.image} alt={`${service.title} hizmet görseli`} fill className="object-contain object-right-bottom" unoptimized />
-                  </div>
                   <div className="mt-4 flex items-center gap-2">
-                    <Link href={service.href} className="inline-flex h-8 items-center justify-center rounded-full primesec-navy-action px-4 text-xs font-extrabold text-white md:group-hover:bg-cyan-500 transition-colors duration-300">İncele</Link>
                     <Link href="/iletisim" className="inline-flex h-8 items-center justify-center rounded-full bg-[#FFFFFF] border border-border px-4 text-xs font-extrabold text-ink-muted md:hover:text-cyan-500 md:hover:border-cyan-500 transition-colors duration-300">Teklif Al</Link>
                   </div>
                 </div>
@@ -129,21 +151,17 @@ export function ServiceGrid() {
                     "group flex flex-col justify-between min-h-[260px] overflow-hidden rounded-[24px] border border-border md:hover:border-cyan-500 md:hover:shadow-lg transition-all duration-300 bg-white p-5 md:hover:-translate-y-1"
                   )}
                 >
-                  <Link href={service.href} className="flex items-start justify-between gap-4">
-                    <div>
+                  <Link href={service.href} className="flex items-start justify-between gap-4 w-full">
+                    <div className="flex-1">
                       <p className="text-xs font-bold text-ink-muted">Hizmet</p>
-                      <h3 className="mt-2 max-w-[220px] text-2xl font-black leading-tight tracking-[-0.04em] text-ink">{service.title}</h3>
-                      <p className="mt-3 max-w-[260px] text-sm leading-6 text-ink-muted">{service.description}</p>
+                      <h3 className="mt-2 text-2xl font-black leading-tight tracking-[-0.04em] text-ink break-words">{service.title}</h3>
+                      <p className="mt-3 text-sm leading-6 text-ink-muted break-words">{service.description}</p>
                     </div>
                     <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full primesec-navy-action text-white md:group-hover:bg-cyan-500 transition-colors duration-300">
                       <ChevronRight className="h-4 w-4" />
                     </span>
                   </Link>
-                  <div className="relative mt-4 h-24 w-full flex-1">
-                    <Image src={service.image} alt={`${service.title} hizmet görseli`} fill className="object-contain object-right-bottom" unoptimized />
-                  </div>
                   <div className="mt-4 flex items-center gap-2">
-                    <Link href={service.href} className="inline-flex h-8 items-center justify-center rounded-full primesec-navy-action px-4 text-xs font-extrabold text-white md:group-hover:bg-cyan-500 transition-colors duration-300">İncele</Link>
                     <Link href="/iletisim" className="inline-flex h-8 items-center justify-center rounded-full bg-[#FFFFFF] border border-border px-4 text-xs font-extrabold text-ink-muted md:hover:text-cyan-500 md:hover:border-cyan-500 transition-colors duration-300">Teklif Al</Link>
                   </div>
                 </div>
@@ -155,11 +173,6 @@ export function ServiceGrid() {
             <div>
               <p className="text-sm font-extrabold uppercase tracking-[0.14em] text-white/65">PrimeSec Plan</p>
               <h3 className="mt-4 text-3xl font-black leading-tight tracking-[-0.045em]">Güvenliğinizi Kendiniz Tasarlayın</h3>
-              <div className="mt-6 flex flex-wrap gap-2">
-                {["Alarm", "Kamera", "Network", "Destek"].map((item) => (
-                  <span key={item} className="rounded-full bg-white/10 backdrop-blur-sm px-3 py-1.5 text-xs font-extrabold text-white border border-white/20">{item}</span>
-                ))}
-              </div>
               <p className="mt-6 text-sm leading-7 text-white/80">
                 Alanınıza özel güvenlik planı oluşturun. PrimeSec ekibi kamera, alarm, akıllı ev ve teknik destek ihtiyaçlarını tek teklif içinde netleştirir.
               </p>

@@ -1,0 +1,163 @@
+<?xml version="1.0" encoding="UTF-8"?>    <root><err Type="0" Desc="Basarili"></err>
+        <Kategori Kategori_Id="1798" Ust_Kategori_Id="1797"  Kategori_Adi="Notebook"></Kategori>
+        <Kategori Kategori_Id="1806" Ust_Kategori_Id="1803"  Kategori_Adi="All In One Pc"></Kategori>
+        <Kategori Kategori_Id="1810" Ust_Kategori_Id="1730"  Kategori_Adi="Monitörler"></Kategori>
+        <Kategori Kategori_Id="1844" Ust_Kategori_Id="1731"  Kategori_Adi="Lazer Yazıcılar"></Kategori>
+        <Kategori Kategori_Id="1861" Ust_Kategori_Id="1856"  Kategori_Adi="Modem"></Kategori>
+        <Kategori Kategori_Id="1893" Ust_Kategori_Id="1732"  Kategori_Adi="Cep Telefonu"></Kategori>
+        <Kategori Kategori_Id="1900" Ust_Kategori_Id="1733"  Kategori_Adi="İşletim Sistemleri"></Kategori>
+        <Kategori Kategori_Id="1907" Ust_Kategori_Id="1734"  Kategori_Adi="Sunucular"></Kategori>
+        <Kategori Kategori_Id="1974" Ust_Kategori_Id="1737"  Kategori_Adi="Yazıcı Tonerleri"></Kategori>
+        <Kategori Kategori_Id="2249" Ust_Kategori_Id="1735"  Kategori_Adi="Güvenlik Ürünleri"></Kategori>
+        <Kategori Kategori_Id="714" Ust_Kategori_Id="628"  Kategori_Adi="Eticaret Kategorileri"></Kategori>
+        <Kategori Kategori_Id="1738" Ust_Kategori_Id="1727"  Kategori_Adi="Anakartlar"></Kategori>
+        <Kategori Kategori_Id="2250" Ust_Kategori_Id="2249"  Kategori_Adi="IP / AHD Kameralar"></Kategori>
+        <Kategori Kategori_Id="1782" Ust_Kategori_Id="1781"  Kategori_Adi="Kasalar"></Kategori>
+        <Kategori Kategori_Id="2301" Ust_Kategori_Id="2256"  Kategori_Adi="İnterkom Setler"></Kategori>
+        <Kategori Kategori_Id="1802" Ust_Kategori_Id="1797"  Kategori_Adi="Notebook Aksesuar"></Kategori>
+        <Kategori Kategori_Id="1846" Ust_Kategori_Id="1731"  Kategori_Adi="Çok İşlevli Laser Yazıcı"></Kategori>
+        <Kategori Kategori_Id="1858" Ust_Kategori_Id="1856"  Kategori_Adi="Access Point"></Kategori>
+        <Kategori Kategori_Id="1881" Ust_Kategori_Id="1728"  Kategori_Adi="Kablolu Okuyucu"></Kategori>
+        <Kategori Kategori_Id="1901" Ust_Kategori_Id="1733"  Kategori_Adi="Ofis Uygulamaları"></Kategori>
+        <Kategori Kategori_Id="1910" Ust_Kategori_Id="1734"  Kategori_Adi="İş İstasyonları"></Kategori>
+        <Kategori Kategori_Id="1928" Ust_Kategori_Id="1735"  Kategori_Adi="Hırsız Alarm Sistemleri"></Kategori>
+        <Kategori Kategori_Id="1972" Ust_Kategori_Id="1737"  Kategori_Adi="Yazıcı Kartuşları"></Kategori>
+        <Kategori Kategori_Id="1729" Ust_Kategori_Id="714"  Kategori_Adi="Kişisel Bilgisayarlar"></Kategori>
+        <Kategori Kategori_Id="2251" Ust_Kategori_Id="2249"  Kategori_Adi="NVR / AHD Kayıt Cihazları"></Kategori>
+        <Kategori Kategori_Id="2257" Ust_Kategori_Id="2256"  Kategori_Adi="İç Üniteler"></Kategori>
+        <Kategori Kategori_Id="1750" Ust_Kategori_Id="1727"  Kategori_Adi="Bellekler"></Kategori>
+        <Kategori Kategori_Id="1784" Ust_Kategori_Id="1781"  Kategori_Adi="Güç Kaynakları"></Kategori>
+        <Kategori Kategori_Id="1801" Ust_Kategori_Id="1797"  Kategori_Adi="Tablet Aksesuar"></Kategori>
+        <Kategori Kategori_Id="1804" Ust_Kategori_Id="1803"  Kategori_Adi="Masaüstü PC"></Kategori>
+        <Kategori Kategori_Id="1829" Ust_Kategori_Id="1730"  Kategori_Adi="Kesintisiz Enerji"></Kategori>
+        <Kategori Kategori_Id="1835" Ust_Kategori_Id="1731"  Kategori_Adi="Mürekkep Püskürtmeli Yazıcılar"></Kategori>
+        <Kategori Kategori_Id="1885" Ust_Kategori_Id="1728"  Kategori_Adi="Kablosuz Okuyucu"></Kategori>
+        <Kategori Kategori_Id="2158" Ust_Kategori_Id="1856"  Kategori_Adi="Routerler"></Kategori>
+        <Kategori Kategori_Id="1906" Ust_Kategori_Id="1733"  Kategori_Adi="Antivirüs"></Kategori>
+        <Kategori Kategori_Id="1727" Ust_Kategori_Id="714"  Kategori_Adi="Bilgisayar Bileşenleri"></Kategori>
+        <Kategori Kategori_Id="2256" Ust_Kategori_Id="1735"  Kategori_Adi="İnterkom Sistemleri"></Kategori>
+        <Kategori Kategori_Id="2258" Ust_Kategori_Id="2256"  Kategori_Adi="Dış Üniteler"></Kategori>
+        <Kategori Kategori_Id="2267" Ust_Kategori_Id="2249"  Kategori_Adi="Güvenlik Monitörleri"></Kategori>
+        <Kategori Kategori_Id="1760" Ust_Kategori_Id="1727"  Kategori_Adi="Ekran Kartları"></Kategori>
+        <Kategori Kategori_Id="1783" Ust_Kategori_Id="1781"  Kategori_Adi="Kasa Aksesuar"></Kategori>
+        <Kategori Kategori_Id="2312" Ust_Kategori_Id="1735"  Kategori_Adi="Kameralı Kapı Zili"></Kategori>
+        <Kategori Kategori_Id="2320" Ust_Kategori_Id="1803"  Kategori_Adi="Oem Paketler"></Kategori>
+        <Kategori Kategori_Id="1845" Ust_Kategori_Id="1731"  Kategori_Adi="Çok İşlevli M.Püskürtme Yazıcı"></Kategori>
+        <Kategori Kategori_Id="1958" Ust_Kategori_Id="1736"  Kategori_Adi="Projeksiyon Cihazları"></Kategori>
+        <Kategori Kategori_Id="1730" Ust_Kategori_Id="714"  Kategori_Adi="Çevre Birimleri"></Kategori>
+        <Kategori Kategori_Id="2252" Ust_Kategori_Id="2249"  Kategori_Adi="Mobil CCTV Ürünleri"></Kategori>
+        <Kategori Kategori_Id="2270" Ust_Kategori_Id="2256"  Kategori_Adi="Güvenlik / Çağrı Konsolu"></Kategori>
+        <Kategori Kategori_Id="1767" Ust_Kategori_Id="1727"  Kategori_Adi="Hard Diskler"></Kategori>
+        <Kategori Kategori_Id="2030" Ust_Kategori_Id="1730"  Kategori_Adi="Klavye &amp; Mouse Set"></Kategori>
+        <Kategori Kategori_Id="1809" Ust_Kategori_Id="1803"  Kategori_Adi="Mini PC"></Kategori>
+        <Kategori Kategori_Id="1817" Ust_Kategori_Id="1730"  Kategori_Adi="Klavye"></Kategori>
+        <Kategori Kategori_Id="1843" Ust_Kategori_Id="1731"  Kategori_Adi="Mobil Yazıcı"></Kategori>
+        <Kategori Kategori_Id="1888" Ust_Kategori_Id="1728"  Kategori_Adi="Karekod Okuyucu"></Kategori>
+        <Kategori Kategori_Id="1894" Ust_Kategori_Id="1732"  Kategori_Adi="Cep Telefonu Aksesuarları"></Kategori>
+        <Kategori Kategori_Id="2160" Ust_Kategori_Id="1856"  Kategori_Adi="Menzil Arttırıcı"></Kategori>
+        <Kategori Kategori_Id="1908" Ust_Kategori_Id="1734"  Kategori_Adi="Sunucu Yazılımları"></Kategori>
+        <Kategori Kategori_Id="1959" Ust_Kategori_Id="1736"  Kategori_Adi="Projeksiyon Aksesuarları"></Kategori>
+        <Kategori Kategori_Id="1731" Ust_Kategori_Id="714"  Kategori_Adi="Baskı Çözümleri"></Kategori>
+        <Kategori Kategori_Id="2259" Ust_Kategori_Id="1735"  Kategori_Adi="Geçiş Kontrol Sistemleri"></Kategori>
+        <Kategori Kategori_Id="2273" Ust_Kategori_Id="2249"  Kategori_Adi="CCTV IP Set"></Kategori>
+        <Kategori Kategori_Id="1777" Ust_Kategori_Id="1727"  Kategori_Adi="İşlemciler"></Kategori>
+        <Kategori Kategori_Id="1800" Ust_Kategori_Id="1797"  Kategori_Adi="Tablet"></Kategori>
+        <Kategori Kategori_Id="1819" Ust_Kategori_Id="1730"  Kategori_Adi="Mouse"></Kategori>
+        <Kategori Kategori_Id="1836" Ust_Kategori_Id="1731"  Kategori_Adi="Nokta Vuruşlu Yazıcı"></Kategori>
+        <Kategori Kategori_Id="1876" Ust_Kategori_Id="1856"  Kategori_Adi="Kablosuz Ağ Ürünleri"></Kategori>
+        <Kategori Kategori_Id="1883" Ust_Kategori_Id="1728"  Kategori_Adi="El Terminali"></Kategori>
+        <Kategori Kategori_Id="1909" Ust_Kategori_Id="1734"  Kategori_Adi="Sunucu Aksesuarları"></Kategori>
+        <Kategori Kategori_Id="1734" Ust_Kategori_Id="714"  Kategori_Adi="Kurumsal Ürünler"></Kategori>
+        <Kategori Kategori_Id="2272" Ust_Kategori_Id="2249"  Kategori_Adi="CCTV AHD Set"></Kategori>
+        <Kategori Kategori_Id="2275" Ust_Kategori_Id="1735"  Kategori_Adi="Seslendirme ve Acil Anons"></Kategori>
+        <Kategori Kategori_Id="1781" Ust_Kategori_Id="1727"  Kategori_Adi="Bilgisayar Kasası"></Kategori>
+        <Kategori Kategori_Id="1852" Ust_Kategori_Id="1731"  Kategori_Adi="Tarayıcı"></Kategori>
+        <Kategori Kategori_Id="1856" Ust_Kategori_Id="714"  Kategori_Adi="Ağ Ürünleri"></Kategori>
+        <Kategori Kategori_Id="1866" Ust_Kategori_Id="1856"  Kategori_Adi="Switch"></Kategori>
+        <Kategori Kategori_Id="1886" Ust_Kategori_Id="1728"  Kategori_Adi="Masaüstü Okuyucu "></Kategori>
+        <Kategori Kategori_Id="1913" Ust_Kategori_Id="1734"  Kategori_Adi="Depolama Üniteleri"></Kategori>
+        <Kategori Kategori_Id="2253" Ust_Kategori_Id="2249"  Kategori_Adi="Termal ve Solar Kameralar"></Kategori>
+        <Kategori Kategori_Id="2278" Ust_Kategori_Id="1735"  Kategori_Adi="Yangın Algılama Sistemleri"></Kategori>
+        <Kategori Kategori_Id="2031" Ust_Kategori_Id="1730"  Kategori_Adi="Mouse Pad"></Kategori>
+        <Kategori Kategori_Id="1785" Ust_Kategori_Id="1727"  Kategori_Adi="Optik Sürücüler"></Kategori>
+        <Kategori Kategori_Id="1821" Ust_Kategori_Id="1730"  Kategori_Adi="Hoparlör"></Kategori>
+        <Kategori Kategori_Id="1851" Ust_Kategori_Id="1731"  Kategori_Adi="Yazıcı Aksesuar"></Kategori>
+        <Kategori Kategori_Id="1887" Ust_Kategori_Id="1728"  Kategori_Adi="Barkod Yazıcıları"></Kategori>
+        <Kategori Kategori_Id="2159" Ust_Kategori_Id="1856"  Kategori_Adi="Powerline Ürünleri"></Kategori>
+        <Kategori Kategori_Id="1932" Ust_Kategori_Id="1928"  Kategori_Adi="Kablosuz Alarm Setleri"></Kategori>
+        <Kategori Kategori_Id="1950" Ust_Kategori_Id="1736"  Kategori_Adi="Klimalar"></Kategori>
+        <Kategori Kategori_Id="1732" Ust_Kategori_Id="714"  Kategori_Adi="Telefonlar"></Kategori>
+        <Kategori Kategori_Id="2271" Ust_Kategori_Id="1735"  Kategori_Adi="CCTV Kablo "></Kategori>
+        <Kategori Kategori_Id="2276" Ust_Kategori_Id="2249"  Kategori_Adi="Araç İçi Kamera"></Kategori>
+        <Kategori Kategori_Id="1787" Ust_Kategori_Id="1727"  Kategori_Adi="Soğutma /Overclock"></Kategori>
+        <Kategori Kategori_Id="1827" Ust_Kategori_Id="1730"  Kategori_Adi="Kulaklık ve Mikrofon"></Kategori>
+        <Kategori Kategori_Id="1865" Ust_Kategori_Id="1856"  Kategori_Adi="Ağ Kartları"></Kategori>
+        <Kategori Kategori_Id="1889" Ust_Kategori_Id="1728"  Kategori_Adi="Pos ve Slip Yazıcılar"></Kategori>
+        <Kategori Kategori_Id="2202" Ust_Kategori_Id="1736"  Kategori_Adi="Süpürge"></Kategori>
+        <Kategori Kategori_Id="1728" Ust_Kategori_Id="714"  Kategori_Adi="Barkod Ürünleri"></Kategori>
+        <Kategori Kategori_Id="2265" Ust_Kategori_Id="1735"  Kategori_Adi="Switch / Adaptör / AP"></Kategori>
+        <Kategori Kategori_Id="1795" Ust_Kategori_Id="1727"  Kategori_Adi="Kart Okuyucular"></Kategori>
+        <Kategori Kategori_Id="1823" Ust_Kategori_Id="1730"  Kategori_Adi="Oyun Aksesuar"></Kategori>
+        <Kategori Kategori_Id="1879" Ust_Kategori_Id="1856"  Kategori_Adi="Ağ Aksesuar"></Kategori>
+        <Kategori Kategori_Id="1923" Ust_Kategori_Id="1735"  Kategori_Adi="Sarf Malzeme ve Aksesuarlar"></Kategori>
+        <Kategori Kategori_Id="1735" Ust_Kategori_Id="714"  Kategori_Adi="Güvenlik Ürünleri"></Kategori>
+        <Kategori Kategori_Id="2254" Ust_Kategori_Id="2249"  Kategori_Adi="PTZ Kontrol Klavyesi"></Kategori>
+        <Kategori Kategori_Id="1825" Ust_Kategori_Id="1730"  Kategori_Adi="Web Kamerası"></Kategori>
+        <Kategori Kategori_Id="1878" Ust_Kategori_Id="1856"  Kategori_Adi="Antenler ve Aksesuarları"></Kategori>
+        <Kategori Kategori_Id="1970" Ust_Kategori_Id="1727"  Kategori_Adi="Kablolar ve Adaptörler"></Kategori>
+        <Kategori Kategori_Id="1736" Ust_Kategori_Id="714"  Kategori_Adi="Tüketici Elektroniği"></Kategori>
+        <Kategori Kategori_Id="2162" Ust_Kategori_Id="1730"  Kategori_Adi="Usb Bellekler"></Kategori>
+        <Kategori Kategori_Id="1737" Ust_Kategori_Id="714"  Kategori_Adi="Ofis &amp; Tüketim Ürünleri"></Kategori>
+        <Kategori Kategori_Id="1864" Ust_Kategori_Id="1856"  Kategori_Adi="Controller"></Kategori>
+        <Kategori Kategori_Id="1733" Ust_Kategori_Id="714"  Kategori_Adi="Yazılımlar"></Kategori>
+        <Kategori Kategori_Id="1870" Ust_Kategori_Id="1856"  Kategori_Adi="Kablolar"></Kategori>
+        <Kategori Kategori_Id="1871" Ust_Kategori_Id="1856"  Kategori_Adi="KVM Switch"></Kategori>
+        <Kategori Kategori_Id="1951" Ust_Kategori_Id="1736"  Kategori_Adi="Vantilatör"></Kategori>
+        <Kategori Kategori_Id="1877" Ust_Kategori_Id="1856"  Kategori_Adi="Bluetooth Ürünleri"></Kategori>
+        <Kategori Kategori_Id="1962" Ust_Kategori_Id="1736"  Kategori_Adi="Drone Multikopter"></Kategori>
+        <Kategori Kategori_Id="1792" Ust_Kategori_Id="1791"  Kategori_Adi="Çevirici &amp; Kartlar"></Kategori>
+        <Kategori Kategori_Id="2304" Ust_Kategori_Id="2302"  Kategori_Adi="Cam silme aparatı "></Kategori>
+        <Kategori Kategori_Id="1797" Ust_Kategori_Id="1729"  Kategori_Adi="Taşınabilir Bilgisayarlar"></Kategori>
+        <Kategori Kategori_Id="2309" Ust_Kategori_Id="2173"  Kategori_Adi="Su Sebili"></Kategori>
+        <Kategori Kategori_Id="2311" Ust_Kategori_Id="1730"  Kategori_Adi="Akıllı Tahta"></Kategori>
+        <Kategori Kategori_Id="2313" Ust_Kategori_Id="2228"  Kategori_Adi="Akıllı Kapı Kilidi"></Kategori>
+        <Kategori Kategori_Id="2314" Ust_Kategori_Id="2228"  Kategori_Adi="Akıllı Mama Kabı"></Kategori>
+        <Kategori Kategori_Id="1803" Ust_Kategori_Id="1729"  Kategori_Adi="Masaüstü Bilgisayarlar"></Kategori>
+        <Kategori Kategori_Id="2319" Ust_Kategori_Id="2249"  Kategori_Adi="Solar Panel"></Kategori>
+        <Kategori Kategori_Id="2321" Ust_Kategori_Id="1731"  Kategori_Adi="3D Yazıcı"></Kategori>
+        <Kategori Kategori_Id="2322" Ust_Kategori_Id="1731"  Kategori_Adi="3D Tarayıcı"></Kategori>
+        <Kategori Kategori_Id="2324" Ust_Kategori_Id="2228"  Kategori_Adi="Akıllı Ev Sistemleri"></Kategori>
+        <Kategori Kategori_Id="2325" Ust_Kategori_Id="1727"  Kategori_Adi="Kart Bellekler"></Kategori>
+        <Kategori Kategori_Id="2181" Ust_Kategori_Id="1829"  Kategori_Adi="Güç Kaynakları (Ups)"></Kategori>
+        <Kategori Kategori_Id="2182" Ust_Kategori_Id="1829"  Kategori_Adi="Aküler"></Kategori>
+        <Kategori Kategori_Id="2183" Ust_Kategori_Id="1829"  Kategori_Adi="Prizler"></Kategori>
+        <Kategori Kategori_Id="2224" Ust_Kategori_Id="1767"  Kategori_Adi="Nas Ssd Diskler"></Kategori>
+        <Kategori Kategori_Id="2225" Ust_Kategori_Id="1767"  Kategori_Adi="Taşınabilir Ssd Diskler"></Kategori>
+        <Kategori Kategori_Id="2244" Ust_Kategori_Id="1736"  Kategori_Adi="Buharlı Temizleyici"></Kategori>
+        <Kategori Kategori_Id="2248" Ust_Kategori_Id="1736"  Kategori_Adi="Basınçlı Yıkama"></Kategori>
+        <Kategori Kategori_Id="2255" Ust_Kategori_Id="1928"  Kategori_Adi="Kablosuz Alarm Ürünleri"></Kategori>
+        <Kategori Kategori_Id="2260" Ust_Kategori_Id="2259"  Kategori_Adi="Kart Okuyucular"></Kategori>
+        <Kategori Kategori_Id="2261" Ust_Kategori_Id="2259"  Kategori_Adi="Kontrol Panelleri"></Kategori>
+        <Kategori Kategori_Id="2262" Ust_Kategori_Id="2259"  Kategori_Adi="Bağımsız Paneller"></Kategori>
+        <Kategori Kategori_Id="2266" Ust_Kategori_Id="2259"  Kategori_Adi="Parmak İzi Okuyucular"></Kategori>
+        <Kategori Kategori_Id="2268" Ust_Kategori_Id="2259"  Kategori_Adi="Yüz Tanıma Terminalleri"></Kategori>
+        <Kategori Kategori_Id="2269" Ust_Kategori_Id="2259"  Kategori_Adi="Temassız Kart"></Kategori>
+        <Kategori Kategori_Id="2274" Ust_Kategori_Id="2259"  Kategori_Adi="Aksesuarlar"></Kategori>
+        <Kategori Kategori_Id="2277" Ust_Kategori_Id="1728"  Kategori_Adi="Dokunmatik POS PC"></Kategori>
+        <Kategori Kategori_Id="1769" Ust_Kategori_Id="1767"  Kategori_Adi="Sata Diskler"></Kategori>
+        <Kategori Kategori_Id="1770" Ust_Kategori_Id="1767"  Kategori_Adi="Güvenlik 7/24 Diskleri"></Kategori>
+        <Kategori Kategori_Id="1771" Ust_Kategori_Id="1767"  Kategori_Adi="Nas Diskler"></Kategori>
+        <Kategori Kategori_Id="1773" Ust_Kategori_Id="1767"  Kategori_Adi="Ssd Diskler"></Kategori>
+        <Kategori Kategori_Id="1774" Ust_Kategori_Id="1767"  Kategori_Adi="Taşınabilir Diskler"></Kategori>
+        <Kategori Kategori_Id="1775" Ust_Kategori_Id="1767"  Kategori_Adi="Notebook Diskleri"></Kategori>
+        <Kategori Kategori_Id="1776" Ust_Kategori_Id="1767"  Kategori_Adi="Aksesuarlar"></Kategori>
+        <Kategori Kategori_Id="2291" Ust_Kategori_Id="1736"  Kategori_Adi="Saç Kurutma"></Kategori>
+        <Kategori Kategori_Id="2292" Ust_Kategori_Id="1736"  Kategori_Adi="Ütü"></Kategori>
+        <Kategori Kategori_Id="2294" Ust_Kategori_Id="1942"  Kategori_Adi="Mikser"></Kategori>
+        <Kategori Kategori_Id="2296" Ust_Kategori_Id="2228"  Kategori_Adi="Baskül"></Kategori>
+        <Kategori Kategori_Id="2299" Ust_Kategori_Id="2228"  Kategori_Adi="Su Pınarı"></Kategori>
+        <Kategori Kategori_Id="1788" Ust_Kategori_Id="1787"  Kategori_Adi="Kasa Fanları"></Kategori>
+        <Kategori Kategori_Id="1789" Ust_Kategori_Id="1787"  Kategori_Adi="İşlemci Fanları"></Kategori>
+        <Kategori Kategori_Id="1790" Ust_Kategori_Id="1787"  Kategori_Adi="İşlemci Sıvı Soğutma"></Kategori>
+            </root>
+    

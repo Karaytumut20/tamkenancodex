@@ -139,7 +139,9 @@ export function ProductCarousel({ initialProducts }: ProductCarouselProps) {
               <div className="flex flex-1 flex-col justify-between pt-4">
                 <div>
                   <p className="text-xs font-bold text-ink-muted">{product.category}</p>
-                  <h3 className="mt-2 line-clamp-2 min-h-[44px] text-lg font-extrabold leading-5 tracking-[-0.02em] text-ink md:group-hover:text-cyan-500 transition-colors">{product.name}</h3>
+                  <h3 className="mt-2 line-clamp-2 min-h-[44px] text-lg font-extrabold leading-5 tracking-[-0.02em] text-ink md:group-hover:text-cyan-500 transition-colors">
+                    {product.name.length > 50 ? `${product.name.substring(0, 50)}...` : product.name}
+                  </h3>
                 </div>
               </div>
             </Link>

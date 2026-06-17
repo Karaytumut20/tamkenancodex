@@ -12,14 +12,16 @@ import { whatsappUrl } from "@/lib/whatsapp";
 
 interface FaqBlogProps {
   initialBlogPosts?: BlogPost[];
+  initialFaqs?: any[];
 }
 
-export function FaqBlog({ initialBlogPosts }: FaqBlogProps) {
+export function FaqBlog({ initialBlogPosts, initialFaqs }: FaqBlogProps) {
   const [openFaq, setOpenFaq] = useState(0);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isMobile, setIsMobile] = useState(false);
 
   const postsList = initialBlogPosts || staticBlogPosts;
+  const faqsList = initialFaqs && initialFaqs.length > 0 ? initialFaqs : homeFaqs;
 
   useEffect(() => {
     const handleResize = () => {
@@ -85,7 +87,7 @@ export function FaqBlog({ initialBlogPosts }: FaqBlogProps) {
             </div>
 
             <div className="xl:col-span-7 space-y-3">
-              {homeFaqs.map((faq, index) => (
+              {faqsList.map((faq, index) => (
                 <div key={faq.question} className="rounded-xl border border-border md:hover:border-cyan-500 transition-colors duration-200 bg-white">
                   <button
                     onClick={() => setOpenFaq(openFaq === index ? -1 : index)}
@@ -156,9 +158,9 @@ export function FaqBlog({ initialBlogPosts }: FaqBlogProps) {
                 >
                   <Link
                     href={`/blog/${post.slug}`}
-                    className="group flex w-full flex-col overflow-hidden rounded-[24px] border border-white bg-white p-4 transition md:hover:-translate-y-1 md:hover:border-cyan-500"
+                    className="group flex w-full flex-col overflow-hidden rounded-[24px] border border-white bg-white p-4 transition md:hover:border-cyan-500"
                   >
-                    <div className="relative h-48 w-full overflow-hidden rounded-[20px] bg-slate-50 flex items-center justify-center p-4">
+                    <div className="relative h-48 w-full overflow-hidden rounded-[20px] bg-white flex items-center justify-center p-4">
                       <img
                         src={post.image}
                         alt={post.title}

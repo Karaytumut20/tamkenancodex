@@ -13,6 +13,9 @@ import {
   Phone,
   X,
   Tags,
+  AppWindow,
+  SlidersHorizontal,
+  HelpCircle,
 } from "lucide-react";
 import { signOutAdmin } from "@/lib/admin/actions";
 import type { AdminProfile } from "@/lib/admin/auth";
@@ -22,6 +25,11 @@ const navItems = [
   { href: "/admin/leads", label: "Gelen Mesajlar", icon: MessageCircle, desc: "Müşteri talepleri" },
   { href: "/admin/products", label: "Ürünler", icon: Boxes, desc: "Ürün ekle / düzenle" },
   { href: "/admin/brands", label: "Markalar", icon: Tags, desc: "Marka yönetimi" },
+  { href: "/admin/mega-menu", label: "Mega Menüler", icon: AppWindow, desc: "Navbar menüleri" },
+  { href: "/admin/system-builder", label: "Sistem Tasarla", icon: SlidersHorizontal, desc: "Sihirbaz ayarları" },
+  { href: "/admin/homepage/featured-products", label: "Öne Çıkanlar", icon: Boxes, desc: "Ana sayfa ürünleri" },
+  { href: "/admin/homepage/services", label: "Hizmet Alanları", icon: AppWindow, desc: "Ana sayfa hizmetleri" },
+  { href: "/admin/faqs", label: "Sık Sorulan Sorular", icon: HelpCircle, desc: "Soru ve cevaplar" },
   { href: "/admin/blog", label: "Blog Yazıları", icon: BookOpen, desc: "Haber ve yazılar" },
   { href: "/admin/settings", label: "İletişim Bilgileri", icon: Phone, desc: "Telefon, adres" },
 ];

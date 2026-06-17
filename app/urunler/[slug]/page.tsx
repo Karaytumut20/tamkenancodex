@@ -16,6 +16,10 @@ import {
   HelpCircle,
   Sparkles,
   ChevronDown,
+  Package,
+  HardDrive,
+  Tag,
+  CheckSquare,
 } from "lucide-react";
 import { PageHero } from "@/components/templates/PageHero";
 import { JsonLd } from "@/components/seo/JsonLd";
@@ -26,7 +30,7 @@ import { type Product } from "@/data/products";
 import { siteConfig } from "@/data/site";
 import { productWhatsappUrl } from "@/lib/whatsapp";
 import { buildMetadata } from "@/lib/seo";
-import { getProductBySlug, getProducts } from "@/lib/db";
+import { getProductBySlug, getProducts, getOksidProductBySlug, getOksidProducts, type OksidProduct } from "@/lib/db";
 import { ProductImageGallery } from "@/components/products/ProductImageGallery";
 import { breadcrumbSchema, faqSchema } from "@/data/schemas";
 
@@ -66,8 +70,14 @@ const getCategoryVisuals = (category: string) => {
 export const revalidate = 3600;
 
 export async function generateStaticParams() {
-  const dbProducts = await getProducts();
-  return dbProducts.map((product: any) => ({ slug: product.slug }));
+  const [dbProducts, oksidProducts] = await Promise.all([
+    getProducts(),
+    getOksidProducts(),
+  ]);
+  return [
+    ...dbProducts.map((product: any) => ({ slug: product.slug })),
+    ...oksidProducts.map((product) => ({ slug: product.slug })),
+  ];
 }
 
 export async function generateMetadata({
@@ -76,23 +86,37 @@ export async function generateMetadata({
   params: Promise<{ slug: string }>;
 }) {
   const { slug } = await params;
-  const product = await getProductBySlug(slug);
-  if (!product) return {};
 
-  return buildMetadata({
-    title: product.metaTitle || `${product.name} | PrimeSec Teknoloji`,
-    description: product.metaDescription || product.description,
-    path: `/urunler/${product.slug}`,
-    image: product.image,
-    robotsIndex: product.robotsIndex,
-    robotsFollow: product.robotsFollow,
-    canonicalUrl: product.canonicalUrl,
-    ogTitle: product.ogTitle,
-    ogDescription: product.ogDescription,
-    twitterTitle: product.twitterTitle,
-    twitterDescription: product.twitterDescription,
-    twitterImage: product.twitterImage,
-  });
+  // Önce normal DB, sonra Oksid kontrol
+  const product = await getProductBySlug(slug);
+  if (product) {
+    return buildMetadata({
+      title: product.metaTitle || `${product.name} | PrimeSec Teknoloji`,
+      description: product.metaDescription || product.description,
+      path: `/urunler/${product.slug}`,
+      image: product.image,
+      robotsIndex: product.robotsIndex,
+      robotsFollow: product.robotsFollow,
+      canonicalUrl: product.canonicalUrl,
+      ogTitle: product.ogTitle,
+      ogDescription: product.ogDescription,
+      twitterTitle: product.twitterTitle,
+      twitterDescription: product.twitterDescription,
+      twitterImage: product.twitterImage,
+    });
+  }
+
+  const oksidProduct = await getOksidProductBySlug(slug);
+  if (oksidProduct) {
+    return buildMetadata({
+      title: oksidProduct.metaTitle || `${oksidProduct.name} | PrimeSec Teknoloji`,
+      description: oksidProduct.metaDescription || oksidProduct.description,
+      path: `/urunler/${oksidProduct.slug}`,
+      image: oksidProduct.image,
+    });
+  }
+
+  return {};
 }
 
 export default async function ProductDetailPage({
@@ -101,8 +125,14 @@ export default async function ProductDetailPage({
   params: Promise<{ slug: string }>;
 }) {
   const { slug } = await params;
-  const product = await getProductBySlug(slug);
 
+  // Önce Oksid ürününü kontrol et
+  const oksidProduct = await getOksidProductBySlug(slug);
+  if (oksidProduct) {
+    return <OksidProductPage product={oksidProduct} />;
+  }
+
+  const product = await getProductBySlug(slug);
   if (!product) notFound();
 
   // Redirect Guard
@@ -113,7 +143,7 @@ export default async function ProductDetailPage({
   const allProducts = await getProducts();
 
   // Real DB-driven Related Products logic
-  let related = [];
+  let related: any[] = [];
   if (product.relatedProductIds && product.relatedProductIds.length > 0) {
     related = allProducts.filter((p: any) =>
       product.relatedProductIds.includes(p.id || p.slug),
@@ -168,24 +198,32 @@ export default async function ProductDetailPage({
         ]}
       />
 
-      {/* ── Page Hero ── */}
-      <PageHero
-        title={product.name}
-        description={product.description}
-        crumbs={[
-          { label: "Ürünler", href: "/urunler" },
-          { label: product.name, href: `/urunler/${product.slug}` },
-        ]}
-      />
-
       {/* ── 1. Introduction Showcase Section ── */}
-      <section className="bg-white py-12 md:py-24 relative overflow-hidden">
+      <section className="bg-white pt-6 pb-12 md:pt-10 md:pb-24 relative overflow-hidden">
         {/* Modern blur blobs in background */}
         <div className="absolute top-1/4 left-0 w-64 md:w-96 h-64 md:h-96 bg-cyan-100 rounded-full blur-[120px] opacity-40 -z-10 pointer-events-none" />
         <div className="absolute bottom-1/4 right-0 w-64 md:w-96 h-64 md:h-96 bg-blue-100 rounded-full blur-[120px] opacity-40 -z-10 pointer-events-none" />
 
-        <Container className="grid gap-10 lg:gap-12 lg:grid-cols-2 xl:items-center">
-          {/* Left: Detail copy */}
+        <Container>
+          {/* Breadcrumbs */}
+          <div className="flex flex-wrap items-center gap-2 text-xs font-semibold text-slate-400 mb-8 border-b border-slate-100 pb-4">
+            <Link href="/" className="hover:text-cyan-600 transition-colors">Ana Sayfa</Link>
+            <span className="text-slate-300">/</span>
+            <Link href="/urunler" className="hover:text-cyan-600 transition-colors">Ürünler</Link>
+            <span className="text-slate-300">/</span>
+            <span className="text-slate-600 font-extrabold truncate max-w-[180px] sm:max-w-none">{product.name}</span>
+          </div>
+
+          <div className="grid gap-10 lg:gap-12 lg:grid-cols-2 xl:items-center">
+          {/* Left: Gallery Showcase Column */}
+          <div className="flex items-center justify-center w-full min-w-0">
+            <ProductImageGallery
+              mainImage={product.image}
+              gallery={product.gallery}
+            />
+          </div>
+
+          {/* Right: Detail copy */}
           <article className="space-y-6 md:space-y-8 w-full min-w-0">
             <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full border border-cyan-500/20 bg-cyan-500/5 text-cyan-600 text-[10px] sm:text-xs font-black tracking-widest uppercase">
               <span className="relative flex h-2 w-2">
@@ -241,13 +279,6 @@ export default async function ProductDetailPage({
               </ButtonLink>
             </div>
           </article>
-
-          {/* Right: Gallery Showcase Column */}
-          <div className="flex items-center justify-center w-full min-w-0">
-            <ProductImageGallery
-              mainImage={product.image}
-              gallery={product.gallery}
-            />
           </div>
         </Container>
       </section>
@@ -633,3 +664,270 @@ function buildProductCopy(product: Product | any) {
     overview,
   };
 }
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Oksid Ürün Detay Sayfası — XML kaynaklı ürünler için premium layout
+// Fiyat / döviz bilgisi HİÇBİR YERDE render edilmez.
+// ─────────────────────────────────────────────────────────────────────────────
+async function OksidProductPage({ product }: { product: OksidProduct }) {
+  const tumOksidUrunler = await getOksidProducts();
+  // İlgili ürünler (kategori ismi içindeki kelimelerden herhangi biri eşleşen ürünler)
+  const getCleanWords = (cat: string) => 
+    (cat || "").toLowerCase().split(/[\s,.\-\/]+/).filter(w => w.length > 2);
+    
+  const productCatWords = getCleanWords(product.categoryAlt || product.category);
+  
+  const ilgiliUrunler = tumOksidUrunler
+    .filter((p) => {
+      if (p.slug === product.slug) return false;
+      const pCatWords = getCleanWords(p.categoryAlt || p.category);
+      return pCatWords.some(w => productCatWords.includes(w));
+    })
+    .slice(0, 4);
+
+  const stokVar = product.stokAdet > 0;
+  const ozellikEntries = Object.entries(product.ozellikler);
+
+  const whatsappMesaj = `Merhaba, ${product.name} ürünü hakkında bilgi almak istiyorum. Ürün Kodu: ${product.code}`;
+  const whatsappUrl = `https://wa.me/905000000000?text=${encodeURIComponent(whatsappMesaj)}`;
+
+  const schema = {
+    "@context": "https://schema.org",
+    "@type": "Product",
+    name: product.name,
+    sku: product.code,
+    brand: { "@type": "Brand", name: product.brand },
+    image: product.image,
+    url: `${siteConfig.siteUrl}/urunler/${product.slug}`,
+    offers: {
+      "@type": "Offer",
+      availability: stokVar
+        ? "https://schema.org/InStock"
+        : "https://schema.org/OutOfStock",
+      priceCurrency: "TRY",
+    },
+  };
+
+  return (
+    <div className="overflow-x-hidden">
+      <JsonLd
+        data={[
+          schema,
+          breadcrumbSchema([
+            { name: "Ana Sayfa", url: "/" },
+            { name: "Ürünler", url: "/urunler" },
+            { name: product.category, url: "/urunler" },
+            { name: product.name, url: `/urunler/${product.slug}` },
+          ]),
+        ]}
+      />
+
+      {/* ── 1. Ürün Tanıtım — Galeri + Bilgi Kartları ── */}
+      <section className="bg-white pt-6 pb-12 md:pt-10 md:pb-20 relative overflow-hidden">
+        <div className="absolute top-0 left-0 w-96 h-96 bg-cyan-50 rounded-full blur-[120px] opacity-40 -z-10 pointer-events-none" />
+        <div className="absolute bottom-0 right-0 w-96 h-96 bg-blue-50 rounded-full blur-[120px] opacity-40 -z-10 pointer-events-none" />
+
+        <Container>
+          {/* Breadcrumbs */}
+          <div className="flex flex-wrap items-center gap-2 text-xs font-semibold text-slate-400 mb-8 border-b border-slate-100 pb-4">
+            <Link href="/" className="hover:text-cyan-600 transition-colors">Ana Sayfa</Link>
+            <span className="text-slate-300">/</span>
+            <Link href="/urunler" className="hover:text-cyan-600 transition-colors">Ürünler</Link>
+            <span className="text-slate-300">/</span>
+            <span className="text-slate-600 font-extrabold truncate max-w-[180px] sm:max-w-none">{product.name}</span>
+          </div>
+
+          <div className="grid gap-10 lg:gap-16 lg:grid-cols-2 xl:items-center">
+          {/* Sol: Ürün Görseli / Galeri */}
+          <div className="flex items-center justify-center w-full min-w-0">
+            <ProductImageGallery
+              mainImage={product.image}
+              gallery={product.gallery}
+            />
+          </div>
+
+          {/* Sağ: Ürün Bilgileri */}
+          <article className="space-y-6 w-full min-w-0">
+            {/* Kategori + Marka Badges */}
+            <div className="flex flex-wrap gap-2">
+              <span className="inline-flex items-center gap-1.5 rounded-full border border-cyan-500/20 bg-cyan-500/5 text-cyan-700 text-xs font-black px-3 py-1.5 uppercase tracking-wider">
+                <Tag className="h-3 w-3" />
+                {product.categoryAlt || product.category}
+              </span>
+              {product.brand && (
+                <span className="inline-flex items-center gap-1.5 rounded-full border border-slate-200 bg-slate-50 text-slate-600 text-xs font-black px-3 py-1.5">
+                  <Sparkles className="h-3 w-3" />
+                  {product.brand}
+                </span>
+              )}
+            </div>
+
+            <h1 className="text-3xl sm:text-4xl font-black tracking-tight text-ink leading-tight break-words">
+              {product.name}
+            </h1>
+
+            {/* Garanti & Kod Bilgisi */}
+            <div className="flex flex-wrap gap-3">
+              {product.garantiAy > 0 && (
+                <div className="flex items-center gap-2 rounded-xl px-4 py-2.5 text-sm font-extrabold border bg-blue-50 border-blue-200 text-blue-700">
+                  <ShieldCheck className="h-4 w-4" />
+                  {product.garantiAy} Ay Garanti
+                </div>
+              )}
+
+              {product.code && (
+                <div className="flex items-center gap-2 rounded-xl px-4 py-2.5 text-sm font-bold border bg-slate-50 border-slate-200 text-slate-600">
+                  <HardDrive className="h-4 w-4" />
+                  Kod: {product.code}
+                </div>
+              )}
+            </div>
+
+            {/* Fiyat alanı kasıtlı olarak kaldırıldı */}
+
+            {/* Hızlı Özellik Özeti (ilk 4 özellik) */}
+            {ozellikEntries.length > 0 && (
+              <div className="grid grid-cols-2 gap-3">
+                {ozellikEntries.slice(0, 4).map(([ad, deger]) => (
+                  <div
+                    key={ad}
+                    className="rounded-xl border border-slate-100 bg-slate-50 p-3 hover:border-cyan-200 hover:bg-cyan-50/50 transition-colors"
+                  >
+                    <p className="text-[10px] font-black uppercase tracking-wider text-slate-400 truncate">
+                      {ad}
+                    </p>
+                    <p className="mt-1 text-sm font-extrabold text-ink leading-snug break-words">
+                      {deger}
+                    </p>
+                  </div>
+                ))}
+              </div>
+            )}
+
+            {/* CTA */}
+            <div className="pt-2">
+              <a
+                href={whatsappUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex h-14 items-center justify-center gap-3 px-8 rounded-2xl bg-[#25D366] hover:bg-[#20ba59] text-white font-extrabold text-base shadow-xl shadow-[#25D366]/20 hover:scale-[1.03] active:scale-[0.97] transition-all w-full sm:w-auto"
+              >
+                <svg className="h-6 w-6 fill-current" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L0 24l6.335-1.662c1.746.953 3.71 1.455 5.703 1.456h.008c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z" />
+                </svg>
+                WhatsApp&apos;tan Teklif Al
+              </a>
+            </div>
+          </article>
+          </div>
+        </Container>
+      </section>
+
+      {/* ── 2. Tüm Teknik Özellikler ── */}
+      {ozellikEntries.length > 0 && (
+        <section className="bg-slate-50/60 py-12 md:py-20 border-t border-b border-slate-100">
+          <Container>
+            <div className="mb-8 md:mb-12 text-center max-w-2xl mx-auto">
+              <span className="text-xs font-extrabold uppercase tracking-widest text-cyan-600">
+                TEKNİK VERİLER
+              </span>
+              <h2 className="mt-3 text-2xl sm:text-3xl md:text-4xl font-black tracking-tight text-ink">
+                Teknik Özellikler
+              </h2>
+              <p className="mt-3 text-sm md:text-base text-ink-muted">
+                Aşağıdaki tüm teknik veriler Oksid üretici veri tabanından alınmıştır.
+              </p>
+            </div>
+
+            {/* Özellik Tablosu */}
+            <div className="max-w-4xl mx-auto bg-white rounded-2xl border border-slate-200 overflow-hidden shadow-sm">
+              {ozellikEntries.map(([ad, deger], index) => (
+                <div
+                  key={ad}
+                  className={`flex items-start gap-4 px-5 py-4 ${
+                    index !== ozellikEntries.length - 1
+                      ? "border-b border-slate-100"
+                      : ""
+                  } ${index % 2 === 0 ? "bg-white" : "bg-slate-50/40"} hover:bg-cyan-50/30 transition-colors group`}
+                >
+                  <CheckSquare className="h-4 w-4 shrink-0 text-cyan-500 mt-0.5 opacity-60 group-hover:opacity-100 transition-opacity" />
+                  <div className="flex-1 min-w-0 grid sm:grid-cols-2 gap-1 sm:gap-4">
+                    <span className="text-xs sm:text-sm font-extrabold text-slate-500 uppercase tracking-wide break-words">
+                      {ad}
+                    </span>
+                    <span className="text-sm font-bold text-ink break-words">
+                      {deger}
+                    </span>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </Container>
+        </section>
+      )}
+
+
+
+      {/* ── 4. İlgili Ürünler ── */}
+      {ilgiliUrunler.length > 0 && (
+        <section className="bg-surface py-12 md:py-20 border-b border-border">
+          <Container>
+            <div className="mb-8 flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4">
+              <div>
+                <span className="text-xs font-extrabold uppercase tracking-widest text-cyan-600">
+                  TAMAMLAYICI ÜRÜNLER
+                </span>
+                <h2 className="mt-2 text-2xl sm:text-3xl font-extrabold text-ink">
+                  Aynı Kategorideki Ürünler
+                </h2>
+              </div>
+              <Link
+                href="/urunler"
+                className="inline-flex items-center gap-1 text-sm font-extrabold text-primary-600 hover:text-primary-500 transition-colors w-max"
+              >
+                Tüm ürünleri gör <ArrowRight className="h-4 w-4" />
+              </Link>
+            </div>
+            <div className="grid gap-4 sm:gap-6 grid-cols-1 sm:grid-cols-2 lg:grid-cols-4">
+              {ilgiliUrunler.map((item) => (
+                <ProductCard key={item.slug} product={item as any} />
+              ))}
+            </div>
+          </Container>
+        </section>
+      )}
+
+      {/* ── 5. CTA ── */}
+      <section className="bg-white py-12 md:py-20">
+        <Container>
+          <div className="rounded-[32px] md:rounded-[40px] primesec-navy-surface p-6 sm:p-10 md:p-16 text-white relative overflow-hidden">
+            <div className="relative z-10 grid gap-6 md:gap-8 lg:grid-cols-[1fr_auto] lg:items-center">
+              <div>
+                <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white text-primary-600 text-xs font-semibold uppercase tracking-wider mb-4 sm:mb-6">
+                  <ClipboardCheck className="h-4 w-4" /> Ücretsiz Danışmanlık
+                </div>
+                <h2 className="text-2xl sm:text-3xl md:text-5xl font-black tracking-tight leading-tight text-white">
+                  {product.name} İçin Teklif Alın
+                </h2>
+                <p className="mt-4 max-w-2xl text-white/80 text-sm sm:text-base md:text-lg">
+                  Bu ürün hakkında detaylı bilgi, teknik destek ve kurulum seçenekleri için WhatsApp&apos;tan bize ulaşın.
+                </p>
+              </div>
+              <div className="mt-4 lg:mt-0">
+                <a
+                  href={whatsappUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex w-full sm:w-auto sm:inline-flex items-center justify-center rounded-2xl font-extrabold h-14 px-8 text-base bg-white text-primary-600 transition-all duration-200 hover:bg-cyan-100 hover:shadow-lg hover:scale-[1.02] active:scale-[0.98]"
+                >
+                  WhatsApp&apos;tan Teklif Al
+                </a>
+              </div>
+            </div>
+          </div>
+        </Container>
+      </section>
+    </div>
+  );
+}
+

@@ -3,9 +3,9 @@
 import { useState, useEffect } from "react";
 import { Phone, X, ChevronRight } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
-import { representatives } from "@/data/site";
+import { representatives as fallbackReps } from "@/data/site";
 
-export function FloatingContact() {
+export function FloatingContact({ representatives = fallbackReps }: { representatives?: { name: string; role: string; phone: string; whatsapp: string; }[] }) {
   const [isOpen, setIsOpen] = useState(false);
 
   useEffect(() => {

@@ -28,6 +28,20 @@ const nextConfig = {
       },
     ];
   },
+  async redirects() {
+    return [
+      {
+        source: '/kurumsal',
+        destination: '/iletisim',
+        permanent: true,
+      },
+      {
+        source: '/kurumsal/:path*',
+        destination: '/iletisim',
+        permanent: true,
+      },
+    ];
+  },
 };
 
 export default nextConfig;

@@ -99,7 +99,9 @@ function FaqBuilder({ defaultValue, name }: { defaultValue: string; name: string
   };
 
   const removeFaq = (index: number) => {
-    setFaqs(faqs.filter((_, i) => i !== index));
+    if (window.confirm("Bu soru/cevap kaydını silmek istediğinize emin misiniz? (Kaydet butonuna basana kadar kalıcı olarak kaydedilmez)")) {
+      setFaqs(faqs.filter((_, i) => i !== index));
+    }
   };
 
   const serializedValue = JSON.stringify(faqs.filter((f) => f.question.trim() !== "" || f.answer.trim() !== ""));
@@ -184,7 +186,9 @@ function GalleryBuilder({ defaultValue, name }: { defaultValue: string; name: st
   };
 
   const removeImage = (index: number) => {
-    setImages(images.filter((_, i) => i !== index));
+    if (window.confirm("Bu görseli galeriden kaldırmak istediğinize emin misiniz? (Kaydet butonuna basana kadar kalıcı olarak kaydedilmez)")) {
+      setImages(images.filter((_, i) => i !== index));
+    }
   };
 
   const serializedValue = JSON.stringify(images.map((url) => ({ url, alt: "" })));
@@ -299,7 +303,9 @@ function FeaturesBuilder({
   };
 
   const removeFeature = (index: number) => {
-    setFeatures(features.filter((_, i) => i !== index));
+    if (window.confirm("Bu kartı/maddeyi silmek istediğinize emin misiniz? (Kaydet butonuna basana kadar kalıcı olarak kaydedilmez)")) {
+      setFeatures(features.filter((_, i) => i !== index));
+    }
   };
 
   const serializedValue = JSON.stringify(
@@ -891,7 +897,7 @@ export function ResourceFormClient({
 
       {/* Save bar */}
       <div className="sticky bottom-4 z-10 flex flex-col gap-3 rounded-xl border-2 border-slate-200 bg-white/95 p-4 shadow-lg backdrop-blur sm:flex-row sm:items-center sm:justify-end">
-        {previewHref && (
+        {previewHref && resource.key !== "brands" && (
           <Link href={previewHref} target="_blank" className="inline-flex h-12 items-center justify-center rounded-xl border-2 border-slate-200 px-5 text-sm font-bold text-slate-600 hover:bg-slate-50 w-full sm:w-auto">
             <Eye className="mr-2 h-4 w-4" /> Önizle
           </Link>

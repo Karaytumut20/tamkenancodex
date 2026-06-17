@@ -43,9 +43,12 @@ export async function BrandChips() {
 
 function BrandLogo({ brand }: { brand: Brand }) {
   return (
-    <div className="flex h-20 w-auto min-w-[180px] shrink-0 items-center justify-center rounded-xl bg-white px-8 grayscale md:hover:grayscale-0 transition-all shadow-sm border border-slate-100 mx-2 pointer-events-none select-none whitespace-nowrap">
+    <div className="flex h-20 w-auto min-w-[200px] shrink-0 items-center justify-center rounded-xl bg-white px-6 grayscale md:hover:grayscale-0 transition-all shadow-sm border border-slate-100 mx-2 pointer-events-none select-none whitespace-nowrap">
       {brand.logoUrl ? (
-        <img src={brand.logoUrl} alt={brand.name} className="max-h-10 max-w-full object-contain pointer-events-none" />
+        <div className="flex items-center gap-3">
+          <img src={brand.logoUrl} alt={brand.name} className="max-h-10 max-w-[100px] object-contain pointer-events-none" />
+          <span className="text-base font-black text-slate-800">{brand.name}</span>
+        </div>
       ) : (
         <div className="flex items-center gap-3 text-[#111827] pointer-events-none">
           <span className="relative flex h-8 w-8 items-center justify-center shrink-0">

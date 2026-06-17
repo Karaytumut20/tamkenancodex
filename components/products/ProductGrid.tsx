@@ -11,12 +11,14 @@ interface ProductGridProps {
   initialProducts?: Product[];
   initialBrands?: string[];
   initialCategories?: string[];
+  initialSubCategories?: string[];
 }
 
 export function ProductGrid({
   initialProducts,
   initialBrands,
-  initialCategories
+  initialCategories,
+  initialSubCategories,
 }: ProductGridProps) {
   const [query, setQuery] = useState("");
   const [category, setCategory] = useState(ALL);
@@ -28,6 +30,7 @@ export function ProductGrid({
   const productsList = initialProducts || staticProducts;
   const categoriesList = initialCategories || staticCategories;
   const brandsList = initialBrands || staticBrands;
+  const subCategoriesList = initialSubCategories || [];
 
   const allBrands = useMemo(() => Array.from(new Set([...brandsList, ...productsList.map((product) => product.brand)])).sort((a, b) => a.localeCompare(b, "tr")), [brandsList, productsList]);
   const usageOptions = useMemo(() => Array.from(new Set(productsList.flatMap((product) => product.usage))).sort((a, b) => a.localeCompare(b, "tr")), [productsList]);
@@ -39,25 +42,38 @@ export function ProductGrid({
       .sort((a, b) => a.localeCompare(b, "tr"));
   }, [productsList]);
 
+  // Unified Categories list (consisting of subcategories and fallback category names)
+  const allSubCategories = useMemo(() => {
+    const fromProps = subCategoriesList;
+    const fromProducts = productsList.flatMap((p: any) =>
+      p.categoryAlt ? [p.categoryAlt] : (p.category ? [p.category] : [])
+    );
+    return Array.from(new Set([...fromProps, ...fromProducts])).sort((a, b) =>
+      a.localeCompare(b, "tr")
+    );
+  }, [subCategoriesList, productsList]);
+
   const filtered = useMemo(() => {
     const normalizedQuery = query.trim().toLowerCase();
-    return productsList.filter((product) => {
+    return productsList.filter((product: any) => {
       const searchable = [
         product.name,
         product.code,
         product.brand,
         product.category,
+        product.categoryAlt || "",
         product.description,
-        product.usage.join(" "),
-        product.tags.join(" "),
-        product.features.join(" "),
+        (product.usage || []).join(" "),
+        (product.tags || []).join(" "),
+        (product.features || []).join(" "),
       ].join(" ").toLowerCase();
 
       const matchesQuery = !normalizedQuery || searchable.includes(normalizedQuery);
-      const matchesCategory = category === ALL || product.category === category || product.tags.includes(category);
+      const productCatValue = product.categoryAlt || product.category || "";
+      const matchesCategory = category === ALL || productCatValue === category;
       const matchesBrand = brand === ALL || product.brand === brand;
-      const matchesUsage = usage === ALL || product.usage.includes(usage);
-      const matchesTag = tag === ALL || product.tags.includes(tag);
+      const matchesUsage = usage === ALL || (product.usage || []).includes(usage);
+      const matchesTag = tag === ALL || (product.tags || []).includes(tag);
 
       return matchesQuery && matchesCategory && matchesBrand && matchesUsage && matchesTag;
     });
@@ -93,6 +109,7 @@ export function ProductGrid({
     allBrands,
     usageOptions,
     tagOptions,
+    allSubCategories,
     hasFilter,
     clearFilters,
   };
@@ -100,7 +117,7 @@ export function ProductGrid({
   return (
     <div className="grid grid-cols-1 gap-8 xl:grid-cols-[320px_1fr]">
       <aside className="hidden h-fit rounded-2xl border border-border bg-white p-5 xl:sticky xl:top-28 xl:block w-full min-w-0">
-        <FilterPanel {...filterPanelProps} searchId="product-search-desktop" categoriesList={categoriesList} />
+        <FilterPanel {...filterPanelProps} searchId="product-search-desktop" />
       </aside>
 
       <div className="w-full min-w-0">
@@ -124,7 +141,7 @@ export function ProductGrid({
           </button>
 
           <div className="mt-4 flex gap-2 overflow-x-auto pb-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
-            {[ALL, ...categoriesList].map((item) => (
+            {[ALL, ...allSubCategories].map((item) => (
               <button
                 key={item}
                 type="button"
@@ -140,7 +157,7 @@ export function ProductGrid({
 
           {filtersOpen ? (
             <div id="mobile-product-filters" className="mt-5 border-t border-border pt-5">
-              <FilterPanel {...filterPanelProps} searchId="product-search-mobile" categoriesList={categoriesList} />
+              <FilterPanel {...filterPanelProps} searchId="product-search-mobile" />
             </div>
           ) : null}
         </div>
@@ -177,7 +194,7 @@ export function ProductGrid({
 
         {filtered.length ? (
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:gap-6">
-            {filtered.map((product) => <ProductCard key={product.slug} product={product} />)}
+            {filtered.map((product: any) => <ProductCard key={product.slug} product={product} />)}
           </div>
         ) : (
           <div className="rounded-2xl border border-border bg-white p-6 sm:p-8 text-center w-full min-w-0">
@@ -203,15 +220,15 @@ type FilterPanelProps = {
   tag: string;
   setTag: (value: string) => void;
   allBrands: string[];
+  allSubCategories: string[];
   usageOptions: string[];
   tagOptions: string[];
   hasFilter: string | boolean;
   clearFilters: () => void;
   searchId: string;
-  categoriesList: string[];
 };
 
-function FilterPanel({ query, setQuery, category, setCategory, brand, setBrand, usage, setUsage, tag, setTag, allBrands, usageOptions, tagOptions, hasFilter, clearFilters, searchId, categoriesList }: FilterPanelProps) {
+function FilterPanel({ query, setQuery, category, setCategory, brand, setBrand, usage, setUsage, tag, setTag, allBrands, allSubCategories, usageOptions, tagOptions, hasFilter, clearFilters, searchId }: FilterPanelProps) {
   return (
     <>
       <div className="flex items-center justify-between gap-3">
@@ -237,7 +254,7 @@ function FilterPanel({ query, setQuery, category, setCategory, brand, setBrand, 
         />
       </div>
 
-      <Filter label="Kategori" value={category} values={[ALL, ...categoriesList]} onChange={setCategory} />
+      <Filter label="Kategori" value={category} values={[ALL, ...allSubCategories]} onChange={setCategory} />
       <Filter label="Marka" value={brand} values={[ALL, ...allBrands]} onChange={setBrand} />
       <Filter label="Kullanım Alanı" value={usage} values={[ALL, ...usageOptions]} onChange={setUsage} />
       <Filter label="Özellik / Etiket" value={tag} values={[ALL, ...tagOptions]} onChange={setTag} />

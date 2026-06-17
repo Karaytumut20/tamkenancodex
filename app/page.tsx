@@ -9,7 +9,7 @@ import { FaqBlog } from "@/components/home/FaqBlog";
 import { JsonLd } from "@/components/seo/JsonLd";
 import { buildMetadata } from "@/lib/seo";
 import { siteConfig } from "@/data/site";
-import { getBlogPosts, getProducts, getSiteContentBlock } from "@/lib/db";
+import { getBlogPosts, getProducts, getOksidProducts, getSiteContentBlock, getHomepageFeaturedProducts, getHomepageServicesData, getHomepageFaqs } from "@/lib/db";
 
 export const revalidate = 3600;
 
@@ -19,11 +19,38 @@ export const metadata = buildMetadata({
 });
 
 export default async function HomePage() {
-  const [dbPosts, dbProducts, heroContent] = await Promise.all([
+  const [dbPosts, localProducts, oksidProducts, heroContent, featuredRefs, servicesData, faqs] = await Promise.all([
     getBlogPosts(),
     getProducts(),
-    getSiteContentBlock("home.hero")
+    getOksidProducts(),
+    getSiteContentBlock("home.hero"),
+    getHomepageFeaturedProducts(),
+    getHomepageServicesData(),
+    getHomepageFaqs()
   ]);
+
+  // Map featured product refs to actual product data
+  const allProductsMap = new Map();
+  localProducts.forEach(p => {
+    allProductsMap.set(p.slug, {
+      name: p.title || p.name || "",
+      slug: p.slug,
+      brand: p.brand || "PrimeSec",
+      category: p.category || "Diğer",
+      image: p.image || p.image_url || "/images/alarm-sistemi.svg"
+    });
+  });
+  oksidProducts.forEach((p: any) => {
+    allProductsMap.set(p.slug, {
+      name: p.name || "",
+      slug: p.slug,
+      brand: p.brand || "PrimeSec",
+      category: p.categoryAlt || p.category || "Diğer",
+      image: p.image || "/images/alarm-sistemi.svg"
+    });
+  });
+
+  const featuredProducts = featuredRefs.map((f: any) => allProductsMap.get(f.source_id)).filter(Boolean);
 
   return (
     <>
@@ -37,13 +64,13 @@ export default async function HomePage() {
         }}
       />
       <Hero content={heroContent} />
-      <ServiceGrid />
+      <ServiceGrid dynamicData={servicesData} />
       <PlanBanner />
-      <ProductCarousel initialProducts={dbProducts} />
+      <ProductCarousel initialProducts={featuredProducts.length > 0 ? featuredProducts : undefined} />
       <SystemBuilderCTA />
       <BrandChips />
       <WhyPrimeSec />
-      <FaqBlog initialBlogPosts={dbPosts} />
+      <FaqBlog initialBlogPosts={dbPosts} initialFaqs={faqs} />
     </>
   );
 }

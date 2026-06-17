@@ -1,9 +1,9 @@
 "use client";
-
+ 
 import React, { useState } from "react";
 import Image from "next/image";
-import { ChevronLeft, ChevronRight, Maximize2 } from "lucide-react";
-
+import { ChevronLeft, ChevronRight, Maximize2, X } from "lucide-react";
+ 
 export function ProductImageGallery({
   mainImage,
   gallery = [],
@@ -13,20 +13,21 @@ export function ProductImageGallery({
 }) {
   const allImages = Array.from(new Set([mainImage, ...gallery])).filter(Boolean);
   const [activeImage, setActiveImage] = useState(mainImage);
+  const [isOpen, setIsOpen] = useState(false);
   const activeIndex = allImages.indexOf(activeImage);
-
+ 
   const handlePrev = (e: React.MouseEvent) => {
     e.stopPropagation();
     const prevIdx = (activeIndex - 1 + allImages.length) % allImages.length;
     setActiveImage(allImages[prevIdx]);
   };
-
+ 
   const handleNext = (e: React.MouseEvent) => {
     e.stopPropagation();
     const nextIdx = (activeIndex + 1) % allImages.length;
     setActiveImage(allImages[nextIdx]);
   };
-
+ 
   return (
     <div className="flex flex-col-reverse md:flex-row gap-6 items-stretch w-full max-w-5xl mx-auto">
       {/* Thumbnails list on Left side (desktop) / Bottom (mobile) */}
@@ -55,15 +56,18 @@ export function ProductImageGallery({
           ))}
         </div>
       )}
-
+ 
       {/* Active Main Image Display */}
-      <div className="flex-1 relative w-full aspect-[4/3] flex items-center justify-center overflow-hidden min-h-[220px] sm:min-h-[350px] md:min-h-[480px] group transition-all duration-500">
-
+      <div 
+        onClick={() => setIsOpen(true)}
+        className="flex-1 relative w-full aspect-[4/3] flex items-center justify-center overflow-hidden min-h-[220px] sm:min-h-[350px] md:min-h-[480px] group transition-all duration-500 cursor-zoom-in rounded-2xl border border-slate-100"
+      >
+ 
         {/* Hover overlay hint */}
         <div className="absolute top-4 right-4 z-10 opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none bg-slate-900/10 backdrop-blur-sm text-slate-800 p-2 rounded-xl">
           <Maximize2 className="h-4 w-4" />
         </div>
-
+ 
         {allImages.length > 1 && (
           <>
             {/* Left Nav Arrow Button */}
@@ -75,7 +79,7 @@ export function ProductImageGallery({
             >
               <ChevronLeft className="h-6 w-6 text-slate-700" />
             </button>
-
+ 
             {/* Right Nav Arrow Button */}
             <button
               type="button"
@@ -87,7 +91,7 @@ export function ProductImageGallery({
             </button>
           </>
         )}
-
+ 
         {/* Product Active Image */}
         <div className="relative w-full h-full transition-all duration-500 hover:scale-[1.03] select-none">
           <Image
@@ -99,6 +103,30 @@ export function ProductImageGallery({
           />
         </div>
       </div>
+
+      {/* Lightbox / Zoom Modal */}
+      {isOpen && (
+        <div 
+          className="fixed inset-0 z-[150] flex items-center justify-center bg-slate-950/90 backdrop-blur-md p-4 animate-in fade-in duration-200 cursor-zoom-out"
+          onClick={() => setIsOpen(false)}
+        >
+          <button
+            type="button"
+            onClick={(e) => { e.stopPropagation(); setIsOpen(false); }}
+            className="absolute top-4 right-4 z-[160] flex h-12 w-12 items-center justify-center rounded-full bg-white/10 hover:bg-white/20 text-white transition-all active:scale-90"
+            aria-label="Kapat"
+          >
+            <X className="h-6 w-6" />
+          </button>
+          <div className="relative w-full h-full max-w-5xl max-h-[85vh] select-none flex items-center justify-center">
+            <img
+              src={activeImage}
+              alt=""
+              className="max-h-full max-w-full object-contain rounded-lg shadow-2xl animate-in zoom-in-95 duration-200"
+            />
+          </div>
+        </div>
+      )}
     </div>
   );
 }

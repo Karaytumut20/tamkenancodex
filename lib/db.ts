@@ -12,7 +12,13 @@ import {
 import { mainNavigation as staticMainNavigation } from "@/data/navigation";
 import { siteConfig } from "@/data/site";
 
-export type SiteSettings = typeof siteConfig;
+export type SiteSettings = typeof siteConfig & {
+  gaId?: string;
+  gscVerification?: string;
+  gtagScript?: string;
+  representatives?: { name: string; role: string; phone: string; whatsapp: string }[];
+};
+
 export type NavigationItem = {
   label: string;
   href: string;
@@ -65,11 +71,28 @@ export const getSiteSettings = cache(
           siteConfig.description,
         phone: settingValue(settings.get("contact.phone")) ?? siteConfig.phone,
         whatsapp:
-          settingValue(settings.get("contact.whatsapp")) ?? siteConfig.whatsapp,
+          settingValue(settings.get("contact.rep1.whatsapp")) ?? settingValue(settings.get("contact.whatsapp")) ?? siteConfig.whatsapp,
         email: settingValue(settings.get("contact.email")) ?? siteConfig.email,
         address:
           settingValue(settings.get("contact.address")) ?? siteConfig.address,
         city: settingValue(settings.get("contact.city")) ?? siteConfig.city,
+        gaId: settingValue(settings.get("seo.ga_id")),
+        gscVerification: settingValue(settings.get("seo.gsc_verification")),
+        gtagScript: settingValue(settings.get("seo.gtag_script")),
+        representatives: [
+          {
+            name: settingValue(settings.get("contact.rep1.name")) || "Kenan FINDIK",
+            role: "Satış & Projelendirme",
+            phone: settingValue(settings.get("contact.rep1.phone")) || "+90 531 508 90 28",
+            whatsapp: settingValue(settings.get("contact.rep1.whatsapp")) || "905315089028",
+          },
+          {
+            name: settingValue(settings.get("contact.rep2.name")) || "Ömer TEMEL",
+            role: "Teknik Destek & Kurulum",
+            phone: settingValue(settings.get("contact.rep2.phone")) || "+90 551 954 26 05",
+            whatsapp: settingValue(settings.get("contact.rep2.whatsapp")) || "905519542605",
+          }
+        ],
       };
     } catch (err) {
       console.error("Error in getSiteSettings:", err);
@@ -95,11 +118,29 @@ export const getMenuItems = cache(async function getMenuItems(
       return menuKey === "header" ? staticMainNavigation : [];
     }
 
-    return (data as any[]).map((item) => ({
-      label: item.label,
-      href: item.url,
-      menuKey: item.mega_menu_key || undefined,
-    }));
+    // Fetch mega menu sections to dynamically map their titles as labels if matched
+    const { data: sectionsData } = await supabase
+      .from("mega_menu_sections")
+      .select("menu_key, title")
+      .eq("is_active", true);
+
+    const sectionTitleMap = new Map<string, string>();
+    if (sectionsData) {
+      (sectionsData as any[]).forEach((s) => {
+        if (s.title) {
+          sectionTitleMap.set(s.menu_key, s.title);
+        }
+      });
+    }
+
+    return (data as any[]).map((item) => {
+      const dynamicLabel = item.mega_menu_key ? sectionTitleMap.get(item.mega_menu_key) : undefined;
+      return {
+        label: dynamicLabel || item.label,
+        href: item.url,
+        menuKey: item.mega_menu_key || undefined,
+      };
+    });
   } catch (err) {
     console.error("Error in getMenuItems:", err);
     return menuKey === "header" ? staticMainNavigation : [];
@@ -436,42 +477,57 @@ export const getServices = cache(async function getServices(): Promise<any[]> {
       .eq("is_active", true)
       .order("sort_order", { ascending: true });
 
-    if (error || !dbServices || dbServices.length === 0) {
-      return staticServices;
+    const merged = [...staticServices];
+    if (dbServices && dbServices.length > 0) {
+      const dbMapped = (dbServices as any[]).map((s) => {
+        const categoryName = s.categories?.name || "Güvenlik Sistemleri";
+        return {
+          id: s.id,
+          slug: s.slug,
+          title: s.title,
+          metaTitle: s.meta_title || `${s.title} | PrimeSec Teknoloji`,
+          description:
+            s.meta_description || s.hero_description || s.intro_content || "",
+          heroImage: s.image_url || "/images/alarm-sistemi.svg",
+          category: categoryName,
+          keywords: [s.title, "Güvenlik sistemleri", "PrimeSec Teknoloji"],
+          benefits: Array.isArray(s.advantages) ? s.advantages : [],
+          useCases: Array.isArray(s.usage_areas) ? s.usage_areas : [],
+          process: Array.isArray(s.process_steps) ? s.process_steps : [],
+          faqs: Array.isArray(s.faqs) ? s.faqs : [],
+          heroTitle: s.hero_title || s.title,
+          heroDescription: s.hero_description || "",
+          introTitle: s.intro_title || "",
+          introContent: s.intro_content || "",
+
+          // SEO & Admin Extras
+          robotsIndex: s.robots_index ?? "index",
+          robotsFollow: s.robots_follow ?? "follow",
+          canonicalUrl: s.canonical_url,
+          ogTitle: s.og_title,
+          ogDescription: s.og_description,
+          twitterTitle: s.twitter_title,
+          twitterDescription: s.twitter_description,
+          twitterImage: s.twitter_image_url,
+          schemaType: s.schema_type ?? "Service",
+          jsonLd: s.json_ld ?? {},
+          sitemapInclude: s.sitemap_include ?? true,
+          redirectTo: s.redirect_to,
+          relatedProductIds: s.related_product_ids || [],
+          deepDive: Array.isArray(s.deep_dive) ? s.deep_dive : [],
+        };
+      });
+
+      for (const dbItem of dbMapped) {
+        const idx = merged.findIndex((m) => m.slug === dbItem.slug);
+        if (idx !== -1) {
+          merged[idx] = dbItem;
+        } else {
+          merged.push(dbItem);
+        }
+      }
     }
-
-    return (dbServices as any[]).map((s) => {
-      const categoryName = s.categories?.name || "Güvenlik Sistemleri";
-      return {
-        id: s.id,
-        slug: s.slug,
-        title: s.title,
-        metaTitle: s.meta_title || `${s.title} | PrimeSec Teknoloji`,
-        description:
-          s.meta_description || s.hero_description || s.intro_content || "",
-        heroImage: s.image_url || "/images/alarm-sistemi.svg",
-        category: categoryName,
-        keywords: [s.title, "Güvenlik sistemleri", "PrimeSec Teknoloji"],
-        benefits: Array.isArray(s.advantages) ? s.advantages : [],
-        useCases: Array.isArray(s.usage_areas) ? s.usage_areas : [],
-        process: Array.isArray(s.process_steps) ? s.process_steps : [],
-        faqs: Array.isArray(s.faqs) ? s.faqs : [],
-
-        // SEO & Admin Extras
-        robotsIndex: s.robots_index ?? "index",
-        robotsFollow: s.robots_follow ?? "follow",
-        canonicalUrl: s.canonical_url,
-        ogTitle: s.og_title,
-        ogDescription: s.og_description,
-        twitterTitle: s.twitter_title,
-        twitterDescription: s.twitter_description,
-        twitterImage: s.twitter_image_url,
-        schemaType: s.schema_type ?? "Service",
-        jsonLd: s.json_ld ?? {},
-        sitemapInclude: s.sitemap_include ?? true,
-        redirectTo: s.redirect_to,
-      };
-    });
+    return merged;
   } catch (err) {
     console.error("Error in getServices:", err);
     return staticServices;
@@ -513,6 +569,10 @@ export const getServiceBySlug = cache(async function getServiceBySlug(
       useCases: Array.isArray(sData.usage_areas) ? sData.usage_areas : [],
       process: Array.isArray(sData.process_steps) ? sData.process_steps : [],
       faqs: Array.isArray(sData.faqs) ? sData.faqs : [],
+      heroTitle: sData.hero_title || sData.title,
+      heroDescription: sData.hero_description || "",
+      introTitle: sData.intro_title || "",
+      introContent: sData.intro_content || "",
 
       // SEO & Admin Extras
       robotsIndex: sData.robots_index ?? "index",
@@ -527,6 +587,8 @@ export const getServiceBySlug = cache(async function getServiceBySlug(
       jsonLd: sData.json_ld ?? {},
       sitemapInclude: sData.sitemap_include ?? true,
       redirectTo: sData.redirect_to,
+      relatedProductIds: sData.related_product_ids || [],
+      deepDive: Array.isArray(sData.deep_dive) ? sData.deep_dive : [],
     };
   } catch (err) {
     console.error("Error in getServiceBySlug:", err);
@@ -911,3 +973,479 @@ export const getBrands = cache(async function getBrands(): Promise<Brand[]> {
     return [];
   }
 });
+
+// ─────────────────────────────────────────────────────────────────────────────
+// OKSID XML ÜRÜNLERİ
+// ─────────────────────────────────────────────────────────────────────────────
+
+/** Oksid ürün kaydının ön yüze aktarılan tipi */
+export type OksidProduct = {
+  id: string;
+  slug: string;
+  name: string;
+  code: string;
+  category: string;
+  categoryAlt: string;
+  brand: string;
+  stokAdet: number;
+  garantiAy: number;
+  desi: number;
+  kdv: number;
+  barkod: string | null;
+  /** Oksid kaynak URL'leri — Res1..Res15 */
+  resimler: string[];
+  /** Özellik adı → değer eşleşmeleri — Oz1/OzDeg1..Oz30/OzDeg30 */
+  ozellikler: Record<string, string>;
+  isActive: boolean;
+  // Mevcut Product shape ile uyumluluk için alias'lar
+  image: string;
+  gallery: string[];
+  description: string;
+  tags: string[];
+  features: { title: string; description: string; active: boolean }[];
+  specs: { title: string; description: string; active: boolean }[];
+  faqs: { question: string; answer: string }[];
+  usage: string[];
+  // SEO
+  metaTitle?: string;
+  metaDescription?: string;
+};
+
+function normalizeOksidRow(row: any): OksidProduct {
+  const resimler: string[] = Array.isArray(row.resimler) ? row.resimler : [];
+  const ozellikler: Record<string, string> =
+    row.ozellikler && typeof row.ozellikler === "object" ? row.ozellikler : {};
+
+  // Özellikler dizisini teknik specs'e dönüştür
+  const specs = Object.entries(ozellikler).map(([title, description]) => ({
+    title,
+    description: String(description),
+    active: true,
+  }));
+
+  const image = resimler[0] || "/images/alarm-sistemi.svg";
+  const gallery = resimler.slice(1);
+
+  const garantiLabel =
+    row.garanti_ay > 0 ? `${row.garanti_ay} Ay` : "Belirtilmemiş";
+
+  return {
+    id: row.id,
+    slug: row.slug,
+    name: row.urun_adi || "",
+    code: row.stok_kodu || "",
+    category: row.kategori_ana || "",
+    categoryAlt: row.kategori_alt || "",
+    brand: row.marka || "",
+    stokAdet: row.stok_adet ?? 0,
+    garantiAy: row.garanti_ay ?? 0,
+    desi: row.desi ?? 0,
+    kdv: row.kdv ?? 18,
+    barkod: row.barkod || null,
+    resimler,
+    ozellikler,
+    isActive: row.is_active ?? true,
+    // Uyumluluk alias'ları
+    image,
+    gallery,
+    description: row.kategori_alt
+      ? `${row.kategori_alt} kategorisinde ${row.marka || ""}${row.marka ? " " : ""}ürün.`
+      : "",
+    tags: [row.kategori_ana, row.kategori_alt, row.marka].filter(
+      Boolean,
+    ) as string[],
+    features: [
+      { title: "Garanti", description: garantiLabel, active: true },
+      { title: "Marka", description: row.marka || "—", active: true },
+      { title: "KDV", description: `%${row.kdv ?? 18}`, active: true },
+    ],
+    specs,
+    faqs: [],
+    usage: [row.kategori_alt || row.kategori_ana].filter(Boolean) as string[],
+    metaTitle: `${row.urun_adi || ""} | PrimeSec Teknoloji`,
+    metaDescription: `${row.urun_adi || ""} — ${row.kategori_alt || row.kategori_ana || ""} kategorisinde ${row.marka || ""} ürünü. Teknik özellikler için inceleyin.`,
+  };
+}
+
+export const getOksidProducts = cache(
+  async function getOksidProducts(): Promise<OksidProduct[]> {
+    try {
+      const supabase = getSupabase();
+      const { data, error } = await supabase
+        .from("oksid_urunler")
+        .select("*")
+        .eq("is_active", true)
+        .order("kategori_ana", { ascending: true })
+        .order("urun_adi", { ascending: true });
+
+      if (error || !data) {
+        console.warn("[getOksidProducts] Supabase error or empty:", error);
+        return [];
+      }
+
+      return (data as any[]).map(normalizeOksidRow);
+    } catch (err) {
+      console.error("Error in getOksidProducts:", err);
+      return [];
+    }
+  },
+);
+
+export const getOksidProductBySlug = cache(
+  async function getOksidProductBySlug(
+    slug: string,
+  ): Promise<OksidProduct | null> {
+    try {
+      const supabase = getSupabase();
+      const { data, error } = await supabase
+        .from("oksid_urunler")
+        .select("*")
+        .eq("slug", slug)
+        .eq("is_active", true)
+        .maybeSingle();
+
+      if (error || !data) return null;
+      return normalizeOksidRow(data);
+    } catch (err) {
+      console.error("Error in getOksidProductBySlug:", err);
+      return null;
+    }
+  },
+);
+
+// ─────────────────────────────────────────────────────────────────────────────
+// MEGA MENU HELPERS
+// ─────────────────────────────────────────────────────────────────────────────
+
+export type MegaMenuData = {
+  title: string;
+  eyebrow: string;
+  insightTitle: string;
+  insight: string;
+  personas: { title: string; description: string; href: string }[];
+  items: { title: string; href: string; image: string }[];
+};
+
+export const getMegaMenuData = cache(
+  async function getMegaMenuData(key: string): Promise<MegaMenuData | null> {
+    try {
+      const supabase = getSupabase() as any;
+      const { data: section, error: secError } = await supabase
+        .from("mega_menu_sections")
+        .select("*")
+        .eq("menu_key", key)
+        .eq("is_active", true)
+        .maybeSingle();
+
+      if (secError || !section) return null;
+
+      const [personasRes, itemsRes] = await Promise.all([
+        supabase
+          .from("mega_menu_personas")
+          .select("*")
+          .eq("section_id", section.id)
+          .eq("is_active", true)
+          .order("sort_order", { ascending: true }),
+        supabase
+          .from("mega_menu_items")
+          .select("*")
+          .eq("section_id", section.id)
+          .eq("is_active", true)
+          .order("sort_order", { ascending: true }),
+      ]);
+
+      return {
+        title: section.title,
+        eyebrow: section.eyebrow,
+        insightTitle: section.insight_title,
+        insight: section.insight_body,
+        personas: (personasRes.data || []).map((p: any) => ({
+          title: p.title,
+          description: p.description,
+          href: p.href,
+        })),
+        items: (itemsRes.data || []).map((i: any) => ({
+          title: i.title,
+          href: i.href,
+          image: i.image_url || "/images/alarm-sistemi.svg",
+        })),
+      };
+    } catch (err) {
+      console.error("Error in getMegaMenuData:", err);
+      return null;
+    }
+  }
+);
+
+export const getAllMegaMenuSections = cache(
+  async function getAllMegaMenuSections(): Promise<any[]> {
+    try {
+      const supabase = getSupabase() as any;
+      const { data, error } = await supabase
+        .from("mega_menu_sections")
+        .select("*")
+        .order("sort_order", { ascending: true });
+
+      if (error || !data) return [];
+      return data;
+    } catch (err) {
+      console.error("Error in getAllMegaMenuSections:", err);
+      return [];
+    }
+  }
+);
+
+export const getMegaMenuAdmin = cache(
+  async function getMegaMenuAdmin(key: string): Promise<any | null> {
+    try {
+      const supabase = getSupabase() as any;
+      const { data: section, error: secError } = await supabase
+        .from("mega_menu_sections")
+        .select("*")
+        .eq("menu_key", key)
+        .maybeSingle();
+
+      if (secError || !section) return null;
+
+      const [personasRes, itemsRes] = await Promise.all([
+        supabase
+          .from("mega_menu_personas")
+          .select("*")
+          .eq("section_id", section.id)
+          .order("sort_order", { ascending: true }),
+        supabase
+          .from("mega_menu_items")
+          .select("*")
+          .eq("section_id", section.id)
+          .order("sort_order", { ascending: true }),
+      ]);
+
+      return {
+        id: section.id,
+        menu_key: section.menu_key,
+        title: section.title,
+        eyebrow: section.eyebrow,
+        insight_title: section.insight_title,
+        insight_body: section.insight_body,
+        is_active: section.is_active,
+        personas: (personasRes.data || []).map((p: any) => ({
+          id: p.id,
+          title: p.title,
+          description: p.description,
+          href: p.href,
+          sort_order: p.sort_order,
+          is_active: p.is_active,
+        })),
+        items: (itemsRes.data || []).map((i: any) => ({
+          id: i.id,
+          title: i.title,
+          href: i.href,
+          image_url: i.image_url,
+          sort_order: i.sort_order,
+          is_active: i.is_active,
+          source_type: i.source_type || "custom",
+          source_id: i.source_id || undefined,
+        })),
+      };
+    } catch (err) {
+      console.error("Error in getMegaMenuAdmin:", err);
+      return null;
+    }
+  }
+);
+
+// ─────────────────────────────────────────────────────────────────────────────
+// SYSTEM BUILDER HELPERS
+// ─────────────────────────────────────────────────────────────────────────────
+
+export type SystemBuilderItem = {
+  id: string;
+  group_id: string;
+  source_type: "product" | "oksid";
+  source_id: string;
+  title: string;
+  image: string;
+  sort_order: number;
+  is_active: boolean;
+};
+
+export type SystemBuilderGroup = {
+  id: string;
+  title: string;
+  sort_order: number;
+  is_active: boolean;
+  items: SystemBuilderItem[];
+};
+
+export const getSystemBuilderData = cache(
+  async function getSystemBuilderData(): Promise<SystemBuilderGroup[]> {
+    try {
+      const supabase = getSupabase();
+      const { data: groups, error: groupErr } = await supabase
+        .from("system_builder_groups")
+        .select("*")
+        .eq("is_active", true)
+        .order("sort_order", { ascending: true });
+
+      if (groupErr || !groups) return [];
+
+      const { data: items, error: itemErr } = await supabase
+        .from("system_builder_items")
+        .select("*")
+        .eq("is_active", true)
+        .order("sort_order", { ascending: true });
+
+      if (itemErr || !items) {
+        return groups.map((g: any) => ({
+          id: g.id,
+          title: g.title,
+          sort_order: g.sort_order,
+          is_active: g.is_active,
+          items: [],
+        }));
+      }
+
+      return groups.map((g: any) => ({
+        id: g.id,
+        title: g.title,
+        sort_order: g.sort_order,
+        is_active: g.is_active,
+        items: items
+          .filter((i: any) => i.group_id === g.id)
+          .map((i: any) => ({
+            id: i.id,
+            group_id: i.group_id,
+            source_type: i.source_type,
+            source_id: i.source_id,
+            title: i.product_name,
+            image: i.image_url || "/images/alarm-sistemi.svg",
+            sort_order: i.sort_order,
+            is_active: i.is_active,
+          })),
+      }));
+    } catch (err) {
+      console.error("Error in getSystemBuilderData:", err);
+      return [];
+    }
+  }
+);
+
+// ─────────────────────────────────────────────────────────────────────────────
+// HOMEPAGE EDITABLE CONTENT HELPERS
+// ─────────────────────────────────────────────────────────────────────────────
+
+export type FeaturedProduct = {
+  id: string;
+  source_id: string;
+  source_type: "local" | "oksid";
+  sort_order: number;
+};
+
+export const getHomepageFeaturedProducts = cache(
+  async function getHomepageFeaturedProducts(): Promise<FeaturedProduct[]> {
+    try {
+      const supabase = getSupabase();
+      const { data, error } = await supabase
+        .from("homepage_featured_products")
+        .select("*")
+        .order("sort_order", { ascending: true });
+
+      if (error || !data) return [];
+      return data.map((item: any) => ({
+        id: item.id,
+        source_id: item.source_id,
+        source_type: item.source_type,
+        sort_order: item.sort_order ?? 0,
+      }));
+    } catch (err) {
+      console.error("Error in getHomepageFeaturedProducts:", err);
+      return [];
+    }
+  }
+);
+
+export type ServiceTab = {
+  id: string;
+  title: string;
+  sort_order: number;
+};
+
+export type HomepageService = {
+  id: string;
+  tab_id: string;
+  title: string;
+  description: string;
+  image: string;
+  link: string;
+  sort_order: number;
+};
+
+export const getHomepageServicesData = cache(
+  async function getHomepageServicesData(): Promise<{ tabs: ServiceTab[]; services: HomepageService[] }> {
+    try {
+      const supabase = getSupabase();
+      const [tabsRes, servicesRes] = await Promise.all([
+        supabase
+          .from("homepage_service_tabs")
+          .select("*")
+          .order("sort_order", { ascending: true }),
+        supabase
+          .from("homepage_services")
+          .select("*")
+          .order("sort_order", { ascending: true }),
+      ]);
+
+      return {
+        tabs: (tabsRes.data || []).map((t: any) => ({
+          id: t.id,
+          title: t.title,
+          sort_order: t.sort_order ?? 0,
+        })),
+        services: (servicesRes.data || []).map((s: any) => ({
+          id: s.id,
+          tab_id: s.tab_id,
+          title: s.title,
+          description: s.description || "",
+          image: s.image || "/images/kamera-sistemi.svg",
+          link: s.link || "#",
+          sort_order: s.sort_order ?? 0,
+        })),
+      };
+    } catch (err) {
+      console.error("Error in getHomepageServicesData:", err);
+      return { tabs: [], services: [] };
+    }
+  }
+);
+
+export type HomepageFaq = {
+  id: string;
+  question: string;
+  answer: string;
+  sort_order: number;
+};
+
+export const getHomepageFaqs = cache(
+  async function getHomepageFaqs(): Promise<HomepageFaq[]> {
+    try {
+      const supabase = getSupabase();
+      const { data, error } = await supabase
+        .from("faqs")
+        .select("*")
+        .eq("is_active", true)
+        .order("sort_order", { ascending: true });
+
+      if (error || !data) return [];
+      return data.map((item: any) => ({
+        id: item.id,
+        question: item.question,
+        answer: item.answer,
+        sort_order: item.sort_order ?? 0,
+      }));
+    } catch (err) {
+      console.error("Error in getHomepageFaqs:", err);
+      return [];
+    }
+  }
+);
+

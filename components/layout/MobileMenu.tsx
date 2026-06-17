@@ -7,9 +7,16 @@ import { motion, AnimatePresence } from "framer-motion";
 import { Button, ButtonLink } from "@/components/ui/Button";
 import { mainNavigation } from "@/data/navigation";
 import { megaMenus, type MegaMenuKey } from "@/data/mega-menu";
-import type { NavigationItem } from "@/lib/db";
+import type { NavigationItem, MegaMenuData } from "@/lib/db";
 
-export function MobileMenu({ open, onClose, navigation = mainNavigation }: { open: boolean; onClose: () => void; navigation?: NavigationItem[] }) {
+type Props = {
+  open: boolean;
+  onClose: () => void;
+  navigation?: NavigationItem[];
+  megaMenusData?: Record<string, MegaMenuData | null>;
+};
+
+export function MobileMenu({ open, onClose, navigation = mainNavigation, megaMenusData = {} }: Props) {
   const [active, setActive] = useState<string | null>(null);
 
   useEffect(() => {
@@ -27,6 +34,19 @@ export function MobileMenu({ open, onClose, navigation = mainNavigation }: { ope
     };
   }, [open]);
 
+  /** Get mega menu data for a given menuKey — prefer dynamic, fallback to static */
+  function getMegaMenu(menuKey: string) {
+    // If dynamic data provided and non-null, use it
+    if (menuKey in megaMenusData && megaMenusData[menuKey]) {
+      return megaMenusData[menuKey]!;
+    }
+    // Static fallback
+    if (menuKey in megaMenus) {
+      return megaMenus[menuKey as MegaMenuKey];
+    }
+    return null;
+  }
+
   return (
     <AnimatePresence>
       {open && (
@@ -38,18 +58,18 @@ export function MobileMenu({ open, onClose, navigation = mainNavigation }: { ope
             exit={{ opacity: 0 }}
             transition={{ duration: 0.2 }}
             onClick={onClose}
-            className="fixed inset-0 z-[120] bg-[#06142E]/55 backdrop-blur-md lg:hidden"
+            className="fixed inset-0 z-[120] bg-[#06142E]/55 backdrop-blur-md xl:hidden"
             role="dialog"
             aria-modal="true"
           />
 
-          {/* Menu Panel */}
+          {/* Menu Panel - Full Screen */}
           <motion.div
             initial={{ x: "100%" }}
             animate={{ x: 0 }}
             exit={{ x: "100%" }}
             transition={{ type: "tween", ease: "easeInOut", duration: 0.3 }}
-            className="fixed right-0 top-0 z-[121] flex h-dvh w-[min(392px,92vw)] flex-col overflow-hidden rounded-l-[22px] bg-[#F8FAFC] shadow-2xl shadow-[#06142E]/30 lg:hidden"
+            className="fixed inset-0 z-[121] flex h-dvh w-full flex-col overflow-hidden bg-[#F8FAFC] shadow-2xl shadow-[#06142E]/30 xl:hidden"
           >
             {/* Header */}
             <div className="flex justify-end px-4 pb-2 pt-4">
@@ -66,13 +86,14 @@ export function MobileMenu({ open, onClose, navigation = mainNavigation }: { ope
             <div className="flex-1 overflow-y-auto px-4 pb-4 pt-2">
               <div className="space-y-2.5">
                 {navigation.map((item) => {
-                  const canOpenMegaMenu = item.menuKey && item.menuKey in megaMenus;
+                  const menu = item.menuKey ? getMegaMenu(item.menuKey) : null;
+                  const canOpenMegaMenu = !!menu;
                   return (
                   <div
                     key={item.href}
                     className="overflow-hidden rounded-lg border border-slate-200 bg-white shadow-sm shadow-slate-200/40"
                   >
-                    {canOpenMegaMenu ? (
+                    {canOpenMegaMenu && menu ? (
                       <>
                         <button
                           onClick={() => setActive(active === item.menuKey ? null : item.menuKey ?? null)}
@@ -85,7 +106,7 @@ export function MobileMenu({ open, onClose, navigation = mainNavigation }: { ope
                           />
                         </button>
                         <AnimatePresence>
-                          {canOpenMegaMenu && active === item.menuKey && (
+                          {active === item.menuKey && (
                             <motion.div
                               initial={{ height: 0, opacity: 0 }}
                               animate={{ height: "auto", opacity: 1 }}
@@ -93,35 +114,25 @@ export function MobileMenu({ open, onClose, navigation = mainNavigation }: { ope
                               transition={{ duration: 0.3 }}
                               className="overflow-hidden border-t border-slate-200 bg-slate-50"
                             >
-                              <div className="space-y-1 p-2.5">
-                                <Link
-                                  href={item.href}
-                                  onClick={onClose}
-                                  className="block rounded-lg bg-white px-3.5 py-2.5 text-sm font-extrabold text-primary-600 shadow-sm shadow-slate-200/60"
-                                >
-                                  Tümünü Gör
-                                </Link>
-                                {megaMenus[item.menuKey as MegaMenuKey].personas.map((sub) => (
+                                <div className="space-y-1 p-2.5">
                                   <Link
-                                    key={sub.href}
-                                    href={sub.href}
+                                    href={item.href}
                                     onClick={onClose}
-                                    className="block rounded-lg px-3.5 py-2.5 text-sm font-semibold text-ink-muted transition-colors hover:bg-white hover:text-primary-600"
+                                    className="block rounded-lg bg-white px-3.5 py-2.5 text-sm font-extrabold text-cyan-600 shadow-sm shadow-slate-200/60 transition-colors hover:bg-cyan-50"
                                   >
-                                    {sub.title}
+                                    Tümünü Gör
                                   </Link>
-                                ))}
-                                {megaMenus[item.menuKey as MegaMenuKey].items.slice(0, 6).map((sub) => (
-                                  <Link
-                                    key={sub.href}
-                                    href={sub.href}
-                                    onClick={onClose}
-                                    className="block rounded-lg px-3.5 py-2.5 text-sm font-semibold text-ink-muted transition-colors hover:bg-white hover:text-primary-600"
-                                  >
-                                    {sub.title}
-                                  </Link>
-                                ))}
-                              </div>
+                                  {menu.items.map((sub) => (
+                                    <Link
+                                      key={sub.href + sub.title}
+                                      href={sub.href}
+                                      onClick={onClose}
+                                      className="block rounded-lg px-3.5 py-2.5 text-sm font-semibold text-slate-600 transition-colors hover:bg-white hover:text-cyan-600"
+                                    >
+                                      {sub.title}
+                                    </Link>
+                                  ))}
+                                </div>
                             </motion.div>
                           )}
                         </AnimatePresence>

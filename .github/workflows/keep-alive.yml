@@ -1,0 +1,17 @@
+name: Supabase Keep Alive
+
+on:
+  schedule:
+    # Haftada iki gün (Pazar ve Perşembe) gece yarısı UTC (TSİ 03:00) çalışır
+    - cron: "0 0 * * 0,4"
+  workflow_dispatch: # Github paneli üzerinden manuel tetiklemeye de izin verir
+
+jobs:
+  ping-database:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Supabase API'sine İstek At
+        run: |
+          curl -X GET "https://jcyovjvpjopgerterjxq.supabase.co/rest/v1/pages?select=*&limit=1" \
+          -H "apikey: ${{ secrets.SUPABASE_ANON_KEY }}" \
+          -H "Authorization: Bearer ${{ secrets.SUPABASE_ANON_KEY }}"

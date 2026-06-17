@@ -1,93 +1,135 @@
 import Link from "next/link";
-import { Edit, Plus } from "lucide-react";
+import { Plus, RefreshCw } from "lucide-react";
 import { AdminPageHeader } from "@/components/admin/AdminShell";
 import { ProtectedAdminPage } from "@/components/admin/ProtectedAdminPage";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
+import { ProductList } from "@/components/admin/ProductList";
 
 export default async function ProductsPage() {
   const supabase = await createSupabaseServerClient();
+
+  // Normal ürünler
   const { data: products } = await supabase
     .from("products")
-    .select("id, title, price, is_active, updated_at")
+    .select("id, title, is_active, updated_at")
     .order("updated_at", { ascending: false });
 
-  const rows = (products ?? []) as {
-    id: string;
-    title: string;
-    price: number | null;
-    is_active: boolean;
-    updated_at: string;
-  }[];
+  // Oksid ürünleri (varsa)
+  let oksidCount = 0;
+  let oksidKategoriler: Record<string, number> = {};
+  let oksidList: any[] = [];
+  try {
+    const { data: oksidData } = await supabase
+      .from("oksid_urunler")
+      .select("id, urun_adi, kategori_ana, kategori_alt, stok_adet, is_active, updated_at")
+      .eq("is_active", true);
+
+    if (oksidData) {
+      oksidCount = oksidData.length;
+      oksidList = oksidData;
+      for (const row of oksidData as any[]) {
+        const key = row.kategori_alt || row.kategori_ana || "Diğer";
+        oksidKategoriler[key] = (oksidKategoriler[key] || 0) + 1;
+      }
+    }
+  } catch (_) {
+    // Tablo henüz oluşturulmamış olabilir, sessizce geç
+  }
+
+  const allRows = [
+    ...(products || []).map(p => ({
+      id: p.id,
+      title: p.title,
+      is_active: p.is_active,
+      updated_at: p.updated_at,
+      type: "product" as const
+    })),
+    ...oksidList.map(p => ({
+      id: p.id,
+      title: p.urun_adi,
+      is_active: p.is_active,
+      updated_at: p.updated_at,
+      type: "oksid" as const
+    }))
+  ].sort((a, b) => new Date(b.updated_at).getTime() - new Date(a.updated_at).getTime());
 
   return (
     <ProtectedAdminPage>
       <AdminPageHeader
         title="📦 Ürünler"
-        description="Ürünlerinizi buradan ekleyin veya düzenleyin."
+        description="Ürünlerinizi buradan ekleyin, düzenleyin veya silin."
         action={
-          <Link
-            href="/admin/products/new"
-            className="inline-flex h-12 items-center gap-2 rounded-xl bg-cyan-600 border-2 border-cyan-700 px-6 text-base font-black text-white hover:bg-cyan-700 transition-colors"
-          >
-            <Plus className="h-5 w-5" />
-            Yeni Ürün Ekle
-          </Link>
+          <div className="flex items-center gap-3">
+            <Link
+              href="/admin/oksid-sync"
+              className="inline-flex h-12 items-center gap-2 rounded-xl border-2 border-cyan-200 bg-cyan-50 px-5 text-sm font-black text-cyan-700 hover:bg-cyan-100 transition-colors"
+            >
+              <RefreshCw className="h-4 w-4" />
+              Oksid Sync
+            </Link>
+            <Link
+              href="/admin/products/new"
+              className="inline-flex h-12 items-center gap-2 rounded-xl bg-cyan-600 border-2 border-cyan-700 px-6 text-base font-black text-white hover:bg-cyan-700 transition-colors"
+            >
+              <Plus className="h-5 w-5" />
+              Yeni Ürün Ekle
+            </Link>
+          </div>
         }
       />
 
-      {rows.length === 0 ? (
-        <div className="rounded-2xl border-2 border-slate-200 bg-white p-10 text-center">
-          <p className="text-xl font-black text-slate-700">Henüz ürün yok</p>
-          <p className="mt-2 text-sm text-slate-400 font-medium">
-            &quot;Yeni Ürün Ekle&quot; butonuna tıklayarak ilk ürününüzü oluşturun.
-          </p>
-        </div>
-      ) : (
-        <div className="space-y-3">
-          {rows.map((product) => {
-            const date = product.updated_at
-              ? new Intl.DateTimeFormat("tr-TR", { dateStyle: "medium" }).format(new Date(product.updated_at))
-              : "";
+      {/* Oksid Ürün Özeti */}
+      {oksidCount > 0 && (
+        <div className="mb-6 rounded-2xl border-2 border-cyan-100 bg-cyan-50 p-5">
+          <div className="flex items-center justify-between gap-4 flex-wrap">
+            <div>
+              <p className="text-xs font-black text-cyan-600 uppercase tracking-wider">
+                Oksid XML Entegrasyonu
+              </p>
+              <p className="mt-1 text-2xl font-black text-slate-800">
+                {oksidCount.toLocaleString("tr-TR")}{" "}
+                <span className="text-base font-bold text-slate-500">ürün aktif</span>
+              </p>
+            </div>
+            <Link
+              href="/admin/oksid-sync"
+              className="inline-flex items-center gap-2 h-10 px-4 rounded-xl bg-cyan-600 text-white text-sm font-black hover:bg-cyan-700 transition-colors shrink-0"
+            >
+              <RefreshCw className="h-4 w-4" />
+              Yeniden Çek
+            </Link>
+          </div>
 
-            return (
-              <div
-                key={product.id}
-                className="flex items-center justify-between gap-4 rounded-xl border-2 border-slate-200 bg-white p-4 hover:border-cyan-300 transition-colors"
-              >
-                <div className="min-w-0">
-                  <p className="text-base font-black text-slate-800 truncate">{product.title}</p>
-                  <div className="flex items-center gap-3 mt-1">
-                    <span
-                      className={`text-xs font-black px-2 py-0.5 rounded-full ${
-                        product.is_active
-                          ? "bg-emerald-100 text-emerald-700"
-                          : "bg-slate-100 text-slate-500"
-                      }`}
-                    >
-                      {product.is_active ? "Aktif" : "Pasif"}
+          {/* Kategori dağılımı */}
+          {Object.keys(oksidKategoriler).length > 0 && (
+            <div className="mt-4 flex flex-wrap gap-2">
+              {Object.entries(oksidKategoriler)
+                .sort(([, a], [, b]) => b - a)
+                .slice(0, 10)
+                .map(([kat, sayi]) => (
+                  <span
+                    key={kat}
+                    className="inline-flex items-center gap-1.5 rounded-full border border-cyan-200 bg-white px-3 py-1 text-xs font-extrabold text-slate-600"
+                  >
+                    {kat}
+                    <span className="rounded-full bg-cyan-100 text-cyan-700 px-1.5 py-0.5">
+                      {sayi}
                     </span>
-                    {product.price != null && (
-                      <span className="text-sm font-bold text-slate-600">
-                        {product.price.toLocaleString("tr-TR")} ₺
-                      </span>
-                    )}
-                    {date && (
-                      <span className="text-xs text-slate-400 font-medium">{date}</span>
-                    )}
-                  </div>
-                </div>
-                <Link
-                  href={`/admin/products/${product.id}/edit`}
-                  className="inline-flex h-10 items-center gap-2 rounded-xl border-2 border-slate-200 bg-white px-4 text-sm font-black text-slate-700 hover:bg-slate-50 hover:border-cyan-300 transition-colors shrink-0"
-                >
-                  <Edit className="h-4 w-4" />
-                  Düzenle
-                </Link>
-              </div>
-            );
-          })}
+                  </span>
+                ))}
+            </div>
+          )}
         </div>
       )}
+
+      {/* Tüm Ürünler Listesi (Manuel + Oksid) */}
+      <div className="mb-4">
+        <p className="text-sm font-black text-slate-500 uppercase tracking-wider">
+          Tüm Ürünler ({allRows.length})
+        </p>
+      </div>
+
+      <ProductList initialProducts={allRows} />
     </ProtectedAdminPage>
   );
 }

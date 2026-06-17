@@ -49,6 +49,51 @@ const settingLabels: Record<string, { label: string; placeholder: string; helpTe
     placeholder: "Kocaeli",
     helpText: "Firmanızın bulunduğu şehir.",
   },
+  "contact.rep1.name": {
+    label: "👤 1. Temsilci Adı",
+    placeholder: "Kenan FINDIK",
+    helpText: "İletişim panelindeki birinci temsilci ismi.",
+  },
+  "contact.rep1.phone": {
+    label: "📞 1. Temsilci Telefon Numarası",
+    placeholder: "+90 531 508 90 28",
+    helpText: "Birinci temsilcinin aranacak telefon numarası.",
+  },
+  "contact.rep1.whatsapp": {
+    label: "💬 1. Temsilci WhatsApp No",
+    placeholder: "905315089028",
+    helpText: "Boşluksuz ve baştaki sıfır olmadan (Örn: 905315089028).",
+  },
+  "contact.rep2.name": {
+    label: "👤 2. Temsilci Adı",
+    placeholder: "Ömer TEMEL",
+    helpText: "İletişim panelindeki ikinci temsilci ismi.",
+  },
+  "contact.rep2.phone": {
+    label: "📞 2. Temsilci Telefon Numarası",
+    placeholder: "+90 551 954 26 05",
+    helpText: "İkinci temsilcinin aranacak telefon numarası.",
+  },
+  "contact.rep2.whatsapp": {
+    label: "💬 2. Temsilci WhatsApp No",
+    placeholder: "905519542605",
+    helpText: "Boşluksuz ve baştaki sıfır olmadan (Örn: 905519542605).",
+  },
+  "seo.ga_id": {
+    label: "📊 Google Analytics ID (GA4)",
+    placeholder: "G-XXXXXXXXXX",
+    helpText: "Sitenize Google Analytics entegre etmek için GA4 kimliğini girin (örn: G-12345678).",
+  },
+  "seo.gtag_script": {
+    label: "🖥️ Google GTag / Analytics İzleme Kodu (HTML)",
+    placeholder: "<!-- Google tag (gtag.js) -->\n<script async src=\"https://www.googletagmanager.com/gtag/js?id=G-XXXXXX\"></script>\n...",
+    helpText: "Google Analytics veya diğer izleme servislerinin size verdiği tüm izleme script kodunu (HTML <script> blokları dahil) buraya yapıştırabilirsiniz.",
+  },
+  "seo.gsc_verification": {
+    label: "🔍 Google Search Console Doğrulama",
+    placeholder: "google-site-verification kodu",
+    helpText: "Google Search Console sahiplik doğrulaması için size verilen meta tag içeriğini girin.",
+  },
 };
 
 function extractValue(jsonValue: unknown): string {
@@ -87,15 +132,23 @@ export default async function SettingsPage() {
 
   // Only show known, simple settings (hide seo.defaults and other technical ones)
   const visibleKeys = [
-    "contact.phone",
-    "contact.whatsapp",
-    "contact.email",
-    "contact.address",
-    "contact.city",
     "site.name",
     "site.legalName",
     "site.url",
     "site.description",
+    "contact.phone",
+    "contact.email",
+    "contact.address",
+    "contact.city",
+    "contact.rep1.name",
+    "contact.rep1.phone",
+    "contact.rep1.whatsapp",
+    "contact.rep2.name",
+    "contact.rep2.phone",
+    "contact.rep2.whatsapp",
+    "seo.ga_id",
+    "seo.gtag_script",
+    "seo.gsc_verification",
   ];
 
   const items = visibleKeys.map((key) => {

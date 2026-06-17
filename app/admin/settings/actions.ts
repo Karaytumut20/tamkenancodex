@@ -14,6 +14,15 @@ const knownKeys = [
   "site.legalName",
   "site.url",
   "site.description",
+  "contact.rep1.name",
+  "contact.rep1.phone",
+  "contact.rep1.whatsapp",
+  "contact.rep2.name",
+  "contact.rep2.phone",
+  "contact.rep2.whatsapp",
+  "seo.ga_id",
+  "seo.gsc_verification",
+  "seo.gtag_script",
 ];
 
 export async function saveSetting(

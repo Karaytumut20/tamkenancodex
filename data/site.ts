@@ -14,16 +14,16 @@ export const siteConfig = {
 
 export const representatives = [
   {
-    name: "Kenan Bey",
+    name: "Kenan FINDIK",
     role: "Satış & Projelendirme",
-    phone: "+90 532 000 00 01", // Placeholder, can be changed by user
-    whatsapp: "905320000001",
+    phone: "+90 531 508 90 28", 
+    whatsapp: "905315089028",
   },
   {
-    name: "Umut Bey",
+    name: "Ömer TEMEL",
     role: "Teknik Destek & Kurulum",
-    phone: "+90 532 000 00 02", // Placeholder, can be changed by user
-    whatsapp: "905320000002",
+    phone: "+90 551 954 26 05",
+    whatsapp: "905519542605",
   },
 ];
 

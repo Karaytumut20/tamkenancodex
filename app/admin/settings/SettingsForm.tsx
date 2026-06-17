@@ -13,20 +13,31 @@ type SettingItem = {
 };
 
 function SettingCard({ item }: { item: SettingItem }) {
+  const isTextArea = item.key === "seo.gtag_script" || item.key === "site.description";
   return (
-    <div className="rounded-xl border-2 border-slate-200 bg-white p-5 shadow-sm">
+    <div className={`rounded-xl border-2 border-slate-200 bg-white p-5 shadow-sm ${isTextArea ? "md:col-span-2" : ""}`}>
       <label className="block">
         <span className="text-lg font-black text-slate-800">{item.label}</span>
         {item.helpText && (
           <span className="block text-sm font-medium text-slate-400 mt-1">{item.helpText}</span>
         )}
-        <input
-          type="text"
-          name={item.key}
-          defaultValue={item.currentValue}
-          placeholder={item.placeholder}
-          className="mt-3 w-full rounded-xl border-2 border-slate-200 bg-white px-4 h-14 text-base font-semibold outline-none focus:border-cyan-500 focus:ring-2 focus:ring-cyan-100 transition-colors"
-        />
+        {isTextArea ? (
+          <textarea
+            name={item.key}
+            defaultValue={item.currentValue}
+            placeholder={item.placeholder}
+            rows={6}
+            className="mt-3 w-full rounded-xl border-2 border-slate-200 bg-white p-4 text-base font-semibold outline-none focus:border-cyan-500 focus:ring-2 focus:ring-cyan-100 transition-colors font-mono text-sm"
+          />
+        ) : (
+          <input
+            type="text"
+            name={item.key}
+            defaultValue={item.currentValue}
+            placeholder={item.placeholder}
+            className="mt-3 w-full rounded-xl border-2 border-slate-200 bg-white px-4 h-14 text-base font-semibold outline-none focus:border-cyan-500 focus:ring-2 focus:ring-cyan-100 transition-colors"
+          />
+        )}
       </label>
     </div>
   );
@@ -35,9 +46,10 @@ function SettingCard({ item }: { item: SettingItem }) {
 export function SettingsForm({ items }: { items: SettingItem[] }) {
   const [state, formAction] = useActionState(saveSetting, { success: false, error: null });
 
-  // Split into contact and site groups
+  // Split into contact, site and seo groups
   const contactItems = items.filter((i) => i.key.startsWith("contact."));
   const siteItems = items.filter((i) => i.key.startsWith("site."));
+  const seoItems = items.filter((i) => i.key.startsWith("seo."));
 
   return (
     <form action={formAction} className="space-y-6">
@@ -67,6 +79,16 @@ export function SettingsForm({ items }: { items: SettingItem[] }) {
         <h3 className="text-xl font-black text-slate-800 mb-3">🌐 Firma Bilgileri</h3>
         <div className="grid gap-4 md:grid-cols-2">
           {siteItems.map((item) => (
+            <SettingCard key={item.key} item={item} />
+          ))}
+        </div>
+      </section>
+
+      {/* SEO & Tracking */}
+      <section>
+        <h3 className="text-xl font-black text-slate-800 mb-3">📊 SEO & İzleme Kodları</h3>
+        <div className="grid gap-4 md:grid-cols-2">
+          {seoItems.map((item) => (
             <SettingCard key={item.key} item={item} />
           ))}
         </div>

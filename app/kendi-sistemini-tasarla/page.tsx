@@ -1,5 +1,6 @@
 import { SystemBuilder } from "@/components/system-builder/SystemBuilder";
 import { buildMetadata } from "@/lib/seo";
+import { getSystemBuilderData } from "@/lib/db";
 
 export const revalidate = 3600;
 
@@ -9,6 +10,8 @@ export const metadata = buildMetadata({
   path: "/kendi-sistemini-tasarla",
 });
 
-export default function SystemBuilderPage() {
-  return <SystemBuilder />;
+export default async function SystemBuilderPage() {
+  const systemBuilderGroups = await getSystemBuilderData();
+
+  return <SystemBuilder initialGroups={systemBuilderGroups} />;
 }

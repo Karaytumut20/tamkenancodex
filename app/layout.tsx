@@ -7,7 +7,7 @@ import { FloatingContact } from "@/components/layout/FloatingContact";
 import { AdminLayoutStyles } from "@/components/layout/AdminLayoutStyles";
 import { JsonLd } from "@/components/seo/JsonLd";
 import { siteConfig } from "@/data/site";
-import { getMenuItems, getSiteSettings } from "@/lib/db";
+import { getMenuItems, getSiteSettings, getMegaMenuData } from "@/lib/db";
 import { localBusinessSchema } from "@/data/schemas";
 import { Inter, Monoton } from "next/font/google";
 
@@ -25,18 +25,22 @@ const monoton = Monoton({
   display: "swap",
 });
 
-// Cache the layout for 1 hour — navigation & settings revalidate on the server,
-// so each page transition doesn't block on a Supabase round-trip.
-export const revalidate = 3600;
+export const dynamic = "force-dynamic";
 
-export const metadata: Metadata = {
-  metadataBase: new URL(siteConfig.siteUrl),
-  title: {
-    default: "PrimeSec Teknoloji | Güvenlik Sistemleri",
-    template: "%s",
-  },
-  description: siteConfig.description,
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const settings = await getSiteSettings();
+  return {
+    metadataBase: new URL(settings.siteUrl || siteConfig.siteUrl),
+    title: {
+      default: "PrimeSec Teknoloji | Güvenlik Sistemleri",
+      template: "%s",
+    },
+    description: settings.description || siteConfig.description,
+    verification: {
+      google: settings.gscVerification || undefined,
+    },
+  };
+}
 
 export const viewport = {
   width: "device-width",
@@ -46,15 +50,44 @@ export const viewport = {
 export default async function RootLayout({
   children,
 }: Readonly<{ children: ReactNode }>) {
-  const [settings, headerNavigation] = await Promise.all([
-    getSiteSettings(),
-    getMenuItems("header"),
-  ]);
+  const settings = await getSiteSettings();
+  const headerNavigation = await getMenuItems("header");
+
+  const knownMegaMenuKeys = headerNavigation
+    .map((item) => item.menuKey)
+    .filter((key): key is string => !!key);
+
+  const megaMenuResults = await Promise.all(
+    knownMegaMenuKeys.map((key) => getMegaMenuData(key))
+  );
+
+  const megaMenusData: Record<string, any> = {};
+  knownMegaMenuKeys.forEach((key, index) => {
+    megaMenusData[key] = megaMenuResults[index] ?? null;
+  });
 
   return (
     <html lang="tr" className={`${googleSans.variable} ${monoton.variable}`}>
       <head />
       <body>
+        {settings.gaId && (
+          <>
+            <script async src={`https://www.googletagmanager.com/gtag/js?id=${settings.gaId}`}></script>
+            <script
+              dangerouslySetInnerHTML={{
+                __html: `
+                  window.dataLayer = window.dataLayer || [];
+                  function gtag(){dataLayer.push(arguments);}
+                  gtag('js', new Date());
+                  gtag('config', '${settings.gaId}');
+                `,
+              }}
+            />
+          </>
+        )}
+        {settings.gtagScript && (
+          <div dangerouslySetInnerHTML={{ __html: settings.gtagScript }} />
+        )}
         <AdminLayoutStyles />
         <JsonLd
           data={[
@@ -77,10 +110,10 @@ export default async function RootLayout({
             localBusinessSchema(),
           ]}
         />
-        <Header navigation={headerNavigation} />
+        <Header navigation={headerNavigation} megaMenusData={megaMenusData} />
         <main className="overflow-x-hidden">{children}</main>
         <Footer />
-        <FloatingContact />
+        <FloatingContact representatives={settings.representatives} />
       </body>
     </html>
   );

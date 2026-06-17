@@ -40,7 +40,22 @@ const getServiceVisuals = (category: string) => {
   }
 };
 
-export function ServiceTemplate({ page, kind = "service" }: { page: ServicePage; kind?: "service" | "location" | "corporate" }) {
+export function ServiceTemplate({
+  page,
+  kind = "service",
+  featuredProducts = []
+}: {
+  page: ServicePage & {
+    heroTitle?: string;
+    heroDescription?: string;
+    introTitle?: string;
+    introContent?: string;
+    relatedProductIds?: string[];
+    deepDive?: { title: string; text: string }[];
+  };
+  kind?: "service" | "location" | "corporate";
+  featuredProducts?: any[];
+}) {
   const products = getServiceProducts(page.category);
   const href = `/${page.slug}`;
   const visuals = getServiceVisuals(page.category);
@@ -74,13 +89,24 @@ Bu hizmet için detaylı bilgi ve teklif alabilir miyim?`);
   ];
 
   const copy = buildServiceCopy(page, kind);
+  const introParagraphs = page.introContent
+    ? page.introContent.split("\n\n").map((p) => p.trim()).filter(Boolean)
+    : copy.overview;
+
+  const deepDiveBlocks = page.deepDive && page.deepDive.length === 3
+    ? page.deepDive
+    : copy.deepDive;
 
   return (
     <>
       <JsonLd data={schema} />
       
       {/* ── Page Hero ── */}
-      <PageHero title={page.title} description={page.description} crumbs={[{ label: page.title, href }]} />
+      <PageHero 
+        title={page.heroTitle || page.title} 
+        description={page.heroDescription || page.description} 
+        crumbs={[{ label: page.title, href }]} 
+      />
 
       {/* ── 1. Introduction Showcase Section ── */}
       <section className="bg-white py-16 md:py-20 border-t border-border">
@@ -92,11 +118,11 @@ Bu hizmet için detaylı bilgi ve teklif alabilir miyim?`);
             </div>
             
             <h2 className="text-3xl md:text-4xl font-extrabold tracking-tight text-ink leading-tight">
-              {page.title} nasıl planlanmalı?
+              {page.introTitle || `${page.title} nasıl planlanmalı?`}
             </h2>
             
             <div className="space-y-5 text-[17px] leading-8 text-ink-muted">
-              {copy.overview.map((paragraph, index) => (
+              {introParagraphs.map((paragraph, index) => (
                 <p key={index} className={index === 0 ? "text-lg font-medium text-ink/90 leading-relaxed" : ""}>
                   {paragraph}
                 </p>
@@ -171,20 +197,25 @@ Bu hizmet için detaylı bilgi ve teklif alabilir miyim?`);
 
           <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
             {page.benefits.map((benefit, index) => {
+              const title = typeof benefit === "string" ? benefit : (benefit as any)?.title || "";
+              const description = typeof benefit === "string" 
+                ? "PrimeSec Teknoloji bu avantajı doğru konumlandırma, kaliteli kablolama ve üstün servis süreciyle sürekli kılar."
+                : (benefit as any)?.description || "";
+
               const icons = [ShieldCheck, Zap, Layers, Activity];
               const Icon = icons[index % icons.length];
               return (
                 <div
-                  key={benefit}
+                  key={title + index}
                   className="rounded-3xl border border-border bg-[#FFFFFF] p-6 hover:border-cyan-400 transition-all duration-300 flex flex-col justify-between group"
                 >
                   <div>
                     <div className="h-12 w-12 rounded-2xl bg-cyan-400/10 border border-cyan-400/20 flex items-center justify-center text-cyan-400 mb-6 group-hover:scale-110 transition-transform">
                       <Icon className="h-6 w-6" />
                     </div>
-                    <h3 className="text-xl font-bold text-ink tracking-tight">{benefit}</h3>
+                    <h3 className="text-xl font-bold text-ink tracking-tight">{title}</h3>
                     <p className="mt-3 text-sm leading-6 text-ink-muted">
-                      PrimeSec Teknoloji bu avantajı doğru konumlandırma, kaliteli kablolama ve üstün servis süreciyle sürekli kılar.
+                      {description || "PrimeSec Teknoloji bu avantajı doğru konumlandırma, kaliteli kablolama ve üstün servis süreciyle sürekli kılar."}
                     </p>
                   </div>
                   <div className="mt-6 flex items-center gap-1.5 text-xs font-bold text-cyan-400 opacity-0 group-hover:opacity-100 transition-opacity">
@@ -234,7 +265,7 @@ Bu hizmet için detaylı bilgi ve teklif alabilir miyim?`);
       {/* ── 4. Deep Dive Informative Blocks ── */}
       <section className="bg-white py-16 md:py-20 border-b border-border">
         <Container className="grid gap-8 lg:grid-cols-3">
-          {copy.deepDive.map((block) => (
+          {deepDiveBlocks.map((block) => (
             <article
               key={block.title}
               className="rounded-[32px] border border-border bg-[#FFFFFF] p-8 hover:border-cyan-500 transition-all duration-300 group"
@@ -296,7 +327,12 @@ Bu hizmet için detaylı bilgi ve teklif alabilir miyim?`);
           </div>
           
           <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
-            {(products.length ? products : getServiceProducts("Alarm Sistemleri")).map((product) => (
+            {(featuredProducts && featuredProducts.length > 0
+              ? featuredProducts
+              : products.length > 0
+                ? products
+                : getServiceProducts("Alarm Sistemleri")
+            ).map((product) => (
               <ProductCard key={product.slug} product={product} />
             ))}
           </div>
