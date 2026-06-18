@@ -39,6 +39,27 @@ export async function generateMetadata(): Promise<Metadata> {
     verification: {
       google: settings.gscVerification || undefined,
     },
+    icons: {
+      icon: [
+        { url: "/images/favicon.ico" },
+        { url: "/images/favicon-16x16.png", sizes: "16x16", type: "image/png" },
+        { url: "/images/favicon-32x32.png", sizes: "32x32", type: "image/png" },
+      ],
+      apple: [
+        { url: "/images/apple-touch-icon.png", sizes: "180x180", type: "image/png" },
+      ],
+      other: [
+        {
+          rel: "android-chrome-192x192",
+          url: "/images/android-chrome-192x192.png",
+        },
+        {
+          rel: "android-chrome-512x512",
+          url: "/images/android-chrome-512x512.png",
+        },
+      ],
+    },
+    manifest: "/images/site.webmanifest",
   };
 }
 
