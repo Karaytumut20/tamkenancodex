@@ -153,9 +153,9 @@ async function normalizePayload(resourceKey: string, table: string, id: string |
 
   if (hasSlug && !currentSlug) {
     const source =
-      typeof payload.title === "string" ? payload.title :
-      typeof payload.name === "string" ? payload.name :
-      typeof payload.h1 === "string" ? payload.h1 :
+      typeof payload.title === "string" && payload.title ? payload.title :
+      typeof payload.name === "string" && payload.name ? payload.name :
+      typeof payload.h1 === "string" && payload.h1 ? payload.h1 :
       "";
 
     if (source) {
@@ -166,6 +166,21 @@ async function normalizePayload(resourceKey: string, table: string, id: string |
         baseSlug: slugify(source),
         id,
       });
+    } else if (resourceKey === "brands") {
+      const randomStr = Math.random().toString(36).substring(2, 7);
+      const supabase = await createSupabaseServerClient();
+      payload.slug = await makeUniqueSlug({
+        supabase,
+        table,
+        baseSlug: `marka-${randomStr}`,
+        id,
+      });
+    }
+  }
+
+  if (resourceKey === "brands") {
+    if (payload.name === null || payload.name === undefined || String(payload.name).trim() === "") {
+      payload.name = "";
     }
   }
 

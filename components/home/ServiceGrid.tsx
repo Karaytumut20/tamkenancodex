@@ -80,22 +80,27 @@ export function ServiceGrid({ dynamicData }: ServiceGridProps) {
       </div>
 
       <div className="container-primesec relative z-10">
-        <div className="mb-5 flex items-center justify-between gap-4">
-          <div className="flex items-center gap-3">
-            <span className="flex h-9 w-9 items-center justify-center rounded-full border border-border bg-[#FFFFFF]">
-              <span className="h-4 w-4 rounded-full border-4 border-cyan-500" />
-            </span>
-            <div>
+        <div className="mb-10 flex flex-col items-start gap-6">
+          <div className="flex flex-col items-start gap-2">
+            <div className="flex items-center gap-3">
+              <span className="flex h-9 w-9 items-center justify-center rounded-full border border-border bg-[#FFFFFF] shrink-0">
+                <span className="h-4 w-4 rounded-full border-4 border-cyan-500" />
+              </span>
               <p className="text-xs font-extrabold uppercase tracking-[0.14em] text-cyan-500">PrimeSec hizmetleri</p>
-              <h2 className="text-lg font-black tracking-[-0.03em] text-ink">Güvenlik hizmet alanları</h2>
             </div>
+            <h2 className="text-2xl md:text-3xl font-black tracking-[-0.03em] text-ink">Güvenlik hizmet alanları</h2>
           </div>
-          <div className="hidden items-center gap-2 md:flex">
+          <div className="flex items-center gap-2 overflow-x-auto max-w-full -mx-4 px-4 md:mx-0 md:px-0 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden whitespace-nowrap flex-nowrap scroll-smooth py-1">
             {tabs.map((item) => (
               <button
                 key={item}
                 onClick={() => setTab(item)}
-                className={cn("h-8 rounded-full px-4 text-xs font-extrabold transition-all duration-200", tab === item ? "primesec-navy-action text-white shadow-md md:hover:shadow-lg" : "border border-border md:hover:border-cyan-500 bg-white text-ink-muted md:hover:text-cyan-500 md:hover:bg-cyan-50/10")}
+                className={cn(
+                  "h-8 rounded-full px-4 text-xs font-extrabold transition-all duration-200 shrink-0", 
+                  tab === item 
+                    ? "primesec-navy-action text-white border border-transparent !shadow-none" 
+                    : "border border-border md:hover:border-cyan-500 bg-white text-ink-muted md:hover:text-cyan-500 md:hover:bg-cyan-50/10"
+                )}
               >
                 {item}
               </button>
@@ -107,28 +112,18 @@ export function ServiceGrid({ dynamicData }: ServiceGridProps) {
           {/* Mobile: Horizontal Scroll */}
           <div className="md:hidden overflow-x-auto -mx-4 sm:-mx-5 md:-mx-8 pt-4 pb-4 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
             <div className="flex gap-4 px-4 sm:px-5 md:px-8" style={{ scrollSnapType: 'x mandatory' }}>
-              {services.map((service, index) => (
-                <div
+              {filtered.map((service, index) => (
+                <Link
                   key={service.title}
+                  href={service.href}
                   className={cn(
-                    "group flex flex-col justify-between min-h-[260px] w-[280px] flex-shrink-0 overflow-hidden rounded-[24px] border border-border md:hover:border-cyan-500 md:hover:shadow-lg transition-all duration-300 bg-white p-5 md:hover:-translate-y-1"
+                    "group flex flex-col justify-start min-h-[200px] w-[280px] flex-shrink-0 overflow-hidden rounded-[24px] border border-border md:hover:border-cyan-500 md:hover:shadow-lg transition-all duration-300 bg-white p-5 md:hover:-translate-y-1"
                   )}
                   style={{ scrollSnapAlign: 'start' }}
                 >
-                  <Link href={service.href} className="flex items-start justify-between gap-4 w-full">
-                    <div className="flex-1">
-                      <p className="text-xs font-bold text-ink-muted">Hizmet</p>
-                      <h3 className="mt-2 text-2xl font-black leading-tight tracking-[-0.04em] text-ink break-words">{service.title}</h3>
-                      <p className="mt-3 text-sm leading-6 text-ink-muted break-words">{service.description}</p>
-                    </div>
-                    <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full primesec-navy-action text-white md:group-hover:bg-cyan-500 transition-colors duration-300">
-                      <ChevronRight className="h-4 w-4" />
-                    </span>
-                  </Link>
-                  <div className="mt-4 flex items-center gap-2">
-                    <Link href="/iletisim" className="inline-flex h-8 items-center justify-center rounded-full bg-[#FFFFFF] border border-border px-4 text-xs font-extrabold text-ink-muted md:hover:text-cyan-500 md:hover:border-cyan-500 transition-colors duration-300">Teklif Al</Link>
-                  </div>
-                </div>
+                  <h3 className="text-xl font-black leading-tight tracking-[-0.04em] text-ink break-words">{service.title}</h3>
+                  <p className="mt-2 text-sm leading-6 text-ink-muted break-words">{service.description}</p>
+                </Link>
               ))}
             </div>
           </div>
@@ -140,31 +135,21 @@ export function ServiceGrid({ dynamicData }: ServiceGridProps) {
                 return (
                   <div
                     key={service.title}
-                    className="hidden min-h-[260px] rounded-[24px] border border-dashed border-[#D8DDE6] bg-[#FFFFFF] md:block"
+                    className="hidden min-h-[245px] rounded-[24px] border border-dashed border-[#D8DDE6] bg-[#FFFFFF] md:block"
                   />
                 );
               }
               return (
-                <div
+                <Link
                   key={service.title}
+                  href={service.href}
                   className={cn(
-                    "group flex flex-col justify-between min-h-[260px] overflow-hidden rounded-[24px] border border-border md:hover:border-cyan-500 md:hover:shadow-lg transition-all duration-300 bg-white p-5 md:hover:-translate-y-1"
+                    "group flex flex-col justify-start min-h-[245px] overflow-hidden rounded-[24px] border border-border md:hover:border-cyan-500 md:hover:shadow-lg transition-all duration-300 bg-white p-5 md:hover:-translate-y-1"
                   )}
                 >
-                  <Link href={service.href} className="flex items-start justify-between gap-4 w-full">
-                    <div className="flex-1">
-                      <p className="text-xs font-bold text-ink-muted">Hizmet</p>
-                      <h3 className="mt-2 text-2xl font-black leading-tight tracking-[-0.04em] text-ink break-words">{service.title}</h3>
-                      <p className="mt-3 text-sm leading-6 text-ink-muted break-words">{service.description}</p>
-                    </div>
-                    <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full primesec-navy-action text-white md:group-hover:bg-cyan-500 transition-colors duration-300">
-                      <ChevronRight className="h-4 w-4" />
-                    </span>
-                  </Link>
-                  <div className="mt-4 flex items-center gap-2">
-                    <Link href="/iletisim" className="inline-flex h-8 items-center justify-center rounded-full bg-[#FFFFFF] border border-border px-4 text-xs font-extrabold text-ink-muted md:hover:text-cyan-500 md:hover:border-cyan-500 transition-colors duration-300">Teklif Al</Link>
-                  </div>
-                </div>
+                  <h3 className="text-2xl font-black leading-tight tracking-[-0.04em] text-ink break-words">{service.title}</h3>
+                  <p className="mt-2 text-sm leading-6 text-ink-muted break-words">{service.description}</p>
+                </Link>
               );
             })}
           </div>

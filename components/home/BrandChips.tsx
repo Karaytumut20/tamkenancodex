@@ -20,9 +20,6 @@ export async function BrandChips() {
 
   if (dynamicBrands.length === 0) return null;
 
-  // 4 times duplicated to allow perfect looping in DraggableMarquee
-  const marqueeBrands = [...dynamicBrands, ...dynamicBrands, ...dynamicBrands, ...dynamicBrands];
-
   return (
     <section className="bg-white py-12 md:py-16 overflow-hidden">
       <div className="container-primesec">
@@ -32,8 +29,8 @@ export async function BrandChips() {
       </div>
       <div className="relative mt-8 py-5">
         <DraggableMarquee>
-          {marqueeBrands.map((brand, index) => (
-            <BrandLogo key={`${brand.id}-${index}`} brand={brand} />
+          {dynamicBrands.map((brand) => (
+            <BrandLogo key={brand.id} brand={brand} />
           ))}
         </DraggableMarquee>
       </div>
@@ -43,11 +40,10 @@ export async function BrandChips() {
 
 function BrandLogo({ brand }: { brand: Brand }) {
   return (
-    <div className="flex h-20 w-auto min-w-[200px] shrink-0 items-center justify-center rounded-xl bg-white px-6 grayscale md:hover:grayscale-0 transition-all shadow-sm border border-slate-100 mx-2 pointer-events-none select-none whitespace-nowrap">
+    <div className="flex h-24 w-auto min-w-[220px] shrink-0 items-center justify-center rounded-xl bg-white px-6 transition-all mx-2 pointer-events-none select-none whitespace-nowrap">
       {brand.logoUrl ? (
-        <div className="flex items-center gap-3">
-          <img src={brand.logoUrl} alt={brand.name} className="max-h-10 max-w-[100px] object-contain pointer-events-none" />
-          <span className="text-base font-black text-slate-800">{brand.name}</span>
+        <div className="flex items-center justify-center">
+          <img src={brand.logoUrl} alt={brand.name || "Brand Logo"} className="max-h-18 max-w-[165px] object-contain pointer-events-none" />
         </div>
       ) : (
         <div className="flex items-center gap-3 text-[#111827] pointer-events-none">
@@ -55,7 +51,7 @@ function BrandLogo({ brand }: { brand: Brand }) {
             <span className="absolute inset-0 rotate-45 rounded-[7px] border-2 border-current opacity-80" />
             <span className="h-3.5 w-3.5 rounded-sm bg-current opacity-90" />
           </span>
-          <span className={`text-[20px] leading-none ${logoStyles[brand.name] ?? "font-black"}`}>{brand.name}</span>
+          <span className={`text-[20px] leading-none ${logoStyles[brand.name || ""] ?? "font-black"}`}>{brand.name}</span>
         </div>
       )}
     </div>
