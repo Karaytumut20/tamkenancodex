@@ -1,5 +1,3 @@
-"use client";
-
 import Link from "next/link";
 import Image from "next/image";
 import { Sparkles, CheckCircle2, ArrowRight } from "lucide-react";
@@ -10,11 +8,14 @@ export function Hero({ content: _content }: { content?: unknown }) {
       {/* Background Image & Overlay */}
       <div className="absolute inset-0 z-0">
         <Image
-          src="/images/primesec-hero-cctv-v2.png"
+          src="/images/primesec-hero-cctv-v2.webp"
           alt="PrimeSec Güvenlik Sistemleri Arka Plan"
           fill
           className="object-cover object-right lg:object-center"
           priority
+          fetchPriority="high"
+          sizes="100vw"
+          unoptimized
         />
         {/* Dark gradient overlay for text readability */}
         <div className="absolute inset-0 bg-gradient-to-r from-slate-950 via-slate-950/85 to-slate-950/30" />
@@ -93,4 +94,3 @@ export function Hero({ content: _content }: { content?: unknown }) {
     </section>
   );
 }
-

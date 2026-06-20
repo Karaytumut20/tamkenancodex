@@ -4,7 +4,7 @@ import { ServiceTemplate } from "@/components/templates/ServiceTemplate";
 import { buildMetadata } from "@/lib/seo";
 import { getCorporatePages, getServices, getServiceAreas, getProducts, getOksidProducts } from "@/lib/db";
 
-export const dynamic = "force-dynamic";
+export const revalidate = 3600;
 
 async function getAllPages() {
   const dbServices = await getServices();
@@ -33,7 +33,20 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   const page = allDbPages.find((item) => item.slug === slug) ?? corporatePages.find((item) => item.slug === slug);
   
   if (!page) return {};
-  return buildMetadata({ title: page.metaTitle, description: page.description, path: `/${slug}` });
+  return buildMetadata({
+    title: page.metaTitle,
+    description: page.description,
+    path: `/${slug}`,
+    image: page.heroImage,
+    robotsIndex: page.robotsIndex,
+    robotsFollow: page.robotsFollow,
+    canonicalUrl: page.canonicalUrl,
+    ogTitle: page.ogTitle,
+    ogDescription: page.ogDescription,
+    twitterTitle: page.twitterTitle,
+    twitterDescription: page.twitterDescription,
+    twitterImage: page.twitterImage,
+  });
 }
 
 export default async function CatchAllPage({ params }: { params: Promise<{ slug: string[] }> }) {
@@ -88,8 +101,7 @@ export default async function CatchAllPage({ params }: { params: Promise<{ slug:
       if (candidates.length === 0) {
         candidates = oksidProducts;
       }
-      const shuffled = [...candidates].sort(() => 0.5 - Math.random());
-      featuredProducts = shuffled.slice(0, 4).map((p: any) => ({
+      featuredProducts = candidates.slice(0, 4).map((p: any) => ({
         id: p.id,
         slug: p.slug,
         name: p.name || p.urun_adi || "",

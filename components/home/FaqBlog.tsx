@@ -1,6 +1,7 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
+import Image from "next/image";
 import Link from "next/link";
 import { Plus, ChevronRight, ChevronLeft } from "lucide-react";
 import { cn } from "@/lib/cn";
@@ -39,9 +40,9 @@ export function FaqBlog({ initialBlogPosts, initialFaqs }: FaqBlogProps) {
     setCurrentIndex((prev) => (prev <= 0 ? maxIndex : prev - 1));
   };
 
-  const handleNext = () => {
+  const handleNext = useCallback(() => {
     setCurrentIndex((prev) => (prev >= maxIndex ? 0 : prev + 1));
-  };
+  }, [maxIndex]);
 
   // Autoplay effect
   useEffect(() => {
@@ -50,7 +51,7 @@ export function FaqBlog({ initialBlogPosts, initialFaqs }: FaqBlogProps) {
       handleNext();
     }, 4000);
     return () => clearInterval(timer);
-  }, [maxIndex]);
+  }, [handleNext, maxIndex]);
 
   return (
     <>
@@ -161,10 +162,12 @@ export function FaqBlog({ initialBlogPosts, initialFaqs }: FaqBlogProps) {
                     className="group flex w-full flex-col overflow-hidden rounded-[24px] border border-white bg-white p-4 transition md:hover:border-cyan-500"
                   >
                     <div className="relative h-48 w-full overflow-hidden rounded-[20px] bg-white flex items-center justify-center p-4">
-                      <img
+                      <Image
                         src={post.image}
                         alt={post.title}
-                        className="w-full h-full object-contain transition-transform duration-500 md:group-hover:scale-105"
+                        fill
+                        sizes="(min-width: 768px) 33vw, 100vw"
+                        className="object-contain p-4 transition-transform duration-500 md:group-hover:scale-105"
                       />
                     </div>
                     <div className="flex flex-1 flex-col justify-between pt-4">

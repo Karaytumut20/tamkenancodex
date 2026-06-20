@@ -77,7 +77,7 @@ const settingLabels: Record<string, { label: string; placeholder: string; helpTe
   "contact.rep2.whatsapp": {
     label: "💬 2. Temsilci WhatsApp No",
     placeholder: "905519542605",
-    helpText: "Boşluksuz ve baştaki sıfır olmadan (Örn: 905519542605).",
+    helpText: "Ürün detaylarındaki WhatsApp teklif butonları bu numaraya yönlenir. Boşluksuz yazın (Örn: 905519542605).",
   },
   "seo.ga_id": {
     label: "📊 Google Analytics ID (GA4)",

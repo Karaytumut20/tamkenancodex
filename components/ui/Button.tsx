@@ -13,7 +13,7 @@ const variants: Record<Variant, string> = {
   outlineBlue:
     "border border-primary-500 bg-white text-primary-600 primesec-navy-action-hover hover:text-white",
   whatsapp:
-    "bg-[#25D366] text-white hover:bg-[#20c35a] transition-colors",
+    "bg-[#107C41] text-white hover:bg-[#0B6936] transition-colors",
   ghost: "bg-transparent text-inherit hover:bg-transparent",
 };
 

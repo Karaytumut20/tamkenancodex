@@ -17,8 +17,6 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     getCorporatePages(),
   ]);
 
-  const currentRuntimeDate = new Date();
-
   const buildPaths = () => {
     const paths = [
       { url: "", priority: 1, changeFrequency: "daily" },
@@ -72,9 +70,12 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     return paths;
   };
 
-  return buildPaths().map((item) => ({
+  const uniquePaths = Array.from(
+    new Map(buildPaths().map((item) => [item.url.replace(/^\/+|\/+$/g, ""), item])).values(),
+  );
+
+  return uniquePaths.map((item) => ({
     url: `${siteConfig.siteUrl}/${item.url}`.replace(/\/$/, ""),
-    lastModified: currentRuntimeDate,
     changeFrequency: item.changeFrequency as any,
     priority: item.priority,
   }));

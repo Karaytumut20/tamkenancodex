@@ -7,6 +7,7 @@ import { ProductCard } from "@/components/products/ProductCard";
 import { brands as staticBrands, productCategories as staticCategories, products as staticProducts, type Product } from "@/data/products";
 
 const ALL = "Tümü";
+const PAGE_SIZE = 24;
 
 interface ProductGridProps {
   initialProducts?: Product[];
@@ -29,6 +30,7 @@ export function ProductGrid({
   const [usage, setUsage] = useState(ALL);
   const [tag, setTag] = useState(ALL);
   const [filtersOpen, setFiltersOpen] = useState(false);
+  const [pagination, setPagination] = useState({ signature: "", limit: PAGE_SIZE });
 
   useEffect(() => {
     const urlBrand = searchParams.get("marka") || searchParams.get("brand");
@@ -44,7 +46,7 @@ export function ProductGrid({
   const productsList = initialProducts || staticProducts;
   const categoriesList = initialCategories || staticCategories;
   const brandsList = initialBrands || staticBrands;
-  const subCategoriesList = initialSubCategories || [];
+  const subCategoriesList = useMemo(() => initialSubCategories || [], [initialSubCategories]);
 
   const allBrands = useMemo(() => Array.from(new Set([...brandsList, ...productsList.map((product) => product.brand)])).sort((a, b) => a.localeCompare(b, "tr")), [brandsList, productsList]);
   const usageOptions = useMemo(() => Array.from(new Set(productsList.flatMap((product) => product.usage))).sort((a, b) => a.localeCompare(b, "tr")), [productsList]);
@@ -92,6 +94,10 @@ export function ProductGrid({
       return matchesQuery && matchesCategory && matchesBrand && matchesUsage && matchesTag;
     });
   }, [query, category, brand, usage, tag, productsList]);
+
+  const filterSignature = [query, category, brand, usage, tag].join("|");
+  const visibleLimit = pagination.signature === filterSignature ? pagination.limit : PAGE_SIZE;
+  const visibleProducts = filtered.slice(0, visibleLimit);
 
   const hasFilter = query || category !== ALL || brand !== ALL || usage !== ALL || tag !== ALL;
   const activeFilters = [
@@ -207,9 +213,22 @@ export function ProductGrid({
         </div>
 
         {filtered.length ? (
-          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:gap-6">
-            {filtered.map((product: any) => <ProductCard key={product.slug} product={product} />)}
-          </div>
+          <>
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:gap-6">
+              {visibleProducts.map((product: any) => <ProductCard key={product.slug} product={product} />)}
+            </div>
+            {visibleProducts.length < filtered.length && (
+              <div className="mt-8 flex justify-center">
+                <button
+                  type="button"
+                  onClick={() => setPagination({ signature: filterSignature, limit: visibleLimit + PAGE_SIZE })}
+                  className="h-12 rounded-full primesec-navy-action px-8 text-sm font-extrabold text-white transition-transform hover:scale-[1.02]"
+                >
+                  Daha Fazla Ürün Göster
+                </button>
+              </div>
+            )}
+          </>
         ) : (
           <div className="rounded-2xl border border-border bg-white p-6 sm:p-8 text-center w-full min-w-0">
             <h3 className="text-xl sm:text-2xl font-extrabold text-ink break-words">Bu filtrelerle ürün bulunamadı</h3>

@@ -486,6 +486,18 @@ export const getProductBySlug = cache(async function getProductBySlug(
 // SERVICES
 // ─────────────────────────────────────────────────────────────────────────────
 
+const improvedServiceImages: Record<string, string> = {
+  "yangin-ihbar-sistemleri": "/images/service-fire.webp",
+  "arac-takip-sistemleri": "/images/service-vehicle.webp",
+  "personel-takip-pdks": "/images/service-biometric.webp",
+  "network-cozumleri": "/images/service-network.webp",
+  "ip-diafon-sistemleri": "/images/service-intercom.webp",
+};
+
+function serviceImage(slug: string, configuredImage?: string | null) {
+  return improvedServiceImages[slug] || configuredImage || "/images/alarm-sistemi.svg";
+}
+
 export const getServices = cache(async function getServices(): Promise<any[]> {
   try {
     const supabase = getSupabase();
@@ -506,7 +518,7 @@ export const getServices = cache(async function getServices(): Promise<any[]> {
           metaTitle: s.meta_title || `${s.title} | PrimeSec Teknoloji`,
           description:
             s.meta_description || s.hero_description || s.intro_content || "",
-          heroImage: s.image_url || "/images/alarm-sistemi.svg",
+          heroImage: serviceImage(s.slug, s.image_url),
           category: categoryName,
           keywords: [s.title, "Güvenlik sistemleri", "PrimeSec Teknoloji"],
           benefits: Array.isArray(s.advantages) ? s.advantages : [],
@@ -580,7 +592,7 @@ export const getServiceBySlug = cache(async function getServiceBySlug(
         sData.hero_description ||
         sData.intro_content ||
         "",
-      heroImage: sData.image_url || "/images/alarm-sistemi.svg",
+      heroImage: serviceImage(sData.slug, sData.image_url),
       category: categoryName,
       keywords: [sData.title, "Güvenlik sistemleri", "PrimeSec Teknoloji"],
       benefits: Array.isArray(sData.advantages) ? sData.advantages : [],
@@ -1473,4 +1485,3 @@ export const getHomepageFaqs = cache(
     }
   }
 );
-

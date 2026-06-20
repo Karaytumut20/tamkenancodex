@@ -1,4 +1,5 @@
 import { getBrands, type Brand } from "@/lib/db";
+import Image from "next/image";
 import { DraggableMarquee } from "./DraggableMarquee";
 
 const logoStyles: Record<string, string> = {
@@ -42,8 +43,8 @@ function BrandLogo({ brand }: { brand: Brand }) {
   return (
     <div className="flex h-24 w-auto min-w-[220px] shrink-0 items-center justify-center rounded-xl bg-white px-6 transition-all mx-2 pointer-events-none select-none whitespace-nowrap">
       {brand.logoUrl ? (
-        <div className="flex items-center justify-center">
-          <img src={brand.logoUrl} alt={brand.name || "Brand Logo"} className="max-h-18 max-w-[165px] object-contain pointer-events-none" />
+        <div className="relative h-[72px] w-[165px]">
+          <Image src={brand.logoUrl} alt={`${brand.name || "Marka"} logosu`} fill sizes="165px" className="object-contain pointer-events-none" unoptimized />
         </div>
       ) : (
         <div className="flex items-center gap-3 text-[#111827] pointer-events-none">

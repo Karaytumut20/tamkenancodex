@@ -65,7 +65,7 @@ export default async function BlogDetailPage({
             description: post.description,
             datePublished: post.date,
             dateModified: post.updatedAt,
-            image: `${siteConfig.siteUrl}${post.image}`,
+            image: new URL(post.image, siteConfig.siteUrl).toString(),
             author: { "@type": "Organization", name: siteConfig.name },
           },
           breadcrumbSchema([
@@ -114,8 +114,8 @@ export default async function BlogDetailPage({
                 alt={post.title}
                 fill
                 priority
+                sizes="(min-width: 768px) 1120px, 100vw"
                 className="object-contain p-10 md:p-16 group-hover:scale-102 transition-transform duration-500"
-                unoptimized
               />
             </div>
           </div>

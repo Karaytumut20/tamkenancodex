@@ -62,7 +62,7 @@ export function PlanBanner() {
                         <Icon className="h-5 w-5" />
                       </div>
                       <div>
-                        <h4 className="font-bold text-white text-base md:group-hover:text-cyan-300 transition-colors">{feat.title}</h4>
+                        <h3 className="font-bold text-white text-base md:group-hover:text-cyan-300 transition-colors">{feat.title}</h3>
                         <p className="mt-1.5 text-xs text-[#b8c7dd] md:group-hover:text-white/80 leading-relaxed transition-colors">{feat.desc}</p>
                       </div>
                     </div>

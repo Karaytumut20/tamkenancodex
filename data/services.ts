@@ -317,7 +317,7 @@ export const services: ServicePage[] = [
     title: "Yangın İhbar Sistemleri",
     metaTitle: "Yangın İhbar Sistemleri | PrimeSec Teknoloji",
     description: "Duman, ısı ve yangın risklerini erken algılayan profesyonel yangın ihbar çözümleri kuruyoruz.",
-    heroImage: "https://images.unsplash.com/photo-1516216621161-0b57ff39dc4c?auto=format&fit=crop&w=800&q=80",
+    heroImage: "/images/service-fire.webp",
     category: "Yangın İhbar Sistemleri",
     keywords: ["Yangın ihbar", "Duman dedektörü", "Yangın alarm sistemi", "Adresli yangın sistemi"],
     benefits: [
@@ -370,7 +370,7 @@ export const services: ServicePage[] = [
     title: "Araç Takip Sistemleri",
     metaTitle: "Araç Takip Sistemleri | PrimeSec Teknoloji",
     description: "CanBus uyumlu araç takip çözümleriyle filonuzu canlı izleyin, raporlayın ve güvenle yönetin.",
-    heroImage: "https://images.unsplash.com/photo-1527689368864-3a821dbccc34?auto=format&fit=crop&w=800&q=80",
+    heroImage: "/images/service-vehicle.webp",
     category: "Araç Takip Sistemleri",
     keywords: ["Araç takip", "Filo takibi", "GPS araç takip", "PrimeSec Araç Takip"],
     benefits: [
@@ -423,7 +423,7 @@ export const services: ServicePage[] = [
     title: "Personel Takip PDKS",
     metaTitle: "Personel Takip PDKS | PrimeSec Teknoloji",
     description: "Personel giriş çıkışlarını kartlı, şifreli veya biyometrik terminallerle güvenilir şekilde takip edin.",
-    heroImage: "https://images.unsplash.com/photo-1600132806370-bf17e65e942f?auto=format&fit=crop&w=800&q=80",
+    heroImage: "/images/service-biometric.webp",
     category: "Personel Takip PDKS",
     keywords: ["PDKS", "Personel takip sistemi", "Yüz tanıma pdks", "Kartlı pdks"],
     benefits: [
@@ -529,7 +529,7 @@ export const services: ServicePage[] = [
     title: "Network Çözümleri",
     metaTitle: "Network Çözümleri | PrimeSec Teknoloji",
     description: "Kamera, POS, ofis ve güvenlik cihazları için stabil network altyapısı tasarlıyor ve kuruyoruz.",
-    heroImage: "https://images.unsplash.com/photo-1544197150-b99a580bb7a8?auto=format&fit=crop&w=800&q=80",
+    heroImage: "/images/service-network.webp",
     category: "Network Çözümleri",
     keywords: ["Network kurulumu", "Yapısal kablolama", "Wi-Fi güçlendirme", "PrimeSec Network"],
     benefits: [
@@ -635,7 +635,7 @@ export const services: ServicePage[] = [
     title: "IP Diafon Sistemleri",
     metaTitle: "IP Diafon Sistemleri | PrimeSec Teknoloji",
     description: "Apartman, site ve ofisler için görüntülü IP diafon ve interkom sistemleri kuruyoruz.",
-    heroImage: "https://images.unsplash.com/photo-1562654501-a0ccc0fc3fb1?auto=format&fit=crop&w=800&q=80",
+    heroImage: "/images/service-intercom.webp",
     category: "IP Diafon Sistemleri",
     keywords: ["IP diafon", "Görüntülü diafon", "Villa diafon", "Apartman interkom"],
     benefits: [

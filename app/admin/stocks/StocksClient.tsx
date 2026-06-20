@@ -58,7 +58,7 @@ export function StocksClient({ materials }: Props) {
   );
 
   // Filter materials
-  let filtered = materials.filter((m) => {
+  const filtered = materials.filter((m) => {
     const query = q.toLowerCase();
     const nameMatch = m.name.toLowerCase().includes(query);
     const barcodeMatch = m.barcode?.toLowerCase().includes(query);

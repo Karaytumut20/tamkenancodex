@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { Phone, X, ChevronRight } from "lucide-react";
-import { motion, AnimatePresence } from "framer-motion";
+import Link from "next/link";
 import { representatives as fallbackReps } from "@/data/site";
 
 export function FloatingContact({ representatives = fallbackReps }: { representatives?: { name: string; role: string; phone: string; whatsapp: string; }[] }) {
@@ -21,24 +21,16 @@ export function FloatingContact({ representatives = fallbackReps }: { representa
   return (
     <div className="fixed bottom-6 right-6 z-50 font-sans floating-contact-container">
       {/* ── POPUP MODAL ── */}
-      <AnimatePresence>
-        {isOpen && (
+      {isOpen && (
           <>
             {/* Backdrop for mobile to click-close */}
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 0.4 }}
-              exit={{ opacity: 0 }}
+            <div
               onClick={() => setIsOpen(false)}
               className="fixed inset-0 bg-slate-900/50 backdrop-blur-sm md:hidden"
             />
 
             {/* Modal Card */}
-            <motion.div
-              initial={{ opacity: 0, y: 30, scale: 0.95 }}
-              animate={{ opacity: 1, y: 0, scale: 1 }}
-              exit={{ opacity: 0, y: 30, scale: 0.95 }}
-              transition={{ duration: 0.3, ease: [0.16, 1, 0.3, 1] }}
+            <div
               className="absolute bottom-16 right-0 w-[min(calc(100vw-3rem),340px)] overflow-hidden rounded-3xl border border-border bg-white p-5 shadow-2xl"
             >
               <div className="flex items-center justify-between border-b border-border pb-3">
@@ -48,6 +40,7 @@ export function FloatingContact({ representatives = fallbackReps }: { representa
                 </div>
                 <button
                   onClick={() => setIsOpen(false)}
+                  aria-label="İletişim panelini kapat"
                   className="flex h-8 w-8 items-center justify-center rounded-full bg-surface text-ink hover:bg-white hover:text-primary-600 transition-colors border border-border"
                 >
                   <X className="h-4 w-4" />
@@ -91,27 +84,21 @@ export function FloatingContact({ representatives = fallbackReps }: { representa
               </div>
 
               <div className="mt-4 border-t border-border pt-3 text-center">
-                <a
+                <Link
                   href="/kendi-sistemini-tasarla"
                   onClick={() => setIsOpen(false)}
                   className="inline-flex items-center gap-1 text-xs font-bold text-primary-600 hover:text-primary-500 transition-colors"
                 >
                   Ücretsiz Fiyat Teklifi Hesapla <ChevronRight className="h-3 w-3" />
-                </a>
+                </Link>
               </div>
-            </motion.div>
+            </div>
           </>
-        )}
-      </AnimatePresence>
+      )}
 
       {/* ── FLOATING BUTTON ── */}
-      <AnimatePresence>
-        {!isOpen && (
-          <motion.button
-            initial={{ scale: 0, opacity: 0 }}
-            animate={{ scale: 1, opacity: 1 }}
-            exit={{ scale: 0, opacity: 0 }}
-            transition={{ duration: 0.25, ease: "easeOut" }}
+      {!isOpen && (
+          <button
             onClick={() => setIsOpen(true)}
             className="relative flex h-14 w-14 items-center justify-center rounded-full bg-gradient-to-b from-[#5BFF72] to-[#08C735] text-white shadow-lg shadow-[#08C735]/30 ring-4 ring-white/80 hover:scale-105 active:scale-95 transition-all outline-none"
             aria-label="İletişim paneli"
@@ -128,9 +115,8 @@ export function FloatingContact({ representatives = fallbackReps }: { representa
                 d="M32 11C18.8 11 8 20.1 8 31.3c0 7.1 4.3 13.4 10.9 17.1l-2.8 9.1 10.4-5.3c1.8.4 3.6.6 5.5.6 13.2 0 24-9.1 24-20.4S45.2 11 32 11Z"
               />
             </svg>
-          </motion.button>
-        )}
-      </AnimatePresence>
+          </button>
+      )}
     </div>
   );
 }

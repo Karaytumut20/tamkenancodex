@@ -134,7 +134,7 @@ export function ProductCarousel({ initialProducts }: ProductCarouselProps) {
                 </span>
               </div>
               <div className="relative mt-4 h-48 w-full rounded-[20px] bg-white flex items-center justify-center">
-                <Image src={product.image} alt={`${product.name} ürün görseli`} fill className="object-contain p-6" unoptimized />
+                <Image src={product.image} alt={`${product.name} ürün görseli`} fill sizes="(min-width: 1280px) 20vw, (min-width: 768px) 32vw, 240px" className="object-contain p-6" />
               </div>
               <div className="flex flex-1 flex-col justify-between pt-4">
                 <div>

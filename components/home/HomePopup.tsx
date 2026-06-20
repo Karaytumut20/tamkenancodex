@@ -41,10 +41,10 @@ export function HomePopup({
       }
     }
 
-    // Show popup with a tiny delay for better UX
+    // Do not interrupt the initial reading flow or the page's LCP render.
     const timer = setTimeout(() => {
       setIsOpen(true);
-    }, 1500);
+    }, 8000);
 
     return () => clearTimeout(timer);
   }, [active, title, cooldownMinutes]);
@@ -63,6 +63,7 @@ export function HomePopup({
         className="relative w-full max-w-lg overflow-hidden rounded-3xl border border-white/10 bg-slate-900 text-white shadow-2xl transition-all scale-100 duration-300 animate-scale-up"
         role="dialog"
         aria-modal="true"
+        aria-label={title}
       >
         {/* Close button */}
         <button

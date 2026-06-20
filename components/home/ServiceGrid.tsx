@@ -88,6 +88,20 @@ const defaultServices: ServiceCard[] = [
 
 const defaultTabs = ["Tümü", "Kamera", "Alarm", "Akıllı Ev", "Kurumsal", "Network"];
 
+const serviceRoutesByTab: Record<string, string> = {
+  "CCTV Kamera": "/kamera-sistemleri",
+  "Hırsız Alarm": "/alarm-sistemleri",
+  "Yangın İhbar": "/yangin-ihbar-sistemleri",
+  "Araç Takip": "/arac-takip-sistemleri",
+  "Araç Kamerası": "/arac-kamerasi",
+  "Personel Takip PDKS": "/personel-takip-pdks",
+  "Kapı Geçiş Sistemleri": "/kapi-gecis-sistemleri",
+  "IP Diafon Sistemleri": "/ip-diafon-sistemleri",
+  "Restoran POS Yazılımı": "/restoran-pos-yazilimi",
+  "Network Çözümleri": "/network-cozumleri",
+  "Kamera Markaları": "/kamera-sistemleri",
+};
+
 interface ServiceGridProps {
   dynamicData?: {
     tabs: any[];
@@ -111,7 +125,7 @@ export function ServiceGrid({ dynamicData }: ServiceGridProps) {
         return {
           title: s.title,
           description: s.description || "",
-          href: s.link || "#",
+          href: (tab && serviceRoutesByTab[tab.title]) || s.link || "/iletisim",
           image: s.image || "/images/kamera-sistemi.svg",
           category: tab ? tab.title : "Tümü"
         };
@@ -203,8 +217,8 @@ export function ServiceGrid({ dynamicData }: ServiceGridProps) {
   };
 
   const visible = useMemo(() => {
-    return filtered;
-  }, [filtered]);
+    return tab === "Tümü" ? filtered.slice(0, 8) : filtered;
+  }, [filtered, tab]);
 
   return (
     <section className="bg-[#FFFFFF] relative overflow-hidden py-16 md:py-24">
@@ -292,9 +306,10 @@ export function ServiceGrid({ dynamicData }: ServiceGridProps) {
           {/* Mobile & Tablet: Horizontal Scroll */}
           <div className="xl:hidden overflow-x-auto -mx-4 sm:-mx-5 md:-mx-8 pt-4 pb-4 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
             <div className="flex gap-4 px-4 sm:px-5 md:px-8" style={{ scrollSnapType: 'x mandatory' }}>
-              {filtered.map((service, index) => (
-                <div
+              {visible.map((service) => (
+                <Link
                   key={service.title}
+                  href={service.href}
                   className={cn(
                     "group flex flex-col justify-start min-h-[200px] w-[280px] md:w-[320px] flex-shrink-0 overflow-hidden rounded-[24px] border border-border md:hover:border-cyan-500 md:hover:shadow-lg transition-all duration-300 bg-white p-5 md:hover:-translate-y-1"
                   )}
@@ -302,7 +317,10 @@ export function ServiceGrid({ dynamicData }: ServiceGridProps) {
                 >
                   <h3 className="text-xl font-black leading-tight tracking-[-0.04em] text-ink break-words">{service.title}</h3>
                   <p className="mt-2 text-sm leading-6 text-ink-muted break-words">{service.description}</p>
-                </div>
+                  <span className="mt-auto inline-flex items-center gap-1 pt-4 text-sm font-extrabold text-primary-600 group-hover:text-cyan-600">
+                    Detayları incele <ChevronRight className="h-4 w-4" />
+                  </span>
+                </Link>
               ))}
             </div>
           </div>
@@ -356,15 +374,19 @@ export function ServiceGrid({ dynamicData }: ServiceGridProps) {
                   );
                 }
                 return (
-                  <div
+                  <Link
                     key={service.title}
+                    href={service.href}
                     className={cn(
                       "group flex flex-col justify-start min-h-[245px] overflow-hidden rounded-[24px] border border-border md:hover:border-cyan-500 md:hover:shadow-lg transition-all duration-300 bg-white p-5 md:hover:-translate-y-1"
                     )}
                   >
                     <h3 className="text-2xl font-black leading-tight tracking-[-0.04em] text-ink break-words">{service.title}</h3>
                     <p className="mt-2 text-sm leading-6 text-ink-muted break-words">{service.description}</p>
-                  </div>
+                    <span className="mt-auto inline-flex items-center gap-1 pt-4 text-sm font-extrabold text-primary-600 group-hover:text-cyan-600">
+                      Detayları incele <ChevronRight className="h-4 w-4" />
+                    </span>
+                  </Link>
                 );
               })}
             </div>

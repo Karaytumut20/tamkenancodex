@@ -65,6 +65,7 @@ export function MobileMenu({ open, onClose, navigation = mainNavigation, megaMen
 
           {/* Menu Panel - Full Screen */}
           <motion.div
+            id="mobile-navigation"
             initial={{ x: "100%" }}
             animate={{ x: 0 }}
             exit={{ x: "100%" }}
@@ -75,6 +76,7 @@ export function MobileMenu({ open, onClose, navigation = mainNavigation, megaMen
             <div className="flex justify-end px-4 pb-2 pt-4">
               <button
                 aria-label="Menüyü kapat"
+                autoFocus
                 onClick={onClose}
                 className="flex h-10 w-10 items-center justify-center rounded-full border border-slate-200 bg-white text-ink shadow-sm transition-colors hover:border-primary-400 hover:text-primary-600"
               >

@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import type { ReactNode } from "react";
+import Script from "next/script";
 import "./globals.css";
 import { Footer } from "@/components/layout/Footer";
 import { Header } from "@/components/layout/Header";
@@ -26,7 +27,7 @@ const monoton = Monoton({
   display: "swap",
 });
 
-export const dynamic = "force-dynamic";
+export const revalidate = 3600;
 
 export async function generateMetadata(): Promise<Metadata> {
   const settings = await getSiteSettings();
@@ -96,21 +97,27 @@ export default async function RootLayout({
 
   return (
     <html lang="tr" className={`${googleSans.variable} ${monoton.variable}`}>
-      <head />
       <body>
+        <a
+          href="#main-content"
+          className="sr-only z-[200] rounded-md bg-white px-4 py-3 text-slate-950 focus:not-sr-only focus:fixed focus:left-4 focus:top-4"
+        >
+          Ana içeriğe geç
+        </a>
         {settings.gaId && (
           <>
-            <script async src={`https://www.googletagmanager.com/gtag/js?id=${settings.gaId}`}></script>
-            <script
-              dangerouslySetInnerHTML={{
-                __html: `
+            <Script
+              src={`https://www.googletagmanager.com/gtag/js?id=${settings.gaId}`}
+              strategy="afterInteractive"
+            />
+            <Script id="google-analytics" strategy="afterInteractive">
+              {`
                   window.dataLayer = window.dataLayer || [];
                   function gtag(){dataLayer.push(arguments);}
                   gtag('js', new Date());
                   gtag('config', '${settings.gaId}');
-                `,
-              }}
-            />
+              `}
+            </Script>
           </>
         )}
         {settings.gtagScript && (
@@ -140,7 +147,7 @@ export default async function RootLayout({
           ]}
         />
         <Header navigation={headerNavigation} megaMenusData={megaMenusData} />
-        <main className="overflow-x-hidden">{children}</main>
+        <main id="main-content" className="overflow-x-hidden">{children}</main>
         <Footer />
         <FloatingContact representatives={settings.representatives} />
       </body>

@@ -46,7 +46,7 @@ export function BlogGrid({ posts, categories }: { posts: BlogPost[]; categories:
         {filteredPosts.map((post) => (
           <Link key={post.slug} href={`/blog/${post.slug}`} className="group flex h-full flex-col overflow-hidden rounded-2xl border border-border bg-white transition-all">
             <div className="relative h-48 w-full border-b border-border bg-surface">
-              <Image src={post.image} alt={post.title} fill className="object-contain p-6" unoptimized />
+              <Image src={post.image} alt={post.title} fill sizes="(min-width: 1280px) 33vw, (min-width: 768px) 50vw, 100vw" className="object-contain p-6" />
             </div>
             <div className="flex flex-1 flex-col justify-between p-5">
               <div>

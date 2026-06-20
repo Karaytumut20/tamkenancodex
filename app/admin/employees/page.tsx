@@ -47,8 +47,8 @@ export default async function EmployeesPage() {
     const completed = empOrders.filter((o: any) => o.status === "Tamamlandı");
     const cancelled = empOrders.filter((o: any) => o.status === "İptal Edildi");
 
-    let completedCount = completed.length;
-    let cancelledCount = cancelled.length;
+    const completedCount = completed.length;
+    const cancelledCount = cancelled.length;
     let workHours = 0;
     let ciro = 0;
     let cost = 0;

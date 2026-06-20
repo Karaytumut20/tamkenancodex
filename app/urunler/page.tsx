@@ -22,42 +22,36 @@ export default async function ProductsPage() {
     getOksidProducts(),
   ]);
 
-  // Oksid ürünlerini mevcut ProductGrid'in beklediği shape'e dönüştür
-  const normalizedOksid = oksidProducts.map((p) => ({
-    ...p,
-    // ProductGrid'in beklediği eksik alanları tamamla
-    longDescription: "",
-    showFeatures: false,
-    showSpecs: false,
-    showBenefits: false,
-    benefits: [],
-    benefitsTitle: undefined,
-    benefitsDescription: undefined,
-    specsTitle: undefined,
-    specsDescription: undefined,
-    // SEO
-    robotsIndex: "index" as const,
-    robotsFollow: "follow" as const,
-    canonicalUrl: undefined,
-    ogTitle: undefined,
-    ogDescription: undefined,
-    twitterTitle: undefined,
-    twitterDescription: undefined,
-    twitterImage: undefined,
-    schemaType: "Product",
-    jsonLd: {},
-    sitemapInclude: true,
-    redirectTo: undefined,
-    relatedProductIds: [],
-  }));
-
-  const allProducts = [...dbProducts, ...normalizedOksid].filter(
+  const allProducts = [...dbProducts, ...oksidProducts].filter(
     (p) => 
       p.category !== "Sarf Malzeme ve Aksesuarlar" && 
       (p as any).categoryAlt !== "Sarf Malzeme ve Aksesuarlar"
   );
-  const categories = Array.from(new Set(allProducts.map((p) => p.category)));
-  const brands = Array.from(new Set(allProducts.map((p) => p.brand)));
+
+  // Only send fields used by the client-side grid. Product detail fields and
+  // image galleries can add megabytes to the RSC payload for large catalogs.
+  const gridProducts = allProducts.map((product: any) => ({
+    slug: product.slug,
+    name: product.name || product.title || "",
+    code: product.code || "",
+    category: product.category || "",
+    categoryAlt: product.categoryAlt || "",
+    brand: product.brand || "",
+    usage: Array.isArray(product.usage) ? product.usage : [],
+    description: product.description || "",
+    image: product.image || "/images/alarm-sistemi.svg",
+    tags: Array.isArray(product.tags) ? product.tags.slice(0, 8) : [],
+    features: Array.isArray(product.features)
+      ? product.features.slice(0, 8).map((feature: any) =>
+          typeof feature === "string"
+            ? feature
+            : `${feature.title || ""} ${feature.description || ""}`.trim(),
+        )
+      : [],
+  }));
+
+  const categories = Array.from(new Set(gridProducts.map((p) => p.category)));
+  const brands = Array.from(new Set(gridProducts.map((p) => p.brand)));
 
   // Alt kategorileri Oksid ürünlerinden çıkar
   const subCategories = Array.from(
@@ -79,7 +73,7 @@ export default async function ProductsPage() {
         <Container>
           <Suspense fallback={<div className="text-center py-12 text-ink-muted">Ürünler Yükleniyor...</div>}>
             <ProductGrid
-              initialProducts={allProducts as any}
+              initialProducts={gridProducts as any}
               initialCategories={categories}
               initialBrands={brands}
               initialSubCategories={subCategories}

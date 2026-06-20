@@ -49,8 +49,8 @@ export function ProductImageGallery({
                 src={img}
                 alt=""
                 fill
+                sizes="64px"
                 className="object-contain p-1.5 rounded-xl"
-                unoptimized
               />
             </button>
           ))}
@@ -98,8 +98,8 @@ export function ProductImageGallery({
             src={activeImage}
             alt=""
             fill
+            sizes="(min-width: 768px) 80vw, 100vw"
             className="object-contain filter saturate-100"
-            unoptimized
           />
         </div>
       </div>

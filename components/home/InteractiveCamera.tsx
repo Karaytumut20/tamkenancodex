@@ -233,7 +233,7 @@ export function InteractiveCamera() {
 
     // --- 5. Animation Loop ---
     let animationId: number;
-    let clock = new THREE.Clock();
+    const clock = new THREE.Clock();
 
     const animate = () => {
       animationId = requestAnimationFrame(animate);

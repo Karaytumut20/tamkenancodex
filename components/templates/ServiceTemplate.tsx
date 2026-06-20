@@ -145,7 +145,7 @@ Bu hizmet için detaylı bilgi ve teklif alabilir miyim?`);
                     "group-hover:scale-105 transition-transform duration-500",
                     page.heroImage.startsWith("http") ? "object-cover" : "object-contain p-8"
                   )}
-                  unoptimized
+                  sizes="(min-width: 1280px) 36vw, 100vw"
                 />
               </div>
 

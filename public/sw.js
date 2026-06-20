@@ -1,4 +1,4 @@
-const CACHE_NAME = 'primesec-pwa-cache-v1';
+const CACHE_NAME = 'primesec-pwa-cache-v2';
 const OFFLINE_URL = '/offline.html';
 
 const ASSETS_TO_CACHE = [
@@ -10,7 +10,7 @@ const ASSETS_TO_CACHE = [
   '/images/apple-touch-icon.png',
   '/images/android-chrome-192x192.png',
   '/images/android-chrome-512x512.png',
-  '/images/primesec-hero-cctv-v2.png',
+  '/images/primesec-hero-cctv-v2.webp',
 ];
 
 // Install Event

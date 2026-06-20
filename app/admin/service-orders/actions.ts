@@ -1,6 +1,8 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
+import fs from "node:fs";
+import path from "node:path";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { logActivity, generateServiceOrderNumber } from "@/lib/admin/service-system";
 
@@ -449,9 +451,6 @@ export async function uploadFileBase64(
   fileName: string
 ): Promise<{ success: boolean; url?: string; error?: string }> {
   try {
-    const fs = require("fs");
-    const path = require("path");
-    
     // Extract base64 content
     const base64Content = base64Data.includes(",") ? base64Data.split(",")[1] : base64Data;
     const buffer = Buffer.from(base64Content, "base64");
@@ -471,4 +470,3 @@ export async function uploadFileBase64(
     return { success: false, error: err instanceof Error ? err.message : "Dosya yüklenemedi." };
   }
 }
-

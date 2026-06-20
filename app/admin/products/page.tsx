@@ -16,7 +16,7 @@ export default async function ProductsPage() {
 
   // Oksid ürünleri (varsa)
   let oksidCount = 0;
-  let oksidKategoriler: Record<string, number> = {};
+  const oksidKategoriler: Record<string, number> = {};
   let oksidList: any[] = [];
   try {
     const { data: oksidData } = await supabase

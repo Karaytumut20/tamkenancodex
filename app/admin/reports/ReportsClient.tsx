@@ -149,8 +149,8 @@ export function ReportsClient({
     const completed = empOrders.filter((o) => o.status === "Tamamlandı");
     const cancelled = empOrders.filter((o) => o.status === "İptal Edildi");
 
-    let completedJobs = completed.length;
-    let cancelledJobs = cancelled.length;
+    const completedJobs = completed.length;
+    const cancelledJobs = cancelled.length;
     let workHours = 0;
     let ciro = 0;
     let cost = 0;
@@ -212,7 +212,7 @@ export function ReportsClient({
   const handleExportCSV = () => {
     let headers: string[] = [];
     let rows: string[][] = [];
-    let fileName = `rapor-${reportType}.csv`;
+    const fileName = `rapor-${reportType}.csv`;
 
     if (reportType === "gelir_gider") {
       headers = ["Finansal Kalem", "Tutar (TL)"];

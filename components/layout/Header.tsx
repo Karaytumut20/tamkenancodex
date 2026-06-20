@@ -2,17 +2,22 @@
 
 import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
+import dynamic from "next/dynamic";
 import { usePathname } from "next/navigation";
 import { ChevronDown, Menu, Phone, SlidersHorizontal } from "lucide-react";
 import { Logo } from "@/components/layout/Logo";
 import { MegaMenu } from "@/components/layout/MegaMenu";
-import { MobileMenu } from "@/components/layout/MobileMenu";
 import { ButtonLink } from "@/components/ui/Button";
 import { mainNavigation } from "@/data/navigation";
 import { type MegaMenuKey } from "@/data/mega-menu";
 import { whatsappUrl } from "@/lib/whatsapp";
 import { cn } from "@/lib/cn";
 import type { NavigationItem, MegaMenuData } from "@/lib/db";
+
+const MobileMenu = dynamic(
+  () => import("@/components/layout/MobileMenu").then((module) => module.MobileMenu),
+  { ssr: false },
+);
 
 type Props = {
   navigation?: NavigationItem[];
@@ -76,9 +81,12 @@ export function Header({ navigation = mainNavigation, megaMenusData = {} }: Prop
                   key={item.href}
                   className="relative flex items-center"
                   onMouseEnter={() => setActiveMenu(hasMenu ? (item.menuKey as MegaMenuKey) : null)}
+                  onFocus={() => setActiveMenu(hasMenu ? (item.menuKey as MegaMenuKey) : null)}
                 >
                   <Link
                     href={item.href}
+                    aria-haspopup={hasMenu ? "menu" : undefined}
+                    aria-expanded={hasMenu ? isOpen : undefined}
                     className={cn(
                       "group flex items-center gap-1.5 px-3 py-2 text-[13px] font-extrabold rounded-full transition-all duration-200 whitespace-nowrap",
                       isOpen
@@ -136,6 +144,8 @@ export function Header({ navigation = mainNavigation, megaMenusData = {} }: Prop
             <button
               className="flex h-9 w-9 items-center justify-center rounded-full border border-border text-ink hover:border-cyan-500 transition-colors"
               aria-label="Menüyü aç"
+              aria-expanded={mobileOpen}
+              aria-controls="mobile-navigation"
               onClick={() => setMobileOpen(true)}
             >
               <Menu className="h-5 w-5" />
@@ -150,7 +160,9 @@ export function Header({ navigation = mainNavigation, megaMenusData = {} }: Prop
           menuData={megaMenusData[activeMenu] ?? null}
         />
       ) : null}
-      <MobileMenu open={mobileOpen} onClose={() => setMobileOpen(false)} navigation={navigation} megaMenusData={megaMenusData} />
+      {mobileOpen && (
+        <MobileMenu open onClose={() => setMobileOpen(false)} navigation={navigation} megaMenusData={megaMenusData} />
+      )}
     </header>
   );
 }

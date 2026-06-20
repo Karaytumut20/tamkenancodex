@@ -28,9 +28,9 @@ import { ButtonLink } from "@/components/ui/Button";
 import { Container } from "@/components/ui/Container";
 import { type Product } from "@/data/products";
 import { siteConfig } from "@/data/site";
-import { productWhatsappUrl } from "@/lib/whatsapp";
+import { productWhatsappUrl, whatsappUrl as buildWhatsAppUrl } from "@/lib/whatsapp";
 import { buildMetadata } from "@/lib/seo";
-import { getProductBySlug, getProducts, getOksidProductBySlug, getOksidProducts, type OksidProduct } from "@/lib/db";
+import { getProductBySlug, getProducts, getOksidProductBySlug, getOksidProducts, getSiteSettings, type OksidProduct } from "@/lib/db";
 import { ProductImageGallery } from "@/components/products/ProductImageGallery";
 import { breadcrumbSchema, faqSchema } from "@/data/schemas";
 
@@ -125,11 +125,17 @@ export default async function ProductDetailPage({
   params: Promise<{ slug: string }>;
 }) {
   const { slug } = await params;
+  const settings = await getSiteSettings();
+  const representatives = settings.representatives || [];
+  const omer = representatives.find((representative) =>
+    representative.name.toLocaleLowerCase("tr-TR").includes("ömer"),
+  );
+  const productWhatsApp = omer?.whatsapp || representatives[1]?.whatsapp || "905519542605";
 
   // Önce Oksid ürününü kontrol et
   const oksidProduct = await getOksidProductBySlug(slug);
   if (oksidProduct) {
-    return <OksidProductPage product={oksidProduct} />;
+    return <OksidProductPage product={oksidProduct} productWhatsApp={productWhatsApp} />;
   }
 
   const product = await getProductBySlug(slug);
@@ -143,7 +149,6 @@ export default async function ProductDetailPage({
   const allOksidProducts = await getOksidProducts();
   const related = [...allOksidProducts]
     .filter((p) => p.slug !== product.slug)
-    .sort(() => 0.5 - Math.random())
     .slice(0, 4);
 
   const copy = buildProductCopy(product);
@@ -251,7 +256,7 @@ export default async function ProductDetailPage({
 
             <div className="pt-4 md:pt-6">
               <ButtonLink
-                href={productWhatsappUrl(product)}
+                href={productWhatsappUrl(product, productWhatsApp)}
                 variant="whatsapp"
                 className="inline-flex h-14 sm:h-15 items-center justify-center px-6 sm:px-10 text-sm sm:text-base font-extrabold text-white shadow-xl shadow-[#25D366]/20 hover:scale-[1.03] active:scale-[0.97] transition-all rounded-2xl bg-[#25D366] hover:bg-[#20ba59] w-full sm:w-auto"
               >
@@ -334,9 +339,8 @@ export default async function ProductDetailPage({
                 src={product.image}
                 alt={`${product.name} Teknik Görünüm`}
                 fill
-                className="object-cover transition-transform duration-700 group-hover:scale-105"
+                className="object-contain p-6 transition-transform duration-700 group-hover:scale-105"
                 sizes="(max-width: 1024px) 100vw, 50vw"
-                priority
               />
             </div>
 
@@ -476,7 +480,7 @@ export default async function ProductDetailPage({
                 }
                 alt={`${product.name} Kullanım Detayı`}
                 fill
-                className="object-cover transition-transform duration-700 group-hover:scale-105"
+                className="object-contain p-6 transition-transform duration-700 group-hover:scale-105"
                 sizes="(max-width: 1024px) 100vw, 50vw"
               />
             </div>
@@ -654,7 +658,7 @@ function buildProductCopy(product: Product | any) {
 // Oksid Ürün Detay Sayfası — XML kaynaklı ürünler için premium layout
 // Fiyat / döviz bilgisi HİÇBİR YERDE render edilmez.
 // ─────────────────────────────────────────────────────────────────────────────
-async function OksidProductPage({ product }: { product: OksidProduct }) {
+async function OksidProductPage({ product, productWhatsApp }: { product: OksidProduct; productWhatsApp: string }) {
   const tumOksidUrunler = await getOksidProducts();
   // İlgili ürünler (kategori ismi içindeki kelimelerden herhangi biri eşleşen ürünler)
   const getCleanWords = (cat: string) => 
@@ -671,7 +675,7 @@ async function OksidProductPage({ product }: { product: OksidProduct }) {
   const ozellikEntries = Object.entries(product.ozellikler);
 
   const whatsappMesaj = `Merhaba, ${product.name} ürünü hakkında bilgi almak istiyorum. Ürün Kodu: ${product.code}`;
-  const whatsappUrl = `https://wa.me/905000000000?text=${encodeURIComponent(whatsappMesaj)}`;
+  const whatsappUrl = buildWhatsAppUrl(whatsappMesaj, productWhatsApp);
 
   const schema = {
     "@context": "https://schema.org",
@@ -912,4 +916,3 @@ async function OksidProductPage({ product }: { product: OksidProduct }) {
     </div>
   );
 }
-

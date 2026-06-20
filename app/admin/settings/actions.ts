@@ -69,6 +69,7 @@ export async function saveSetting(
 
     revalidatePath("/admin/settings");
     revalidatePath("/");
+    revalidatePath("/urunler", "layout");
     return { success: true, error: null };
   } catch (err) {
     return { success: false, error: err instanceof Error ? err.message : "Bilinmeyen hata oluştu." };
