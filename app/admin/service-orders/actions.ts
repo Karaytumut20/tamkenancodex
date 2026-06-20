@@ -470,3 +470,61 @@ export async function uploadFileBase64(
     return { success: false, error: err instanceof Error ? err.message : "Dosya yüklenemedi." };
   }
 }
+
+export async function createDirectServiceOrder(input: {
+  customer_id: string;
+  service_name: string;
+  service_price: number;
+  appointment_date?: string;
+  start_time?: string;
+}) {
+  const supabase = await createSupabaseServerClient();
+  try {
+    let appointmentId = null;
+
+    // Eğer tarih girilmişse takvime (appointment) de ekle
+    if (input.appointment_date && input.start_time) {
+      const { data: appData, error: appErr } = await supabase
+        .from('appointments')
+        .insert({
+          customer_id: input.customer_id,
+          appointment_date: input.appointment_date,
+          start_time: input.start_time,
+          end_time: `${Number(input.start_time.split(':')[0]) + 1}:00`, // default 1 hour later
+          service_type: input.service_name,
+          priority: 'normal',
+          status: 'Planlandı',
+        })
+        .select()
+        .single();
+        
+      if (appErr) throw new Error("Takvim randevusu oluşturulamadı: " + appErr.message);
+      appointmentId = appData.id;
+    }
+
+    // İş Emrini Oluştur
+    const orderNumber = await generateServiceOrderNumber();
+    const { data: orderData, error: orderErr } = await supabase
+      .from('service_orders')
+      .insert({
+        order_number: orderNumber,
+        appointment_id: appointmentId,
+        customer_id: input.customer_id,
+        labor_price: input.service_price, // Hizmet satış fiyatı
+        status: 'Taslak',
+      })
+      .select()
+      .single();
+
+    if (orderErr) throw new Error("İş emri oluşturulamadı: " + orderErr.message);
+
+    await recalculateOrderTotals(orderData.id, supabase);
+    
+    revalidatePath("/admin/service-orders");
+    if (appointmentId) revalidatePath("/admin/calendar");
+    
+    return { success: true, order_id: orderData.id };
+  } catch (err) {
+    return { success: false, error: err instanceof Error ? err.message : "Sistem hatası." };
+  }
+}

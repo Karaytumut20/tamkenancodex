@@ -19,12 +19,13 @@ export default async function ServiceOrdersPage({ searchParams }: { searchParams
   let query = supabase
     .from("service_orders")
     .select(`
-      *,
+      id, order_number, created_at, total_cost, grand_total, paid_amount, status,
       customer:customer_id (id, name, phone, type),
       appointment:appointment_id (appointment_date, start_time, service_type)
     `)
     .is("deleted_at", null)
-    .order("created_at", { ascending: false });
+    .order("created_at", { ascending: false })
+    .limit(1000);
 
   if (statusFilter) {
     query = query.eq("status", statusFilter);
@@ -74,10 +75,10 @@ export default async function ServiceOrdersPage({ searchParams }: { searchParams
         description="Müşteri şikayetleri, kullanılan malzemeler, işçilik maliyeti ve tahsilat takibini yapın."
         action={
           <Link
-            href="/admin/calendar"
+            href="/admin/service-orders/new"
             className="inline-flex h-12 items-center gap-2 rounded-xl bg-cyan-600 border-2 border-cyan-700 px-6 text-base font-black text-white hover:bg-cyan-700 transition-colors"
           >
-            <Plus className="h-5 w-5" /> Yeni İş Emri (Takvimden)
+            <Plus className="h-5 w-5" /> Yeni İş Emri Oluştur
           </Link>
         }
       />

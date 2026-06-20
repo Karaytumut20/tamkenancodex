@@ -11,9 +11,10 @@ export default async function StocksPage() {
   // Fetch all active stock items
   const { data: materials } = await supabase
     .from("materials")
-    .select("*")
+    .select("id, name, stock_quantity, min_stock_level")
     .is("deleted_at", null)
-    .order("name", { ascending: true });
+    .order("name", { ascending: true })
+    .limit(1000);
 
   return (
     <ProtectedAdminPage>
