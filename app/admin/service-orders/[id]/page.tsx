@@ -85,6 +85,7 @@ export default async function ServiceOrderDetailPage({ params }: { params: Promi
       <AdminPageHeader
         title="🛠️ İş Emri Detayı"
         description="Servis işlemlerini ve maliyet hesaplarını buradan yönetin."
+        showBackButton={true}
       />
       <ServiceOrderClient
         order={order}

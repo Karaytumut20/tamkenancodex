@@ -4,13 +4,12 @@ import { Container } from "@/components/ui/Container";
 import { Logo } from "@/components/layout/Logo";
 import { brands } from "@/data/products";
 import { locations } from "@/data/locations";
-import { getProducts, getServices, getSiteSettings, type SiteSettings } from "@/lib/db";
+import { getServices, getSiteSettings, type SiteSettings } from "@/lib/db";
 
 export async function Footer() {
-  const [settings, services, products] = await Promise.all([
+  const [settings, services] = await Promise.all([
     getSiteSettings(),
     getServices(),
-    getProducts(),
   ]);
   const footerServices = [
     { label: "CCTV Kamera", href: "/kamera-sistemleri/cctv-kamera" },
@@ -43,16 +42,12 @@ export async function Footer() {
             </p>
             <FooterContact settings={settings} />
           </div>
- 
-          {/* Link columns — 2-up on tablet, each in own column on desktop */}
-          <div className="grid grid-cols-2 gap-x-5 gap-y-8 sm:col-span-2 sm:grid-cols-2 xl:col-span-4 xl:grid-cols-4">
+
+          {/* Link columns — 4-up on sm/desktop */}
+          <div className="grid grid-cols-2 gap-x-5 gap-y-8 sm:col-span-2 sm:grid-cols-4 xl:col-span-4 xl:grid-cols-4">
             <FooterColumn
               title="Hizmetler"
               links={footerServices}
-            />
-            <FooterColumn
-              title="Ürünler"
-              links={products.slice(0, 10).map((product) => ({ label: product.name, href: `/urunler/${product.slug}` }))}
             />
             <FooterColumn
               title="Markalar"
@@ -61,6 +56,10 @@ export async function Footer() {
             <FooterColumn
               title="Hizmet Bölgeleri"
               links={locations.slice(0, 8).map((location) => ({ label: location.title, href: `/${location.slug}` }))}
+            />
+            <FooterColumn
+              title="Diğer Bölgeler"
+              links={locations.slice(8, 16).map((location) => ({ label: location.title, href: `/${location.slug}` }))}
             />
           </div>
         </div>

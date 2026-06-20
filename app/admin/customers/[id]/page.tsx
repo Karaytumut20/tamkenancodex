@@ -79,6 +79,7 @@ export default async function CustomerDetailPage({ params }: { params: Promise<{
       <AdminPageHeader
         title={`👥 ${customer.name}`}
         description={`${customer.type === "kurumsal" ? "Kurumsal Müşteri Profili" : "Bireysel Müşteri Profili"}`}
+        showBackButton={true}
       />
       <CustomerProfileClient
         customer={customer}

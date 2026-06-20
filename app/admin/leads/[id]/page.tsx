@@ -11,7 +11,11 @@ export default async function LeadDetailPage({ params }: { params: Promise<{ id:
   const phone = row?.phone ? String(row.phone).replace(/\s+/g, "") : "";
   return (
     <ProtectedAdminPage roles={adminResources.leads.roles}>
-      <AdminPageHeader title="Lead Detayı" description="Müşteri bilgileri, durum ve sistem tasarla metadata özeti." />
+      <AdminPageHeader 
+        title="Lead Detayı" 
+        description="Müşteri bilgileri, durum ve sistem metadata özeti." 
+        showBackButton={true}
+      />
       <div className="grid gap-6 xl:grid-cols-[1fr_360px]">
         <ResourceForm resource={adminResources.leads} row={row} />
         <aside className="space-y-4">
