@@ -28,6 +28,7 @@ insert into public.brands (name, slug, sort_order, is_featured, is_active) value
   ('Dahua', 'dahua', 20, true, true),
   ('TTEC', 'ttec', 30, false, true),
   ('UNV', 'unv', 40, true, true),
+  
   ('Xmeye', 'xmeye', 50, false, true),
   ('Reolink', 'reolink', 60, true, true),
   ('Inox', 'inox', 70, false, true),
