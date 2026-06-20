@@ -179,7 +179,7 @@ export function ServiceGrid({ dynamicData }: ServiceGridProps) {
 
   const visible = useMemo(() => {
     return filtered;
-  }, [filtered, tab]);
+  }, [filtered]);
 
   const pageCount = Math.max(1, visible.length - 3);
   const desktopVisible = visible.slice(cardPage, cardPage + 4);

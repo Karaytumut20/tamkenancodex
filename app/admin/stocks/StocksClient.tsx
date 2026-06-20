@@ -80,6 +80,9 @@ export function StocksClient({ materials }: Props) {
       id: formId || undefined,
       name: formName,
       stock_quantity: formQty,
+      min_stock_level: 0,
+      buying_price: 0,
+      selling_price: 0,
       is_active: true,
     });
 
