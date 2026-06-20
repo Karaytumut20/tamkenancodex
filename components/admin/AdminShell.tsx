@@ -16,22 +16,34 @@ import {
   AppWindow,
   SlidersHorizontal,
   HelpCircle,
+  Calendar,
+  Users,
+  Wrench,
+  Package,
+  Contact,
+  BarChart3,
 } from "lucide-react";
 import { signOutAdmin } from "@/lib/admin/actions";
 import type { AdminProfile } from "@/lib/admin/auth";
 
 const navItems = [
   { href: "/admin", label: "Ana Sayfa", icon: Home, desc: "Genel durum" },
-  { href: "/admin/leads", label: "Gelen Mesajlar", icon: MessageCircle, desc: "Müşteri talepleri" },
-  { href: "/admin/products", label: "Ürünler", icon: Boxes, desc: "Ürün ekle / düzenle" },
-  { href: "/admin/brands", label: "Markalar", icon: Tags, desc: "Marka yönetimi" },
-  { href: "/admin/mega-menu", label: "Mega Menüler", icon: AppWindow, desc: "Navbar menüleri" },
-  { href: "/admin/system-builder", label: "Sistem Tasarla", icon: SlidersHorizontal, desc: "Sihirbaz ayarları" },
-  { href: "/admin/homepage/featured-products", label: "Öne Çıkanlar", icon: Boxes, desc: "Ana sayfa ürünleri" },
-  { href: "/admin/homepage/services", label: "Hizmet Alanları", icon: AppWindow, desc: "Ana sayfa hizmetleri" },
-  { href: "/admin/faqs", label: "Sık Sorulan Sorular", icon: HelpCircle, desc: "Soru ve cevaplar" },
-  { href: "/admin/blog", label: "Blog Yazıları", icon: BookOpen, desc: "Haber ve yazılar" },
-  { href: "/admin/settings", label: "İletişim Bilgileri", icon: Phone, desc: "Telefon, adres" },
+  { href: "/admin/calendar", label: "Takvim", icon: Calendar, desc: "Randevu planı" },
+  { href: "/admin/customers", label: "Müşteriler", icon: Users, desc: "Müşteri rehberi", roles: ["super_admin", "editor", "support", "viewer"] },
+  { href: "/admin/service-orders", label: "İş Emirleri", icon: Wrench, desc: "Servis formları" },
+  { href: "/admin/stocks", label: "Stok & Malzeme", icon: Package, desc: "Stok miktarları", roles: ["super_admin", "editor", "support", "viewer"] },
+  { href: "/admin/employees", label: "Personeller", icon: Contact, desc: "Çalışma saatleri", roles: ["super_admin", "editor", "viewer"] },
+  { href: "/admin/reports", label: "Raporlar", icon: BarChart3, desc: "Kâr & performans", roles: ["super_admin", "support", "viewer"] },
+  { href: "/admin/leads", label: "Gelen Mesajlar", icon: MessageCircle, desc: "Müşteri talepleri", roles: ["super_admin", "editor", "support", "viewer"] },
+  { href: "/admin/products", label: "Ürünler", icon: Boxes, desc: "Ürün yönetimi", roles: ["super_admin", "editor", "viewer"] },
+  { href: "/admin/brands", label: "Markalar", icon: Tags, desc: "Marka yönetimi", roles: ["super_admin", "editor", "viewer"] },
+  { href: "/admin/mega-menu", label: "Mega Menüler", icon: AppWindow, desc: "Navbar menüleri", roles: ["super_admin", "editor", "viewer"] },
+  { href: "/admin/system-builder", label: "Sistem Tasarla", icon: SlidersHorizontal, desc: "Sihirbaz ayarları", roles: ["super_admin", "editor", "viewer"] },
+  { href: "/admin/homepage/featured-products", label: "Öne Çıkanlar", icon: Boxes, desc: "Ana sayfa ürünleri", roles: ["super_admin", "editor", "viewer"] },
+  { href: "/admin/homepage/services", label: "Hizmet Alanları", icon: AppWindow, desc: "Ana sayfa hizmetleri", roles: ["super_admin", "editor", "viewer"] },
+  { href: "/admin/faqs", label: "Sık Sorulan Sorular", icon: HelpCircle, desc: "Soru ve cevaplar", roles: ["super_admin", "editor", "viewer"] },
+  { href: "/admin/blog", label: "Blog Yazıları", icon: BookOpen, desc: "Haber ve yazılar", roles: ["super_admin", "editor", "viewer"] },
+  { href: "/admin/settings", label: "Site & Genel Ayarlar", icon: Phone, desc: "Pop-up, iletişim vb.", roles: ["super_admin", "editor", "viewer"] },
 ];
 
 export function AdminShell({
@@ -43,6 +55,11 @@ export function AdminShell({
 }) {
   const pathname = usePathname();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+
+  const visibleNavItems = navItems.filter((item) => {
+    if (!item.roles) return true;
+    return item.roles.includes(profile.role);
+  });
 
   const renderNavLink = (item: (typeof navItems)[0]) => {
     const isActive = pathname === item.href || (item.href !== "/admin" && pathname.startsWith(item.href + "/"));
@@ -67,6 +84,7 @@ export function AdminShell({
     );
   };
 
+
   return (
     <div className="min-h-screen bg-slate-50 text-slate-900 font-sans antialiased">
       {/* Desktop Sidebar */}
@@ -79,7 +97,7 @@ export function AdminShell({
         </div>
 
         <nav className="flex-1 overflow-y-auto p-4 space-y-2">
-          {navItems.map(renderNavLink)}
+          {visibleNavItems.map(renderNavLink)}
         </nav>
 
         <div className="border-t-2 border-slate-100 p-4">
@@ -126,7 +144,7 @@ export function AdminShell({
                 </button>
               </div>
               <div className="flex-1 overflow-y-auto p-4 space-y-2">
-                {navItems.map(renderNavLink)}
+                {visibleNavItems.map(renderNavLink)}
               </div>
               <div className="border-t-2 border-slate-100 p-4">
                 <form action={signOutAdmin}>

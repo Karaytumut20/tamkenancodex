@@ -51,6 +51,18 @@ export async function POST(req: NextRequest) {
     }
 
     const supabase = getSupabaseAdmin();
+
+    // Check if another section already uses this menu_key
+    const { data: existingDup } = await supabase
+      .from("mega_menu_sections")
+      .select("id")
+      .eq("menu_key", finalKey)
+      .maybeSingle();
+
+    if (existingDup) {
+      return NextResponse.json({ error: "Bu menü yolu (slug) zaten başka bir menü tarafından kullanılıyor. Lütfen farklı bir başlık veya yol belirleyin." }, { status: 400 });
+    }
+
     const { data, error } = await supabase
       .from("mega_menu_sections")
       .insert({
@@ -116,6 +128,7 @@ export async function PUT(req: NextRequest) {
 
   try {
     const { id, title, menu_key, eyebrow, is_active } = await req.json();
+    console.log("MEGA-MENU PUT payload:", { id, title, menu_key, eyebrow, is_active });
     if (!id) {
       return NextResponse.json({ error: "Kimlik (id) zorunludur" }, { status: 400 });
     }
@@ -124,11 +137,24 @@ export async function PUT(req: NextRequest) {
     }
 
     const finalKey = menu_key?.trim() ? slugify(menu_key) : slugify(title);
+    console.log("MEGA-MENU PUT calculated finalKey:", finalKey);
     if (!finalKey) {
       return NextResponse.json({ error: "Geçersiz menü yolu (path)" }, { status: 400 });
     }
 
     const supabase = getSupabaseAdmin();
+
+    // Check if another section already uses this menu_key
+    const { data: existingDup } = await supabase
+      .from("mega_menu_sections")
+      .select("id")
+      .eq("menu_key", finalKey)
+      .neq("id", id)
+      .maybeSingle();
+
+    if (existingDup) {
+      return NextResponse.json({ error: "Bu menü yolu (slug) zaten başka bir menü tarafından kullanılıyor. Lütfen farklı bir başlık veya yol belirleyin." }, { status: 400 });
+    }
 
     // Get the current section to find the old menuKey
     const { data: currentSection, error: fetchError } = await supabase
@@ -138,10 +164,12 @@ export async function PUT(req: NextRequest) {
       .maybeSingle();
 
     if (fetchError || !currentSection) {
+      console.error("MEGA-MENU PUT fetchError or section not found:", { fetchError, id });
       return NextResponse.json({ error: "Menü grubu bulunamadı" }, { status: 404 });
     }
 
     const oldKey = currentSection.menu_key;
+    console.log("MEGA-MENU PUT oldKey:", oldKey, "newKey:", finalKey);
 
     // Update mega_menu_sections
     const { data, error } = await supabase
@@ -157,7 +185,7 @@ export async function PUT(req: NextRequest) {
       .single();
 
     if (error) {
-      console.error("Error updating section:", error);
+      console.error("Error updating section in Supabase:", error);
       return NextResponse.json({ error: `Güncelleme başarısız: ${error.message}` }, { status: 500 });
     }
 

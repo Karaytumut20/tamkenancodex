@@ -140,24 +140,11 @@ export default async function ProductDetailPage({
     redirect(product.redirectTo);
   }
 
-  const allProducts = await getProducts();
-
-  // Real DB-driven Related Products logic
-  let related: any[] = [];
-  if (product.relatedProductIds && product.relatedProductIds.length > 0) {
-    related = allProducts.filter((p: any) =>
-      product.relatedProductIds.includes(p.id || p.slug),
-    );
-  }
-  // Fallback to same category if admin hasn't set specific relations
-  if (related.length === 0) {
-    related = allProducts
-      .filter(
-        (item: any) =>
-          item.category === product.category && item.slug !== product.slug,
-      )
-      .slice(0, 4);
-  }
+  const allOksidProducts = await getOksidProducts();
+  const related = [...allOksidProducts]
+    .filter((p) => p.slug !== product.slug)
+    .sort(() => 0.5 - Math.random())
+    .slice(0, 4);
 
   const copy = buildProductCopy(product);
   const visuals = getCategoryVisuals(product.category);
@@ -326,9 +313,7 @@ export default async function ProductDetailPage({
                           "PrimeSec Teknoloji bu avantajı doğru konumlandırma, kaliteli montaj ve üstün servis süreciyle sürekli kılar."}
                       </p>
                     </div>
-                    <div className="mt-4 sm:mt-6 flex items-center gap-1.5 text-[10px] sm:text-xs font-bold text-cyan-400 opacity-0 group-hover:opacity-100 transition-opacity">
-                      Detaylar <ArrowUpRight className="h-3 w-3" />
-                    </div>
+
                   </div>
                 );
               })}
@@ -677,12 +662,9 @@ async function OksidProductPage({ product }: { product: OksidProduct }) {
     
   const productCatWords = getCleanWords(product.categoryAlt || product.category);
   
-  const ilgiliUrunler = tumOksidUrunler
-    .filter((p) => {
-      if (p.slug === product.slug) return false;
-      const pCatWords = getCleanWords(p.categoryAlt || p.category);
-      return pCatWords.some(w => productCatWords.includes(w));
-    })
+  const ilgiliUrunler = [...tumOksidUrunler]
+    .filter((p) => p.slug !== product.slug)
+    .sort(() => 0.5 - Math.random())
     .slice(0, 4);
 
   const stokVar = product.stokAdet > 0;

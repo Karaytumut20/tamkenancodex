@@ -13,7 +13,29 @@ type SettingItem = {
 };
 
 function SettingCard({ item }: { item: SettingItem }) {
-  const isTextArea = item.key === "seo.gtag_script" || item.key === "site.description";
+  const isTextArea = item.key === "seo.gtag_script" || item.key === "site.description" || item.key === "popup.content";
+  
+  if (item.key === "popup.active") {
+    return (
+      <div className="rounded-xl border-2 border-slate-200 bg-white p-5 shadow-sm">
+        <label className="block">
+          <span className="text-lg font-black text-slate-800">{item.label}</span>
+          {item.helpText && (
+            <span className="block text-sm font-medium text-slate-400 mt-1">{item.helpText}</span>
+          )}
+          <select
+            name={item.key}
+            defaultValue={item.currentValue || "false"}
+            className="mt-3 w-full rounded-xl border-2 border-slate-200 bg-white px-4 h-14 text-base font-semibold outline-none focus:border-cyan-500 focus:ring-2 focus:ring-cyan-100 transition-colors"
+          >
+            <option value="true">Aktif (Sitede Gösterilsin)</option>
+            <option value="false">Pasif (Gösterilmesin)</option>
+          </select>
+        </label>
+      </div>
+    );
+  }
+
   return (
     <div className={`rounded-xl border-2 border-slate-200 bg-white p-5 shadow-sm ${isTextArea ? "md:col-span-2" : ""}`}>
       <label className="block">
@@ -26,12 +48,12 @@ function SettingCard({ item }: { item: SettingItem }) {
             name={item.key}
             defaultValue={item.currentValue}
             placeholder={item.placeholder}
-            rows={6}
+            rows={item.key === "popup.content" ? 3 : 6}
             className="mt-3 w-full rounded-xl border-2 border-slate-200 bg-white p-4 text-base font-semibold outline-none focus:border-cyan-500 focus:ring-2 focus:ring-cyan-100 transition-colors font-mono text-sm"
           />
         ) : (
           <input
-            type="text"
+            type={item.key === "popup.cooldown" ? "number" : "text"}
             name={item.key}
             defaultValue={item.currentValue}
             placeholder={item.placeholder}
@@ -46,10 +68,11 @@ function SettingCard({ item }: { item: SettingItem }) {
 export function SettingsForm({ items }: { items: SettingItem[] }) {
   const [state, formAction] = useActionState(saveSetting, { success: false, error: null });
 
-  // Split into contact, site and seo groups
+  // Split into contact, site, seo and popup groups
   const contactItems = items.filter((i) => i.key.startsWith("contact."));
   const siteItems = items.filter((i) => i.key.startsWith("site."));
   const seoItems = items.filter((i) => i.key.startsWith("seo."));
+  const popupItems = items.filter((i) => i.key.startsWith("popup."));
 
   return (
     <form action={formAction} className="space-y-6">
@@ -64,8 +87,18 @@ export function SettingsForm({ items }: { items: SettingItem[] }) {
         </div>
       )}
 
+      {/* Pop-up Campaign info */}
+      <section className="border-b-2 border-slate-100 pb-6">
+        <h3 className="text-xl font-black text-slate-800 mb-3">📢 Anasayfa Kampanya Pop-up Ayarları</h3>
+        <div className="grid gap-4 md:grid-cols-2">
+          {popupItems.map((item) => (
+            <SettingCard key={item.key} item={item} />
+          ))}
+        </div>
+      </section>
+
       {/* Contact info */}
-      <section>
+      <section className="border-b-2 border-slate-100 pb-6">
         <h3 className="text-xl font-black text-slate-800 mb-3">📞 İletişim Bilgileri</h3>
         <div className="grid gap-4 md:grid-cols-2">
           {contactItems.map((item) => (
@@ -75,7 +108,7 @@ export function SettingsForm({ items }: { items: SettingItem[] }) {
       </section>
 
       {/* Site info */}
-      <section>
+      <section className="border-b-2 border-slate-100 pb-6">
         <h3 className="text-xl font-black text-slate-800 mb-3">🌐 Firma Bilgileri</h3>
         <div className="grid gap-4 md:grid-cols-2">
           {siteItems.map((item) => (

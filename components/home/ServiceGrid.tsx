@@ -1,8 +1,8 @@
 "use client";
 
 import Link from "next/link";
-import { ChevronRight } from "lucide-react";
-import { useMemo, useState } from "react";
+import { ChevronRight, ChevronLeft } from "lucide-react";
+import { useMemo, useState, useRef, useEffect } from "react";
 import { cn } from "@/lib/cn";
 
 type ServiceCard = {
@@ -16,12 +16,14 @@ type ServiceCard = {
 const defaultServices: ServiceCard[] = [
   { title: "CCTV Kamera", description: "Yüksek çözünürlüklü kamera ve kayıt sistemleri.", href: "/kamera-sistemleri/cctv-kamera", image: "/images/kamera-sistemi.svg", category: "Kamera" },
   { title: "Hırsız Alarm", description: "Ev ve iş yerleri için 7/24 alarm koruması.", href: "/alarm-sistemleri", image: "/images/alarm-sistemi.svg", category: "Alarm" },
-  { title: "Akıllı Ev Sistemleri", description: "Konfor ve güvenliği tek uygulamada yönetin.", href: "/akilli-ev-sistemleri", image: "/images/akilli-ev.svg", category: "Akıllı Ev" },
-  { title: "Network Çözümleri", description: "Kamera ve ofis cihazları için stabil altyapı.", href: "/network-cozumleri", image: "/images/network.svg", category: "Network" },
   { title: "Yangın İhbar", description: "Erken algılama ve profesyonel yangın ihbar çözümleri.", href: "/yangin-ihbar-sistemleri", image: "/images/yangin-alarm.svg", category: "Alarm" },
+  { title: "Araç Takip", description: "Filo ve araç güvenliği için canlı takip.", href: "/arac-takip-sistemleri", image: "/images/arac-takip.svg", category: "Kurumsal" },
+  { title: "Araç Kamerası", description: "Araç içi ve dışı kayıt çözümleriyle yolculuklarınızı kayıt altında tutun.", href: "/arac-kamerasi", image: "/images/arac-takip.svg", category: "Kamera" },
   { title: "Personel Takip PDKS", description: "Personel giriş çıkışlarını raporlayan sistemler.", href: "/personel-takip-pdks", image: "/images/pdks.svg", category: "Kurumsal" },
   { title: "Kapı Geçiş Sistemleri", description: "Kartlı geçiş ve kontrollü erişim çözümleri.", href: "/kapi-gecis-sistemleri", image: "/images/pdks.svg", category: "Kurumsal" },
-  { title: "Araç Takip", description: "Filo ve araç güvenliği için canlı takip.", href: "/arac-takip-sistemleri", image: "/images/arac-takip.svg", category: "Kurumsal" },
+  { title: "IP Diafon Sistemleri", description: "Apartman, site ve ofisler için görüntülü IP diafon çözümleri.", href: "/ip-diafon-sistemleri", image: "/images/akilli-ev.svg", category: "Akıllı Ev" },
+  { title: "Restoran POS Yazılımı", description: "Restoran ve kafeler için sipariş, masa ve ödeme çözümleri.", href: "/restoran-pos-yazilimi", image: "/images/network.svg", category: "Kurumsal" },
+  { title: "Network Çözümleri", description: "Kamera ve ofis cihazları için stabil altyapı.", href: "/network-cozumleri", image: "/images/network.svg", category: "Network" },
 ];
 
 const defaultTabs = ["Tümü", "Kamera", "Alarm", "Akıllı Ev", "Kurumsal", "Network"];
@@ -37,9 +39,11 @@ export function ServiceGrid({ dynamicData }: ServiceGridProps) {
   // Veritabanında veri yoksa varsayılanları kullan
   const hasDynamicData = dynamicData && dynamicData.tabs && dynamicData.tabs.length > 0;
   
-  const tabs = hasDynamicData 
-    ? ["Tümü", ...dynamicData.tabs.map(t => t.title)] 
-    : defaultTabs;
+  const tabs = useMemo(() => {
+    return hasDynamicData 
+      ? ["Tümü", ...dynamicData.tabs.map(t => t.title)] 
+      : defaultTabs;
+  }, [dynamicData, hasDynamicData]);
     
   const services = hasDynamicData
     ? dynamicData.services.map(s => {
@@ -56,19 +60,49 @@ export function ServiceGrid({ dynamicData }: ServiceGridProps) {
 
   const [tab, setTab] = useState("Tümü");
   const filtered = useMemo(() => (tab === "Tümü" ? services : services.filter((service) => service.category === tab)), [tab, services]);
-  const visible = useMemo(() => {
-    const list = [...filtered.slice(0, 4)];
-    while (list.length < 4) {
-      list.push({
-        title: `placeholder-${list.length}`,
-        description: "",
-        href: "",
-        image: "",
-        category: "",
-        placeholder: true,
-      } as any);
+  
+  const scrollRef = useRef<HTMLDivElement>(null);
+  const [canScrollLeft, setCanScrollLeft] = useState(false);
+  const [canScrollRight, setCanScrollRight] = useState(false);
+
+  const checkScroll = () => {
+    const el = scrollRef.current;
+    if (el) {
+      const { scrollLeft, scrollWidth, clientWidth } = el;
+      setCanScrollLeft(scrollLeft > 1);
+      setCanScrollRight(scrollLeft < scrollWidth - clientWidth - 1);
     }
-    return list;
+  };
+
+  useEffect(() => {
+    const el = scrollRef.current;
+    if (el) {
+      checkScroll();
+      // Use standard delay to ensure elements are layout-complete
+      const timer = setTimeout(checkScroll, 100);
+      el.addEventListener("scroll", checkScroll);
+      window.addEventListener("resize", checkScroll);
+      return () => {
+        clearTimeout(timer);
+        el.removeEventListener("scroll", checkScroll);
+        window.removeEventListener("resize", checkScroll);
+      };
+    }
+  }, [tabs]);
+
+  const scrollTabs = (direction: "left" | "right") => {
+    const el = scrollRef.current;
+    if (el) {
+      const scrollAmount = 200;
+      el.scrollBy({
+        left: direction === "left" ? -scrollAmount : scrollAmount,
+        behavior: "smooth",
+      });
+    }
+  };
+
+  const visible = useMemo(() => {
+    return filtered;
   }, [filtered]);
 
   return (
@@ -90,46 +124,90 @@ export function ServiceGrid({ dynamicData }: ServiceGridProps) {
             </div>
             <h2 className="text-2xl md:text-3xl font-black tracking-[-0.03em] text-ink">Güvenlik hizmet alanları</h2>
           </div>
-          <div className="flex items-center gap-2 overflow-x-auto max-w-full -mx-4 px-4 md:mx-0 md:px-0 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden whitespace-nowrap flex-nowrap scroll-smooth py-1">
-            {tabs.map((item) => (
+          
+          <div className="relative w-full">
+            {/* Left Scroll Gradient Overlay */}
+            <div
+              className={cn(
+                "absolute left-0 top-0 bottom-0 w-12 bg-gradient-to-r from-white via-white/80 to-transparent pointer-events-none z-10 transition-opacity duration-300",
+                canScrollLeft ? "opacity-100" : "opacity-0"
+              )}
+            />
+            {/* Right Scroll Gradient Overlay */}
+            <div
+              className={cn(
+                "absolute right-0 top-0 bottom-0 w-12 bg-gradient-to-l from-white via-white/80 to-transparent pointer-events-none z-10 transition-opacity duration-300",
+                canScrollRight ? "opacity-100" : "opacity-0"
+              )}
+            />
+
+            {/* Left Scroll Button */}
+            {canScrollLeft && (
               <button
-                key={item}
-                onClick={() => setTab(item)}
-                className={cn(
-                  "h-8 rounded-full px-4 text-xs font-extrabold transition-all duration-200 shrink-0", 
-                  tab === item 
-                    ? "primesec-navy-action text-white border border-transparent !shadow-none" 
-                    : "border border-border md:hover:border-cyan-500 bg-white text-ink-muted md:hover:text-cyan-500 md:hover:bg-cyan-50/10"
-                )}
+                onClick={() => scrollTabs("left")}
+                className="absolute left-1 top-1/2 -translate-y-1/2 z-20 flex h-8 w-8 items-center justify-center rounded-full border border-border bg-white shadow-md text-ink hover:text-cyan-500 hover:border-cyan-500 transition-all duration-200"
+                aria-label="Sola kaydır"
               >
-                {item}
+                <ChevronLeft className="h-4 w-4" />
               </button>
-            ))}
+            )}
+
+            {/* Right Scroll Button */}
+            {canScrollRight && (
+              <button
+                onClick={() => scrollTabs("right")}
+                className="absolute right-1 top-1/2 -translate-y-1/2 z-20 flex h-8 w-8 items-center justify-center rounded-full border border-border bg-white shadow-md text-ink hover:text-cyan-500 hover:border-cyan-500 transition-all duration-200"
+                aria-label="Sağa kaydır"
+              >
+                <ChevronRight className="h-4 w-4" />
+              </button>
+            )}
+
+            {/* Tabs List */}
+            <div
+              ref={scrollRef}
+              onScroll={checkScroll}
+              className="flex items-center gap-2 overflow-x-auto max-w-full -mx-4 px-4 md:mx-0 md:px-0 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden whitespace-nowrap flex-nowrap scroll-smooth py-1"
+            >
+              {tabs.map((item) => (
+                <button
+                  key={item}
+                  onClick={() => setTab(item)}
+                  className={cn(
+                    "h-8 rounded-full px-4 text-xs font-extrabold transition-all duration-200 shrink-0", 
+                    tab === item 
+                      ? "primesec-navy-action text-white border border-transparent !shadow-none" 
+                      : "border border-border md:hover:border-cyan-500 bg-white text-ink-muted md:hover:text-cyan-500 md:hover:bg-cyan-50/10"
+                  )}
+                >
+                  {item}
+                </button>
+              ))}
+            </div>
           </div>
         </div>
 
         <div className="grid gap-4 xl:grid-cols-[1fr_1fr_minmax(0,330px)]">
-          {/* Mobile: Horizontal Scroll */}
-          <div className="md:hidden overflow-x-auto -mx-4 sm:-mx-5 md:-mx-8 pt-4 pb-4 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+          {/* Mobile & Tablet: Horizontal Scroll */}
+          <div className="xl:hidden overflow-x-auto -mx-4 sm:-mx-5 md:-mx-8 pt-4 pb-4 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
             <div className="flex gap-4 px-4 sm:px-5 md:px-8" style={{ scrollSnapType: 'x mandatory' }}>
               {filtered.map((service, index) => (
-                <Link
+                <div
                   key={service.title}
-                  href={service.href}
                   className={cn(
-                    "group flex flex-col justify-start min-h-[200px] w-[280px] flex-shrink-0 overflow-hidden rounded-[24px] border border-border md:hover:border-cyan-500 md:hover:shadow-lg transition-all duration-300 bg-white p-5 md:hover:-translate-y-1"
+                    "group flex flex-col justify-start min-h-[200px] w-[280px] md:w-[320px] flex-shrink-0 overflow-hidden rounded-[24px] border border-border md:hover:border-cyan-500 md:hover:shadow-lg transition-all duration-300 bg-white p-5 md:hover:-translate-y-1"
                   )}
                   style={{ scrollSnapAlign: 'start' }}
                 >
                   <h3 className="text-xl font-black leading-tight tracking-[-0.04em] text-ink break-words">{service.title}</h3>
                   <p className="mt-2 text-sm leading-6 text-ink-muted break-words">{service.description}</p>
-                </Link>
+                </div>
               ))}
             </div>
           </div>
 
           {/* Desktop: Grid */}
-          <div className="hidden md:grid gap-4 md:grid-cols-2 xl:col-span-2 content-start">
+          <div className="hidden xl:grid gap-4 md:grid-cols-2 xl:col-span-2 content-start">
             {visible.map((service, index) => {
               if ("placeholder" in service && service.placeholder) {
                 return (
@@ -140,16 +218,15 @@ export function ServiceGrid({ dynamicData }: ServiceGridProps) {
                 );
               }
               return (
-                <Link
+                <div
                   key={service.title}
-                  href={service.href}
                   className={cn(
                     "group flex flex-col justify-start min-h-[245px] overflow-hidden rounded-[24px] border border-border md:hover:border-cyan-500 md:hover:shadow-lg transition-all duration-300 bg-white p-5 md:hover:-translate-y-1"
                   )}
                 >
                   <h3 className="text-2xl font-black leading-tight tracking-[-0.04em] text-ink break-words">{service.title}</h3>
                   <p className="mt-2 text-sm leading-6 text-ink-muted break-words">{service.description}</p>
-                </Link>
+                </div>
               );
             })}
           </div>

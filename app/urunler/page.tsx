@@ -13,6 +13,8 @@ export const metadata = buildMetadata({
   path: "/urunler",
 });
 
+import { Suspense } from "react";
+
 export default async function ProductsPage() {
   // Her iki kaynaktan da ürünleri çek ve birleştir
   const [dbProducts, oksidProducts] = await Promise.all([
@@ -75,12 +77,14 @@ export default async function ProductsPage() {
       />
       <section className="bg-surface py-12">
         <Container>
-          <ProductGrid
-            initialProducts={allProducts as any}
-            initialCategories={categories}
-            initialBrands={brands}
-            initialSubCategories={subCategories}
-          />
+          <Suspense fallback={<div className="text-center py-12 text-ink-muted">Ürünler Yükleniyor...</div>}>
+            <ProductGrid
+              initialProducts={allProducts as any}
+              initialCategories={categories}
+              initialBrands={brands}
+              initialSubCategories={subCategories}
+            />
+          </Suspense>
         </Container>
       </section>
     </>

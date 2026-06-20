@@ -6,10 +6,11 @@ import { PlanBanner } from "@/components/home/PlanBanner";
 import { SystemBuilderCTA } from "@/components/home/SystemBuilderCTA";
 import { WhyPrimeSec } from "@/components/home/WhyPrimeSec";
 import { FaqBlog } from "@/components/home/FaqBlog";
+import { HomePopup } from "@/components/home/HomePopup";
 import { JsonLd } from "@/components/seo/JsonLd";
 import { buildMetadata } from "@/lib/seo";
 import { siteConfig } from "@/data/site";
-import { getBlogPosts, getProducts, getOksidProducts, getSiteContentBlock, getHomepageFeaturedProducts, getHomepageServicesData, getHomepageFaqs } from "@/lib/db";
+import { getBlogPosts, getProducts, getOksidProducts, getSiteContentBlock, getHomepageFeaturedProducts, getHomepageServicesData, getHomepageFaqs, getSiteSettings } from "@/lib/db";
 
 export const revalidate = 3600;
 
@@ -19,14 +20,15 @@ export const metadata = buildMetadata({
 });
 
 export default async function HomePage() {
-  const [dbPosts, localProducts, oksidProducts, heroContent, featuredRefs, servicesData, faqs] = await Promise.all([
+  const [dbPosts, localProducts, oksidProducts, heroContent, featuredRefs, servicesData, faqs, settings] = await Promise.all([
     getBlogPosts(),
     getProducts(),
     getOksidProducts(),
     getSiteContentBlock("home.hero"),
     getHomepageFeaturedProducts(),
     getHomepageServicesData(),
-    getHomepageFaqs()
+    getHomepageFaqs(),
+    getSiteSettings()
   ]);
 
   // Map featured product refs to actual product data
@@ -71,6 +73,15 @@ export default async function HomePage() {
       <BrandChips />
       <WhyPrimeSec />
       <FaqBlog initialBlogPosts={dbPosts} initialFaqs={faqs} />
+      <HomePopup
+        active={settings.popupActive}
+        title={settings.popupTitle}
+        content={settings.popupContent}
+        imageUrl={settings.popupImageUrl}
+        buttonLabel={settings.popupButtonLabel}
+        buttonUrl={settings.popupButtonUrl}
+        cooldownMinutes={settings.popupCooldown}
+      />
     </>
   );
 }

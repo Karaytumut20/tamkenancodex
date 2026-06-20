@@ -2,8 +2,8 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { ArrowLeft, ArrowRight, ChevronRight } from "lucide-react";
-import { useMemo, useRef, useState, type PointerEvent } from "react";
+import { ArrowLeft, ArrowRight, ChevronRight, ChevronLeft } from "lucide-react";
+import { useMemo, useRef, useState, useEffect, type PointerEvent } from "react";
 import { cn } from "@/lib/cn";
 import { products } from "@/data/products";
 
@@ -15,6 +15,45 @@ export function ServiceShowcase() {
   const scrollerRef = useRef<HTMLDivElement>(null);
   // hasMoved is tracked in a ref so click handler sees the latest value
   const drag = useRef({ active: false, startX: 0, scrollLeft: 0, moved: false });
+
+  const tabsScrollRef = useRef<HTMLDivElement>(null);
+  const [canScrollLeftTabs, setCanScrollLeftTabs] = useState(false);
+  const [canScrollRightTabs, setCanScrollRightTabs] = useState(false);
+
+  const checkTabsScroll = () => {
+    const el = tabsScrollRef.current;
+    if (el) {
+      const { scrollLeft, scrollWidth, clientWidth } = el;
+      setCanScrollLeftTabs(scrollLeft > 1);
+      setCanScrollRightTabs(scrollLeft < scrollWidth - clientWidth - 1);
+    }
+  };
+
+  useEffect(() => {
+    const el = tabsScrollRef.current;
+    if (el) {
+      checkTabsScroll();
+      const timer = setTimeout(checkTabsScroll, 100);
+      el.addEventListener("scroll", checkTabsScroll);
+      window.addEventListener("resize", checkTabsScroll);
+      return () => {
+        clearTimeout(timer);
+        el.removeEventListener("scroll", checkTabsScroll);
+        window.removeEventListener("resize", checkTabsScroll);
+      };
+    }
+  }, []);
+
+  const scrollTabsList = (direction: "left" | "right") => {
+    const el = tabsScrollRef.current;
+    if (el) {
+      const scrollAmount = 200;
+      el.scrollBy({
+        left: direction === "left" ? -scrollAmount : scrollAmount,
+        behavior: "smooth",
+      });
+    }
+  };
 
   const filtered = useMemo(() => (tab === "Tümü" ? products : products.filter((p) => p.category === tab)), [tab]);
 
@@ -81,29 +120,74 @@ export function ServiceShowcase() {
         </div>
 
         <div className="mb-6">
-          <div className="flex gap-2 overflow-x-auto pb-2 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
-            {tabs.map((item) => (
+          <div className="relative w-full">
+            {/* Left Scroll Gradient Overlay */}
+            <div
+              className={cn(
+                "absolute left-0 top-0 bottom-0 w-12 bg-gradient-to-r from-surface via-surface/80 to-transparent pointer-events-none z-10 transition-opacity duration-300",
+                canScrollLeftTabs ? "opacity-100" : "opacity-0"
+              )}
+            />
+            {/* Right Scroll Gradient Overlay */}
+            <div
+              className={cn(
+                "absolute right-0 top-0 bottom-0 w-12 bg-gradient-to-l from-surface via-surface/80 to-transparent pointer-events-none z-10 transition-opacity duration-300",
+                canScrollRightTabs ? "opacity-100" : "opacity-0"
+              )}
+            />
+
+            {/* Left Scroll Button */}
+            {canScrollLeftTabs && (
               <button
-                key={item}
-                onClick={() => setTab(item)}
-                className={cn(
-                  "h-9 shrink-0 rounded-full px-4 text-xs font-extrabold whitespace-nowrap transition-all duration-200",
-                  tab === item
-                    ? "primesec-navy-action text-white shadow-md"
-                    : "bg-white text-ink-muted border border-transparent hover:border-primary-600 hover:text-primary-600"
-                )}
+                onClick={() => scrollTabsList("left")}
+                className="absolute left-1 top-1/2 -translate-y-1/2 z-20 flex h-8 w-8 items-center justify-center rounded-full border border-border bg-white shadow-md text-ink hover:text-[#3d6b93] hover:border-[#3d6b93] transition-all duration-200"
+                aria-label="Sola kaydır"
               >
-                {item}
+                <ChevronLeft className="h-4 w-4" />
               </button>
-            ))}
-            <Link
-              href="/urunler"
-              className="inline-flex h-9 shrink-0 items-center justify-center gap-1 rounded-full bg-white px-4 text-xs font-extrabold text-primary-600 hover:text-primary-600 transition-colors ml-auto"
+            )}
+
+            {/* Right Scroll Button */}
+            {canScrollRightTabs && (
+              <button
+                onClick={() => scrollTabsList("right")}
+                className="absolute right-1 top-1/2 -translate-y-1/2 z-20 flex h-8 w-8 items-center justify-center rounded-full border border-border bg-white shadow-md text-ink hover:text-[#3d6b93] hover:border-[#3d6b93] transition-all duration-200"
+                aria-label="Sağa kaydır"
+              >
+                <ChevronRight className="h-4 w-4" />
+              </button>
+            )}
+
+            {/* Tabs List Wrapper */}
+            <div
+              ref={tabsScrollRef}
+              onScroll={checkTabsScroll}
+              className="flex gap-2 overflow-x-auto pb-2 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden whitespace-nowrap flex-nowrap scroll-smooth"
             >
-              Tüm Ürünleri Gör <ChevronRight className="h-4 w-4 shrink-0" />
-            </Link>
+              {tabs.map((item) => (
+                <button
+                  key={item}
+                  onClick={() => setTab(item)}
+                  className={cn(
+                    "h-9 shrink-0 rounded-full px-4 text-xs font-extrabold whitespace-nowrap transition-all duration-200",
+                    tab === item
+                      ? "primesec-navy-action text-white shadow-md"
+                      : "bg-white text-ink-muted border border-transparent hover:border-primary-600 hover:text-primary-600"
+                  )}
+                >
+                  {item}
+                </button>
+              ))}
+              <Link
+                href="/urunler"
+                className="inline-flex h-9 shrink-0 items-center justify-center gap-1 rounded-full bg-white px-4 text-xs font-extrabold text-primary-600 hover:text-primary-600 transition-colors ml-auto"
+              >
+                Tüm Ürünleri Gör <ChevronRight className="h-4 w-4 shrink-0" />
+              </Link>
+            </div>
           </div>
         </div>
+
 
         <div
           ref={scrollerRef}

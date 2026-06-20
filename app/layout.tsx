@@ -5,6 +5,7 @@ import { Footer } from "@/components/layout/Footer";
 import { Header } from "@/components/layout/Header";
 import { FloatingContact } from "@/components/layout/FloatingContact";
 import { AdminLayoutStyles } from "@/components/layout/AdminLayoutStyles";
+import { PwaRegister } from "@/components/seo/PwaRegister";
 import { JsonLd } from "@/components/seo/JsonLd";
 import { siteConfig } from "@/data/site";
 import { getMenuItems, getSiteSettings, getMegaMenuData } from "@/lib/db";
@@ -39,6 +40,11 @@ export async function generateMetadata(): Promise<Metadata> {
     verification: {
       google: settings.gscVerification || undefined,
     },
+    appleWebApp: {
+      capable: true,
+      title: "PrimeSec",
+      statusBarStyle: "black-translucent",
+    },
     icons: {
       icon: [
         { url: "/images/favicon.ico" },
@@ -66,6 +72,7 @@ export async function generateMetadata(): Promise<Metadata> {
 export const viewport = {
   width: "device-width",
   initialScale: 1,
+  themeColor: "#0f172a",
 };
 
 export default async function RootLayout({
@@ -110,6 +117,7 @@ export default async function RootLayout({
           <div dangerouslySetInnerHTML={{ __html: settings.gtagScript }} />
         )}
         <AdminLayoutStyles />
+        <PwaRegister />
         <JsonLd
           data={[
             {

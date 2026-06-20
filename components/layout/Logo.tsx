@@ -8,11 +8,11 @@ export function Logo({ dark = true, isHeader = false }: { dark?: boolean; isHead
         <span className="leading-none">
           <span
             style={{ fontFamily: "'Monoton', cursive" }}
-            className="block text-[28px] tracking-widest text-ink uppercase"
+            className={`block text-[28px] tracking-widest uppercase ${dark ? "text-white" : "text-ink"}`}
           >
             PrimeSec
           </span>
-          <span className="block text-[11px] font-extrabold tracking-[0.55em] text-primary-600 mt-1">
+          <span className={`block text-[11px] font-extrabold tracking-[0.55em] mt-1 ${dark ? "text-primary-300" : "text-primary-600"}`}>
             TEKNOLOJİ
           </span>
         </span>
@@ -32,3 +32,4 @@ export function Logo({ dark = true, isHeader = false }: { dark?: boolean; isHead
     </Link>
   );
 }
+

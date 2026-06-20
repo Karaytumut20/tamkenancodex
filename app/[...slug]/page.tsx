@@ -72,9 +72,34 @@ export default async function CatchAllPage({ params }: { params: Promise<{ slug:
     ];
 
     const relatedProductIds = page.relatedProductIds || [];
-    const featuredProducts = relatedProductIds.length > 0
+    let featuredProducts = relatedProductIds.length > 0
       ? allProducts.filter((p) => relatedProductIds.includes(p.id))
       : [];
+
+    if (featuredProducts.length === 0 && oksidProducts.length > 0) {
+      const categoryKeyword = page.category === "Kamera Sistemleri" ? "kamera" : (page.category === "Alarm Sistemleri" ? "alarm" : "");
+      let candidates = oksidProducts;
+      if (categoryKeyword) {
+        candidates = oksidProducts.filter((p: any) => 
+          (p.name || p.urun_adi || "").toLowerCase().includes(categoryKeyword) ||
+          (p.kategori_ana || p.category || "").toLowerCase().includes(categoryKeyword)
+        );
+      }
+      if (candidates.length === 0) {
+        candidates = oksidProducts;
+      }
+      const shuffled = [...candidates].sort(() => 0.5 - Math.random());
+      featuredProducts = shuffled.slice(0, 4).map((p: any) => ({
+        id: p.id,
+        slug: p.slug,
+        name: p.name || p.urun_adi || "",
+        category: p.kategori_ana || p.category || "",
+        brand: p.marka || p.brand || "",
+        image: p.image || (p.resimler && p.resimler[0]) || "/images/alarm-sistemi.svg",
+        tags: Array.isArray(p.tags) ? p.tags : [],
+        description: p.description || "",
+      }));
+    }
 
     return <ServiceTemplate page={page} kind={page.type} featuredProducts={featuredProducts} />;
   }

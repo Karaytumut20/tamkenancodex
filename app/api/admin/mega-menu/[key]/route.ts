@@ -35,8 +35,9 @@ export async function POST(
       hero_description: string;
       intro_title: string;
       intro_content: string;
+      image_url?: string;
       advantages: string[];
-      usage_areas: string[];
+      usage_areas: { title: string; description: string }[];
       process_steps: string[];
       faqs: { question: string; answer: string }[];
       related_product_ids?: string[];
@@ -155,6 +156,7 @@ export async function POST(
               hero_description: servicePage.hero_description,
               intro_title: servicePage.intro_title,
               intro_content: servicePage.intro_content,
+              image_url: servicePage.image_url,
               advantages: servicePage.advantages,
               usage_areas: servicePage.usage_areas,
               process_steps: servicePage.process_steps,

@@ -94,6 +94,41 @@ const settingLabels: Record<string, { label: string; placeholder: string; helpTe
     placeholder: "google-site-verification kodu",
     helpText: "Google Search Console sahiplik doğrulaması için size verilen meta tag içeriğini girin.",
   },
+  "popup.active": {
+    label: "📢 Kampanya Pop-up Durumu",
+    placeholder: "false",
+    helpText: "Pop-up kampanyasının sitede gösterilip gösterilmeyeceğini belirler.",
+  },
+  "popup.title": {
+    label: "📢 Pop-up Başlığı",
+    placeholder: "Özel Kampanya",
+    helpText: "Pop-up kutusunun en üstünde görünecek başlık.",
+  },
+  "popup.content": {
+    label: "📝 Pop-up Açıklama Metni",
+    placeholder: "Kısa bir süreliğine tüm güvenlik paketlerimizde indirim...",
+    helpText: "Kampanyanızın detaylarını anlatan açıklama metni.",
+  },
+  "popup.image_url": {
+    label: "🖼️ Pop-up Görsel Linki (Opsiyonel)",
+    placeholder: "/images/primesec-hero-cctv-v2.png",
+    helpText: "Pop-up içinde gösterilecek resim dosyasının adresi (örn: /images/logo.png).",
+  },
+  "popup.button_label": {
+    label: "🔗 Buton Yazısı (Opsiyonel)",
+    placeholder: "Hemen Keşif Al",
+    helpText: "Pop-up butonunun üzerinde yazacak metin.",
+  },
+  "popup.button_url": {
+    label: "🔗 Buton Linki (Opsiyonel)",
+    placeholder: "/iletisim",
+    helpText: "Butona tıklandığında gidilecek sayfa adresi.",
+  },
+  "popup.cooldown": {
+    label: "⏳ Gösterim Sıklığı (Dakika)",
+    placeholder: "10",
+    helpText: "Pop-up kapatıldıktan kaç dakika sonra tekrar gösterilsin (Varsayılan: 10).",
+  },
 };
 
 function extractValue(jsonValue: unknown): string {
@@ -149,6 +184,13 @@ export default async function SettingsPage() {
     "seo.ga_id",
     "seo.gtag_script",
     "seo.gsc_verification",
+    "popup.active",
+    "popup.title",
+    "popup.content",
+    "popup.image_url",
+    "popup.button_label",
+    "popup.button_url",
+    "popup.cooldown",
   ];
 
   const items = visibleKeys.map((key) => {
@@ -165,8 +207,8 @@ export default async function SettingsPage() {
   return (
     <ProtectedAdminPage>
       <AdminPageHeader
-        title="📞 İletişim Bilgileri"
-        description="Telefon, WhatsApp, e-posta ve adres bilgilerinizi buradan güncelleyin."
+        title="⚙️ Site & Genel Ayarlar"
+        description="Pop-up kampanya, iletişim, adres ve SEO izleme kodlarını buradan yönetin."
       />
 
       {error && (

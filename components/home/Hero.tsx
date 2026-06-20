@@ -6,10 +6,18 @@ import { Sparkles, CheckCircle2, ArrowRight } from "lucide-react";
 
 export function Hero({ content: _content }: { content?: unknown }) {
   return (
-    <section className="hero-bg relative overflow-hidden pt-20 pb-10 font-sans sm:pt-24 sm:pb-14 lg:min-h-[calc(100vh-92px)] lg:flex lg:items-center lg:justify-center lg:py-0">
-      {/* Background radial glow */}
-      <div className="absolute inset-0 z-0 pointer-events-none overflow-hidden">
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[min(800px,100vw)] h-[400px] bg-[radial-gradient(circle_at_center,_rgba(0,107,255,0.15)_0%,_transparent_70%)] blur-[95px]" />
+    <section className="relative overflow-hidden pt-20 pb-10 font-sans sm:pt-24 sm:pb-14 lg:min-h-[calc(100vh-92px)] lg:flex lg:items-center lg:justify-center lg:py-0">
+      {/* Background Image & Overlay */}
+      <div className="absolute inset-0 z-0">
+        <Image
+          src="/images/primesec-hero-cctv-v2.png"
+          alt="PrimeSec Güvenlik Sistemleri Arka Plan"
+          fill
+          className="object-cover object-right lg:object-center"
+          priority
+        />
+        {/* Dark gradient overlay for text readability */}
+        <div className="absolute inset-0 bg-gradient-to-r from-slate-950 via-slate-950/85 to-slate-950/30" />
       </div>
 
       <div className="container-primesec relative z-10 grid grid-cols-1 items-center gap-8 lg:grid-cols-12 lg:gap-8">
@@ -79,21 +87,10 @@ export function Hero({ content: _content }: { content?: unknown }) {
           </div>
         </div>
 
-        {/* Right Column: Image */}
-        <div className="relative flex w-full items-center justify-center lg:col-span-5">
-          <div className="relative w-full max-w-[330px] overflow-hidden rounded-2xl border border-white/10 shadow-2xl shadow-primary-600/10 sm:max-w-[450px] lg:max-w-none" style={{ aspectRatio: "4/3" }}>
-            {/* Soft glow behind image */}
-            <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,_rgba(24,191,255,0.12)_0%,_rgba(0,107,255,0.08)_42%,_transparent_72%)] rounded-full filter blur-3xl pointer-events-none" />
-            <Image
-              src="/images/primesec-hero-human.png"
-              alt="PrimeSec Güvenlik Sistemleri"
-              fill
-              className="object-cover"
-              priority
-            />
-          </div>
-        </div>
+        {/* Right Column: Spacer to show the background camera image on desktop */}
+        <div className="hidden lg:block lg:col-span-5 h-[300px] lg:h-full" />
       </div>
     </section>
   );
 }
+

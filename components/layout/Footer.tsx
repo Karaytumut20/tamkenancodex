@@ -12,7 +12,18 @@ export async function Footer() {
     getServices(),
     getProducts(),
   ]);
-  const serviceLinks = services.filter((service) => !service.slug.includes("/")).slice(0, 10);
+  const footerServices = [
+    { label: "CCTV Kamera", href: "/kamera-sistemleri/cctv-kamera" },
+    { label: "Hırsız Alarm", href: "/alarm-sistemleri" },
+    { label: "Yangın İhbar", href: "/yangin-ihbar-sistemleri" },
+    { label: "Araç Takip", href: "/arac-takip-sistemleri" },
+    { label: "Araç Kamerası", href: "/arac-kamerasi" },
+    { label: "Personel Takip PDKS", href: "/personel-takip-pdks" },
+    { label: "Kapı Geçiş Sistemleri", href: "/kapi-gecis-sistemleri" },
+    { label: "IP Diafon Sistemleri", href: "/ip-diafon-sistemleri" },
+    { label: "Restoran POS Yazılımı", href: "/restoran-pos-yazilimi" },
+    { label: "Network Çözümleri", href: "/network-cozumleri" }
+  ];
 
   return (
     <footer className="primesec-navy-bg text-white">
@@ -26,18 +37,18 @@ export async function Footer() {
         <div className="grid gap-8 sm:grid-cols-2 xl:grid-cols-5">
           {/* Brand column — spans full width on mobile/tablet */}
           <div className="sm:col-span-2 xl:col-span-1 xl:pr-4">
-            <Logo />
+            <Logo dark={true} isHeader={true} />
             <p className="mt-4 text-sm leading-6 text-[#b8c7dd] md:mt-5 md:leading-7">
               {settings.description}
             </p>
             <FooterContact settings={settings} />
           </div>
-
+ 
           {/* Link columns — 2-up on tablet, each in own column on desktop */}
           <div className="grid grid-cols-2 gap-x-5 gap-y-8 sm:col-span-2 sm:grid-cols-2 xl:col-span-4 xl:grid-cols-4">
             <FooterColumn
               title="Hizmetler"
-              links={serviceLinks.map((service) => ({ label: service.title, href: `/${service.slug}` }))}
+              links={footerServices}
             />
             <FooterColumn
               title="Ürünler"

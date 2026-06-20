@@ -17,6 +17,13 @@ export type SiteSettings = typeof siteConfig & {
   gscVerification?: string;
   gtagScript?: string;
   representatives?: { name: string; role: string; phone: string; whatsapp: string }[];
+  popupActive?: boolean;
+  popupTitle?: string;
+  popupContent?: string;
+  popupImageUrl?: string;
+  popupButtonLabel?: string;
+  popupButtonUrl?: string;
+  popupCooldown?: number;
 };
 
 export type NavigationItem = {
@@ -93,6 +100,13 @@ export const getSiteSettings = cache(
             whatsapp: settingValue(settings.get("contact.rep2.whatsapp")) || "905519542605",
           }
         ],
+        popupActive: settingValue(settings.get("popup.active")) === "true",
+        popupTitle: settingValue(settings.get("popup.title")) || "",
+        popupContent: settingValue(settings.get("popup.content")) || "",
+        popupImageUrl: settingValue(settings.get("popup.image_url")) || "",
+        popupButtonLabel: settingValue(settings.get("popup.button_label")) || "",
+        popupButtonUrl: settingValue(settings.get("popup.button_url")) || "",
+        popupCooldown: Number(settingValue(settings.get("popup.cooldown")) || "10"),
       };
     } catch (err) {
       console.error("Error in getSiteSettings:", err);
@@ -751,74 +765,81 @@ export const getServiceAreas = cache(async function getServiceAreas(): Promise<
       .eq("is_active", true)
       .order("created_at", { ascending: false });
 
-    if (error || !dbAreas || dbAreas.length === 0) {
-      return staticLocations;
+    const merged = [...staticLocations];
+    if (dbAreas && dbAreas.length > 0) {
+      const dbMapped = (dbAreas as any[]).map((area) => {
+        const city = area.city;
+        const title = area.title;
+        return {
+          id: area.id,
+          slug: area.slug,
+          title: title,
+          metaTitle: area.meta_title || `${title} | PrimeSec Teknoloji`,
+          description: area.meta_description || area.description || "",
+          heroImage: area.image_url || (area.slug.includes("kamera")
+            ? "/images/kamera-sistemi.svg"
+            : "/images/local-security.svg"),
+          category: area.slug.includes("kamera")
+            ? "Kamera Sistemleri"
+            : (area.slug.includes("alarm") ? "Alarm Sistemleri" : "Güvenlik Sistemleri"),
+          keywords: [title, `${city} güvenlik sistemleri`, "PrimeSec Teknoloji"],
+          benefits: [
+            `${city} ve çevresine hızlı keşif planı`,
+            "Ev ve iş yeri için ayrı risk analizi",
+            "Alarm, kamera ve akıllı sistem entegrasyonu",
+            "Kurulum sonrası teknik destek",
+          ],
+          useCases: [
+            `${city} konut projeleri`,
+            `${city} mağaza ve ofisleri`,
+            "Depo, üretim ve ortak alanlar",
+          ],
+          process: [
+            "Bölge ihtiyacının analizi",
+            "Ürün ve kamera/sensör planı",
+            "Kurulum ve mobil ayarlar",
+            "Bakım ve destek",
+          ],
+          faqs:
+            Array.isArray(area.faqs) && area.faqs.length > 0
+              ? area.faqs
+              : [
+                  {
+                    question: `${city} için keşif süreci nasıl ilerler?`,
+                    answer:
+                      "İhtiyaç bilgilerinizi aldıktan sonra uygun gün ve saat için keşif planı oluştururuz.",
+                  },
+                  {
+                    question: "Yerel servis desteği var mı?",
+                    answer:
+                      "PrimeSec Teknoloji yakın hizmet ağında kurulum ve satış sonrası destek sağlar.",
+                  },
+                ],
+          robotsIndex: area.robots_index ?? "index",
+          robotsFollow: area.robots_follow ?? "follow",
+          canonicalUrl: area.canonical_url,
+          ogTitle: area.og_title,
+          ogDescription: area.og_description,
+          twitterTitle: area.twitter_title,
+          twitterDescription: area.twitter_description,
+          twitterImage: area.twitter_image_url,
+          schemaType: area.schema_type ?? "LocalBusiness",
+          jsonLd: area.json_ld ?? {},
+          sitemapInclude: area.sitemap_include ?? true,
+          redirectTo: area.redirect_to,
+        };
+      });
+
+      for (const dbItem of dbMapped) {
+        const idx = merged.findIndex((m) => m.slug === dbItem.slug);
+        if (idx !== -1) {
+          merged[idx] = dbItem;
+        } else {
+          merged.push(dbItem);
+        }
+      }
     }
-
-    return (dbAreas as any[]).map((area) => {
-      const city = area.city;
-      const title = area.title;
-      return {
-        id: area.id,
-        slug: area.slug,
-        title: title,
-        metaTitle: area.meta_title || `${title} | PrimeSec Teknoloji`,
-        description: area.meta_description || area.description || "",
-        heroImage: area.slug.includes("kamera")
-          ? "/images/kamera-sistemi.svg"
-          : "/images/local-security.svg",
-        category: area.slug.includes("kamera")
-          ? "Kamera Sistemleri"
-          : "Alarm Sistemleri",
-        keywords: [title, `${city} güvenlik sistemleri`, "PrimeSec Teknoloji"],
-        benefits: [
-          `${city} ve çevresine hızlı keşif planı`,
-          "Ev ve iş yeri için ayrı risk analizi",
-          "Alarm, kamera ve akıllı sistem entegrasyonu",
-          "Kurulum sonrası teknik destek",
-        ],
-        useCases: [
-          `${city} konut projeleri`,
-          `${city} mağaza ve ofisleri`,
-          "Depo, üretim ve ortak alanlar",
-        ],
-        process: [
-          "Bölge ihtiyacının analizi",
-          "Ürün ve kamera/sensör planı",
-          "Kurulum ve mobil ayarlar",
-          "Bakım ve destek",
-        ],
-        faqs:
-          Array.isArray(area.faqs) && area.faqs.length > 0
-            ? area.faqs
-            : [
-                {
-                  question: `${city} için keşif süreci nasıl ilerler?`,
-                  answer:
-                    "İhtiyaç bilgilerinizi aldıktan sonra uygun gün ve saat için keşif planı oluştururuz.",
-                },
-                {
-                  question: "Yerel servis desteği var mı?",
-                  answer:
-                    "PrimeSec Teknoloji yakın hizmet ağında kurulum ve satış sonrası destek sağlar.",
-                },
-              ],
-
-        // SEO & Admin Extras
-        robotsIndex: area.robots_index ?? "index",
-        robotsFollow: area.robots_follow ?? "follow",
-        canonicalUrl: area.canonical_url,
-        ogTitle: area.og_title,
-        ogDescription: area.og_description,
-        twitterTitle: area.twitter_title,
-        twitterDescription: area.twitter_description,
-        twitterImage: area.twitter_image_url,
-        schemaType: area.schema_type ?? "LocalBusiness",
-        jsonLd: area.json_ld ?? {},
-        sitemapInclude: area.sitemap_include ?? true,
-        redirectTo: area.redirect_to,
-      };
-    });
+    return merged;
   } catch (err) {
     console.error("Error in getServiceAreas:", err);
     return staticLocations;

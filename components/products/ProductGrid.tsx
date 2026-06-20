@@ -1,7 +1,8 @@
 "use client";
 
 import { ChevronDown, Search, SlidersHorizontal, X } from "lucide-react";
-import { useMemo, useState } from "react";
+import { useSearchParams } from "next/navigation";
+import { useMemo, useState, useEffect } from "react";
 import { ProductCard } from "@/components/products/ProductCard";
 import { brands as staticBrands, productCategories as staticCategories, products as staticProducts, type Product } from "@/data/products";
 
@@ -20,12 +21,25 @@ export function ProductGrid({
   initialCategories,
   initialSubCategories,
 }: ProductGridProps) {
+  const searchParams = useSearchParams();
+
   const [query, setQuery] = useState("");
   const [category, setCategory] = useState(ALL);
   const [brand, setBrand] = useState(ALL);
   const [usage, setUsage] = useState(ALL);
   const [tag, setTag] = useState(ALL);
   const [filtersOpen, setFiltersOpen] = useState(false);
+
+  useEffect(() => {
+    const urlBrand = searchParams.get("marka") || searchParams.get("brand");
+    if (urlBrand) {
+      setBrand(urlBrand);
+    }
+    const urlCategory = searchParams.get("kategori") || searchParams.get("category");
+    if (urlCategory) {
+      setCategory(urlCategory);
+    }
+  }, [searchParams]);
 
   const productsList = initialProducts || staticProducts;
   const categoriesList = initialCategories || staticCategories;

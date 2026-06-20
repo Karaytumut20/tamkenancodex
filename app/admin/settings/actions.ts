@@ -23,6 +23,13 @@ const knownKeys = [
   "seo.ga_id",
   "seo.gsc_verification",
   "seo.gtag_script",
+  "popup.active",
+  "popup.title",
+  "popup.content",
+  "popup.image_url",
+  "popup.button_label",
+  "popup.button_url",
+  "popup.cooldown",
 ];
 
 export async function saveSetting(

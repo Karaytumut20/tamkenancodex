@@ -171,6 +171,73 @@ function AdvantagesListBuilder({
   );
 }
 
+// Sub-component for Usage Areas builders (Title + Description)
+function UsageAreasListBuilder({
+  items,
+  setItems,
+}: {
+  items: { title: string; description: string }[];
+  setItems: (items: { title: string; description: string }[]) => void;
+}) {
+  const handleAdd = () => setItems([...items, { title: "", description: "" }]);
+  const handleRemove = (idx: number) => {
+    if (window.confirm("Bu kullanım alanını silmek istediğinize emin misiniz? (Kaydet butonuna basana kadar kalıcı olarak kaydedilmez)")) {
+      setItems(items.filter((_, i) => i !== idx));
+    }
+  };
+  const handleChange = (idx: number, key: "title" | "description", val: string) => {
+    setItems(items.map((item, i) => (i === idx ? { ...item, [key]: val } : item)));
+  };
+  return (
+    <div className="space-y-2">
+      <div className="flex justify-between items-center bg-slate-50 p-3 rounded-t-xl border border-slate-200 border-b-0">
+        <span className="text-sm font-black text-slate-700">🏢 Kullanım Alanları</span>
+        <button
+          type="button"
+          onClick={handleAdd}
+          className="text-xs bg-cyan-600 hover:bg-cyan-700 text-white font-bold px-3 py-1 rounded-lg transition-colors"
+        >
+          + Ekle
+        </button>
+      </div>
+      <div className="p-4 bg-white border border-slate-200 rounded-b-xl space-y-3 max-h-96 overflow-y-auto">
+        {items.map((item, idx) => (
+          <div key={idx} className="flex gap-3 items-start bg-slate-50/50 p-3 rounded-xl border border-slate-200">
+            <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-slate-200 text-xs font-black text-slate-600 mt-2">
+              {idx + 1}
+            </span>
+            <div className="flex-1 space-y-2">
+              <input
+                value={item.title}
+                onChange={(e) => handleChange(idx, "title", e.target.value)}
+                placeholder="Kullanım Alanı Başlığı (Örn: Müstakil Villalar ve Yazlıklar)"
+                className="h-10 w-full rounded-lg border border-slate-200 bg-white px-3 text-sm outline-none focus:border-cyan-500 font-bold"
+              />
+              <textarea
+                value={item.description}
+                onChange={(e) => handleChange(idx, "description", e.target.value)}
+                placeholder="Açıklama Metni (Örn: Giriş kapıları, bahçe sınırları ve kör noktalar analiz edilir...)"
+                rows={2}
+                className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm outline-none focus:border-cyan-500 resize-none"
+              />
+            </div>
+            <button
+              type="button"
+              onClick={() => handleRemove(idx)}
+              className="p-2 text-red-500 hover:bg-red-50 rounded-lg shrink-0 mt-2 transition-colors"
+            >
+              <Trash2 className="h-4 w-4" />
+            </button>
+          </div>
+        ))}
+        {items.length === 0 && (
+          <p className="text-sm text-slate-400 text-center py-4">Henüz kullanım alanı eklenmemiş.</p>
+        )}
+      </div>
+    </div>
+  );
+}
+
 // Sub-component for FAQ builders
 function FaqListBuilder({
   faqs,
@@ -267,6 +334,7 @@ export function MegaMenuEditor({ menuKey, initialData, allProducts, initialServi
   const [hasServiceData, setHasServiceData] = useState(!!initialServiceData);
   const [serviceTitle, setServiceTitle] = useState(initialServiceData?.title ?? "");
   const [serviceHeroTitle, setServiceHeroTitle] = useState(initialServiceData?.hero_title ?? "");
+  const [serviceHeroImage, setServiceHeroImage] = useState(initialServiceData?.image_url ?? "");
   const [serviceHeroDescription, setServiceHeroDescription] = useState(initialServiceData?.hero_description ?? "");
   const [serviceIntroTitle, setServiceIntroTitle] = useState(initialServiceData?.intro_title ?? "");
   const [serviceIntroContent, setServiceIntroContent] = useState(initialServiceData?.intro_content ?? "");
@@ -279,8 +347,14 @@ export function MegaMenuEditor({ menuKey, initialData, allProducts, initialServi
         )
       : []
   );
-  const [serviceUsageAreas, setServiceUsageAreas] = useState<string[]>(
-    Array.isArray(initialServiceData?.usage_areas) ? initialServiceData.usage_areas : []
+  const [serviceUsageAreas, setServiceUsageAreas] = useState<{ title: string; description: string }[]>(
+    Array.isArray(initialServiceData?.usage_areas)
+      ? initialServiceData.usage_areas.map((item: any) =>
+          typeof item === "string"
+            ? { title: item, description: "" }
+            : { title: item?.title || "", description: item?.description || "" }
+        )
+      : []
   );
   const [serviceProcessSteps, setServiceProcessSteps] = useState<string[]>(
     Array.isArray(initialServiceData?.process_steps) ? initialServiceData.process_steps : []
@@ -416,10 +490,11 @@ export function MegaMenuEditor({ menuKey, initialData, allProducts, initialServi
             title: serviceTitle,
             hero_title: serviceHeroTitle,
             hero_description: serviceHeroDescription,
+            image_url: serviceHeroImage,
             intro_title: serviceIntroTitle,
             intro_content: serviceIntroContent,
             advantages: serviceAdvantages.filter(item => item.title.trim() !== ""),
-            usage_areas: serviceUsageAreas.filter(item => item.trim() !== ""),
+            usage_areas: serviceUsageAreas.filter(item => item.title.trim() !== ""),
             process_steps: serviceProcessSteps.filter(item => item.trim() !== ""),
             faqs: serviceFaqs.filter(faq => faq.question.trim() !== "" || faq.answer.trim() !== ""),
             related_product_ids: serviceRelatedProductIds,
@@ -784,6 +859,15 @@ export function MegaMenuEditor({ menuKey, initialData, allProducts, initialServi
                     />
                   </label>
                   <label className="block sm:col-span-2">
+                    <span className="text-sm font-black text-slate-700">Kahraman Bölümü Görsel Linki (Hero Image URL)</span>
+                    <input
+                      value={serviceHeroImage}
+                      onChange={(e) => setServiceHeroImage(e.target.value)}
+                      className="mt-1.5 h-12 w-full rounded-xl border-2 border-slate-200 bg-white px-4 text-sm outline-none focus:border-cyan-500"
+                      placeholder="Örn: https://images.unsplash.com/photo-... veya /images/alarm-sistemi.svg"
+                    />
+                  </label>
+                  <label className="block sm:col-span-2">
                     <span className="text-sm font-black text-slate-700">Detaylı Tanıtım Bölümü Başlığı</span>
                     <input
                       value={serviceIntroTitle}
@@ -811,11 +895,9 @@ export function MegaMenuEditor({ menuKey, initialData, allProducts, initialServi
                   items={serviceAdvantages}
                   setItems={setServiceAdvantages}
                 />
-                <StringListBuilder
+                <UsageAreasListBuilder
                   items={serviceUsageAreas}
                   setItems={setServiceUsageAreas}
-                  label="🏢 Kullanım Alanları"
-                  placeholder="Örn: Müstakil Villalar ve Yazlıklar"
                 />
                 <div className="md:col-span-2">
                   <StringListBuilder
