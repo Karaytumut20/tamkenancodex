@@ -129,7 +129,7 @@ export function CustomerProfileClient({
         </div>
 
         {/* Tab Buttons */}
-        <nav className="bg-white border-2 border-slate-200 rounded-3xl p-2 shadow-sm flex flex-wrap lg:flex-col gap-1">
+        <nav className="bg-white border-2 border-slate-200 rounded-3xl p-2 shadow-sm flex overflow-x-auto lg:flex-col gap-1 scrollbar-none">
           {tabs.map((t) => {
             const Icon = t.icon;
             const isActive = activeTab === t.id;
@@ -137,7 +137,7 @@ export function CustomerProfileClient({
               <button
                 key={t.id}
                 onClick={() => setActiveTab(t.id)}
-                className={`flex-1 lg:flex-none flex items-center gap-3 px-4 py-3 rounded-xl text-xs font-black transition-all ${
+                className={`shrink-0 lg:shrink flex items-center gap-3 px-3 py-2.5 lg:px-4 lg:py-3 rounded-xl text-xs font-black transition-all whitespace-nowrap ${
                   isActive 
                     ? "bg-cyan-600 text-white shadow-md" 
                     : "text-slate-600 hover:bg-slate-100"

@@ -69,13 +69,13 @@ export function AdminShell({
         key={item.href}
         href={item.href}
         onClick={() => setMobileMenuOpen(false)}
-        className={`flex items-center gap-4 rounded-2xl px-5 py-4 text-lg font-black transition-all ${
+        className={`flex items-center gap-3 rounded-2xl px-3 lg:px-5 py-3 lg:py-4 text-sm lg:text-lg font-black transition-all ${
           isActive
             ? "bg-cyan-600 text-white shadow-lg"
             : "text-slate-600 hover:bg-slate-100"
         }`}
       >
-        <Icon className={`h-6 w-6 shrink-0 ${isActive ? "text-white" : "text-cyan-600"}`} />
+        <Icon className={`h-5 w-5 shrink-0 ${isActive ? "text-white" : "text-cyan-600"}`} />
         <div>
           <span className="block leading-tight">{item.label}</span>
           <span className={`block text-xs font-semibold ${isActive ? "text-cyan-100" : "text-slate-400"}`}>{item.desc}</span>
@@ -159,7 +159,7 @@ export function AdminShell({
         )}
 
         {/* Content */}
-        <main className="px-4 py-6 lg:px-8 lg:py-8 max-w-5xl">
+        <main className="px-4 py-6 lg:px-8 lg:py-8 w-full">
           {children}
         </main>
       </div>

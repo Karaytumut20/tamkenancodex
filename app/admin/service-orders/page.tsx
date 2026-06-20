@@ -83,7 +83,7 @@ export default async function ServiceOrdersPage({ searchParams }: { searchParams
       />
 
       {/* Overview Cards */}
-      <div className="grid gap-4 sm:grid-cols-3 mb-6">
+      <div className="grid gap-4 grid-cols-1 sm:grid-cols-3 mb-6">
         <div className="bg-white border-2 border-slate-200 rounded-2xl p-5 shadow-sm flex items-center gap-4">
           <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-yellow-50 text-yellow-600 border border-yellow-100">
             <Clock className="h-6 w-6" />
@@ -167,7 +167,7 @@ export default async function ServiceOrdersPage({ searchParams }: { searchParams
             </select>
           </div>
 
-          <div className="flex gap-2">
+          <div className="flex gap-2 w-full md:w-auto">
             <button
               type="submit"
               className="h-11 px-5 rounded-xl bg-slate-800 text-white text-sm font-black hover:bg-slate-900 transition-colors shrink-0"

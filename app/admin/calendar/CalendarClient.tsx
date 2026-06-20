@@ -337,41 +337,43 @@ export function CalendarClient({ initialAppointments, customers: initialCustomer
       )}
 
       {/* Control Bar: Month, Navigation & View Toggle */}
-      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between bg-white border-2 border-slate-200 rounded-2xl p-4 shadow-sm">
-        <div className="flex items-center gap-2">
-          <button
-            onClick={handlePrev}
-            className="flex h-10 w-10 items-center justify-center rounded-xl border-2 border-slate-200 bg-white hover:bg-slate-50 transition-colors"
-          >
-            <ChevronLeft className="h-5 w-5 text-slate-600" />
-          </button>
-          
-          <button
-            onClick={handleToday}
-            className="h-10 px-4 rounded-xl border-2 border-slate-200 bg-white text-sm font-black text-slate-800 hover:bg-slate-50 transition-colors"
-          >
-            Bugün
-          </button>
-          
-          <button
-            onClick={handleNext}
-            className="flex h-10 w-10 items-center justify-center rounded-xl border-2 border-slate-200 bg-white hover:bg-slate-50 transition-colors"
-          >
-            <ChevronRight className="h-5 w-5 text-slate-600" />
-          </button>
+      <div className="flex flex-col gap-3 bg-white border-2 border-slate-200 rounded-2xl p-4 shadow-sm">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <button
+              onClick={handlePrev}
+              className="flex h-10 w-10 items-center justify-center rounded-xl border-2 border-slate-200 bg-white hover:bg-slate-50 transition-colors"
+            >
+              <ChevronLeft className="h-5 w-5 text-slate-600" />
+            </button>
+            
+            <button
+              onClick={handleToday}
+              className="h-10 px-3 rounded-xl border-2 border-slate-200 bg-white text-sm font-black text-slate-800 hover:bg-slate-50 transition-colors"
+            >
+              Bugün
+            </button>
+            
+            <button
+              onClick={handleNext}
+              className="flex h-10 w-10 items-center justify-center rounded-xl border-2 border-slate-200 bg-white hover:bg-slate-50 transition-colors"
+            >
+              <ChevronRight className="h-5 w-5 text-slate-600" />
+            </button>
+          </div>
 
-          <span className="text-lg font-black text-slate-800 ml-2">
+          <span className="text-base sm:text-lg font-black text-slate-800">
             {TURKISH_MONTHS[currentDate.getMonth()]} {currentDate.getFullYear()}
           </span>
         </div>
 
         {/* View Switchers */}
-        <div className="flex items-center gap-1.5 bg-slate-100 p-1.5 rounded-xl self-start sm:self-center">
+        <div className="flex flex-wrap items-center gap-1.5 bg-slate-100 p-1.5 rounded-xl">
           {(['month', 'week', 'day', 'list'] as const).map((v) => (
             <button
               key={v}
               onClick={() => setView(v)}
-              className={`h-9 px-4 rounded-lg text-xs font-black transition-colors ${
+              className={`h-9 px-3 rounded-lg text-xs font-black transition-colors ${
                 view === v 
                   ? "bg-white text-cyan-600 shadow-sm" 
                   : "text-slate-600 hover:text-slate-800"
@@ -383,9 +385,9 @@ export function CalendarClient({ initialAppointments, customers: initialCustomer
 
           <button
             onClick={() => handleOpenAddModal()}
-            className="h-9 px-4 rounded-lg text-xs font-black bg-cyan-600 text-white hover:bg-cyan-700 transition-colors flex items-center gap-1.5 ml-2"
+            className="h-9 px-3 rounded-lg text-xs font-black bg-cyan-600 text-white hover:bg-cyan-700 transition-colors flex items-center gap-1.5 ml-auto"
           >
-            <Plus className="h-3.5 w-3.5" /> Randevu Ekle
+            <Plus className="h-3.5 w-3.5" /> <span className="hidden sm:inline">Randevu Ekle</span><span className="sm:hidden">Ekle</span>
           </button>
         </div>
       </div>
@@ -405,7 +407,7 @@ export function CalendarClient({ initialAppointments, customers: initialCustomer
           </div>
           
           {/* Grid Cells */}
-          <div className="grid grid-cols-7 grid-rows-6 auto-rows-[minmax(120px,_1fr)] divide-x divide-y divide-slate-100">
+          <div className="grid grid-cols-7 divide-x divide-y divide-slate-100">
             {getDaysInMonthGrid(currentDate).map((day, idx) => {
               const dateStr = formatDateString(day);
               const dayApps = filterAppointmentsForDate(dateStr);
@@ -415,15 +417,15 @@ export function CalendarClient({ initialAppointments, customers: initialCustomer
               return (
                 <div
                   key={idx}
-                  className={`p-1.5 flex flex-col group min-h-[120px] transition-colors relative ${
+                  className={`p-0.5 sm:p-1.5 flex flex-col group min-h-[60px] sm:min-h-[110px] transition-colors relative ${
                     isCurrentMonth ? "bg-white" : "bg-slate-50/50"
                   } ${isToday ? "bg-cyan-50/20" : ""}`}
                   onDragOver={handleDragOver}
                   onDrop={(e) => handleDrop(e, dateStr)}
                 >
                   {/* Cell Header */}
-                  <div className="flex items-center justify-between p-1">
-                    <span className={`text-xs font-black rounded-full h-6 w-6 flex items-center justify-center ${
+                  <div className="flex items-center justify-between p-0.5 sm:p-1">
+                    <span className={`text-[10px] sm:text-xs font-black rounded-full h-5 w-5 sm:h-6 sm:w-6 flex items-center justify-center ${
                       isToday ? "bg-cyan-600 text-white" : isCurrentMonth ? "text-slate-700" : "text-slate-400"
                     }`}>
                       {day.getDate()}
@@ -438,7 +440,7 @@ export function CalendarClient({ initialAppointments, customers: initialCustomer
                   </div>
 
                   {/* List of cards */}
-                  <div className="flex-1 overflow-y-auto space-y-1 mt-1 max-h-[140px] scrollbar-thin">
+                  <div className="flex-1 overflow-y-auto space-y-0.5 sm:space-y-1 mt-0.5 sm:mt-1 max-h-[80px] sm:max-h-[140px] scrollbar-thin">
                     {dayApps.map(app => {
                       const color = STATUS_COLORS[app.status] || { bg: "bg-slate-100", text: "text-slate-700", border: "border-slate-300" };
                       return (
@@ -447,14 +449,14 @@ export function CalendarClient({ initialAppointments, customers: initialCustomer
                           draggable
                           onDragStart={(e) => handleDragStart(e, app.id)}
                           onClick={() => handleOpenEditModal(app)}
-                          className={`p-1.5 rounded-lg border text-[11px] font-semibold cursor-pointer shadow-sm hover:scale-[1.02] active:scale-[0.98] transition-transform ${color.bg} ${color.text} ${color.border}`}
+                          className={`p-1 sm:p-1.5 rounded-lg border text-[9px] sm:text-[11px] font-semibold cursor-pointer shadow-sm hover:scale-[1.02] active:scale-[0.98] transition-transform ${color.bg} ${color.text} ${color.border}`}
                           title={`${app.customer?.name} - ${app.service_type}`}
                         >
                           <div className="flex justify-between font-black">
-                            <span className="truncate max-w-[80px]">{app.customer?.name || "Müşteri"}</span>
-                            <span>{app.start_time.substring(0, 5)}</span>
+                            <span className="truncate max-w-[40px] sm:max-w-[80px]">{app.customer?.name || "Müşteri"}</span>
+                            <span className="hidden sm:inline">{app.start_time.substring(0, 5)}</span>
                           </div>
-                          <p className="truncate mt-0.5 opacity-80">{app.service_type}</p>
+                          <p className="truncate mt-0.5 opacity-80 hidden sm:block">{app.service_type}</p>
                         </div>
                       );
                     })}
@@ -471,14 +473,15 @@ export function CalendarClient({ initialAppointments, customers: initialCustomer
          ------------------------------------------------------------- */}
       {view === 'week' && (
         <div className="bg-white border-2 border-slate-200 rounded-2xl overflow-hidden shadow-sm">
-          <div className="grid grid-cols-7 border-b border-slate-200 bg-slate-50 text-center">
+          <div className="overflow-x-auto scrollbar-thin">
+          <div className="grid grid-cols-7 border-b border-slate-200 bg-slate-50 text-center min-w-[700px]">
             {getWeekDays(currentDate).map((day, idx) => {
               const dateStr = formatDateString(day);
               const isToday = formatDateString(new Date()) === dateStr;
               return (
-                <div key={idx} className={`py-4 border-r border-slate-200 last:border-0 ${isToday ? "bg-cyan-50/50" : ""}`}>
+                <div key={idx} className={`py-3 border-r border-slate-200 last:border-0 ${isToday ? "bg-cyan-50/50" : ""}`}>
                   <p className="text-xs font-black text-slate-400 uppercase">{TURKISH_DAYS_SHORT[idx]}</p>
-                  <p className={`mt-1 inline-flex h-8 w-8 items-center justify-center rounded-full text-base font-black ${
+                  <p className={`mt-1 inline-flex h-7 w-7 items-center justify-center rounded-full text-sm font-black ${
                     isToday ? "bg-cyan-600 text-white" : "text-slate-800"
                   }`}>{day.getDate()}</p>
                 </div>
@@ -486,7 +489,7 @@ export function CalendarClient({ initialAppointments, customers: initialCustomer
             })}
           </div>
 
-          <div className="grid grid-cols-7 divide-x divide-slate-100 min-h-[450px]">
+          <div className="grid grid-cols-7 divide-x divide-slate-100 min-h-[450px] min-w-[700px]">
             {getWeekDays(currentDate).map((day, idx) => {
               const dateStr = formatDateString(day);
               const dayApps = filterAppointmentsForDate(dateStr);
@@ -505,13 +508,13 @@ export function CalendarClient({ initialAppointments, customers: initialCustomer
                         draggable
                         onDragStart={(e) => handleDragStart(e, app.id)}
                         onClick={() => handleOpenEditModal(app)}
-                        className={`p-3 rounded-xl border text-xs font-semibold cursor-pointer shadow-sm hover:scale-[1.01] transition-transform ${color.bg} ${color.text} ${color.border}`}
+                        className={`p-2 rounded-xl border text-xs font-semibold cursor-pointer shadow-sm hover:scale-[1.01] transition-transform ${color.bg} ${color.text} ${color.border}`}
                       >
                         <div className="flex items-center justify-between mb-1">
                           <span className="font-black text-slate-800 truncate max-w-[80px]">{app.customer?.name || "Müşteri"}</span>
                           <span className="text-[10px] bg-white/60 px-1 py-0.5 rounded">{app.start_time.substring(0, 5)}</span>
                         </div>
-                        <p className="font-extrabold opacity-95">{app.service_type}</p>
+                        <p className="font-extrabold opacity-95 truncate">{app.service_type}</p>
                         <p className="text-[10px] mt-1 opacity-70 flex items-center gap-1"><MapPin className="h-3 w-3 shrink-0" /> {app.district || app.customer?.district || 'Belirtilmemiş'}</p>
                       </div>
                     );
@@ -519,13 +522,14 @@ export function CalendarClient({ initialAppointments, customers: initialCustomer
                   
                   <button
                     onClick={() => handleOpenAddModal(dateStr)}
-                    className="w-full py-4 border-2 border-dashed border-slate-200 hover:border-cyan-300 rounded-xl flex flex-col items-center justify-center text-slate-400 hover:text-cyan-600 transition-colors text-xs font-bold"
+                    className="w-full py-3 border-2 border-dashed border-slate-200 hover:border-cyan-300 rounded-xl flex flex-col items-center justify-center text-slate-400 hover:text-cyan-600 transition-colors text-xs font-bold"
                   >
-                    <Plus className="h-4 w-4 mb-1" /> Yeni Plan
+                    <Plus className="h-4 w-4 mb-1" /> Yeni
                   </button>
                 </div>
               );
             })}
+          </div>
           </div>
         </div>
       )}
