@@ -14,7 +14,8 @@ import {
   CheckCircle,
   X,
   Trash2,
-  AlertCircle
+  AlertCircle,
+  Navigation
 } from "lucide-react";
 import { saveAppointment, updateAppointmentDate, deleteAppointment, createQuickCustomer } from "./actions";
 
@@ -94,6 +95,7 @@ export function CalendarClient({ initialAppointments, customers: initialCustomer
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingApp, setEditingApp] = useState<Partial<DBAppointment> | null>(null);
   const [isQuickCustomerOpen, setIsQuickCustomerOpen] = useState(false);
+  const [popupDate, setPopupDate] = useState<string | null>(null);
   
   // Feedback state
   const [loading, setLoading] = useState(false);
@@ -417,11 +419,12 @@ export function CalendarClient({ initialAppointments, customers: initialCustomer
               return (
                 <div
                   key={idx}
-                  className={`p-0.5 sm:p-1.5 flex flex-col group min-h-[60px] sm:min-h-[110px] transition-colors relative ${
+                  className={`p-0.5 sm:p-1.5 flex flex-col group min-h-[60px] sm:min-h-[110px] transition-colors relative cursor-pointer hover:bg-slate-50/50 ${
                     isCurrentMonth ? "bg-white" : "bg-slate-50/50"
-                  } ${isToday ? "bg-cyan-50/20" : ""}`}
+                  } ${isToday ? "bg-cyan-50/20 ring-2 ring-inset ring-cyan-400" : ""}`}
                   onDragOver={handleDragOver}
                   onDrop={(e) => handleDrop(e, dateStr)}
+                  onClick={() => { setCurrentDate(day); setView("day"); }}
                 >
                   {/* Cell Header */}
                   <div className="flex items-center justify-between p-0.5 sm:p-1">
@@ -430,9 +433,46 @@ export function CalendarClient({ initialAppointments, customers: initialCustomer
                     }`}>
                       {day.getDate()}
                     </span>
+                    
+                    {dayApps.length > 0 && (
+                      <button
+                        type="button"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setPopupDate(dateStr);
+                        }}
+                        className="flex gap-0.5 p-1 rounded hover:bg-slate-100 transition-colors shrink-0 z-10"
+                        title="Günlük detayları gör"
+                      >
+                        {dayApps.slice(0, 4).map(app => {
+                          const statusColorsMap: Record<string, string> = {
+                            "Planlandı": "bg-slate-400",
+                            "Müşteri Arandı": "bg-blue-500",
+                            "Yola Çıkıldı": "bg-indigo-500",
+                            "İşlem Başladı": "bg-cyan-500",
+                            "Malzeme Bekleniyor": "bg-amber-500",
+                            "İşlem Tamamlandı": "bg-emerald-500",
+                            "İptal Edildi": "bg-red-500",
+                            "Ertelendi": "bg-purple-500",
+                            "Tahsilat Bekleniyor": "bg-rose-500"
+                          };
+                          const dotColor = statusColorsMap[app.status] || "bg-slate-400";
+                          return (
+                            <span
+                              key={app.id}
+                              className={`h-1.5 w-1.5 rounded-full ${dotColor} inline-block shrink-0`}
+                            />
+                          );
+                        })}
+                        {dayApps.length > 4 && (
+                          <span className="text-[8px] leading-none text-slate-500 font-black">+</span>
+                        )}
+                      </button>
+                    )}
+
                     <button
-                      onClick={() => handleOpenAddModal(dateStr)}
-                      className="hidden group-hover:inline-flex h-5 w-5 items-center justify-center rounded-md bg-slate-100 hover:bg-slate-200 text-slate-600"
+                      onClick={(e) => { e.stopPropagation(); handleOpenAddModal(dateStr); }}
+                      className="hidden group-hover:inline-flex h-5 w-5 items-center justify-center rounded-md bg-slate-100 hover:bg-slate-200 text-slate-600 z-10"
                       title="Yeni Randevu"
                     >
                       <Plus className="h-3 w-3" />
@@ -440,16 +480,16 @@ export function CalendarClient({ initialAppointments, customers: initialCustomer
                   </div>
 
                   {/* List of cards */}
-                  <div className="flex-1 overflow-y-auto space-y-0.5 sm:space-y-1 mt-0.5 sm:mt-1 max-h-[80px] sm:max-h-[140px] scrollbar-thin">
+                  <div className="hidden sm:block flex-1 overflow-y-auto space-y-0.5 sm:space-y-1 mt-0.5 sm:mt-1 max-h-[80px] sm:max-h-[140px] scrollbar-thin">
                     {dayApps.map(app => {
                       const color = STATUS_COLORS[app.status] || { bg: "bg-slate-100", text: "text-slate-700", border: "border-slate-300" };
                       return (
                         <div
                           key={app.id}
                           draggable
-                          onDragStart={(e) => handleDragStart(e, app.id)}
-                          onClick={() => handleOpenEditModal(app)}
-                          className={`p-1 sm:p-1.5 rounded-lg border text-[9px] sm:text-[11px] font-semibold cursor-pointer shadow-sm hover:scale-[1.02] active:scale-[0.98] transition-transform ${color.bg} ${color.text} ${color.border}`}
+                          onDragStart={(e) => { e.stopPropagation(); handleDragStart(e, app.id); }}
+                          onClick={(e) => { e.stopPropagation(); handleOpenEditModal(app); }}
+                          className="p-1 sm:p-1.5 rounded-lg border text-[9px] sm:text-[11px] font-semibold cursor-pointer shadow-sm hover:scale-[1.02] active:scale-[0.98] transition-transform bg-white text-slate-700 border-slate-200"
                           title={`${app.customer?.name} - ${app.service_type}`}
                         >
                           <div className="flex justify-between font-black">
@@ -929,6 +969,123 @@ export function CalendarClient({ initialAppointments, customers: initialCustomer
                 </button>
               </div>
             </form>
+          </div>
+        </div>
+      )}
+
+      {/* ── GÜNLÜK DETAY POPUP MODALI ──────────────────────────────── */}
+      {popupDate && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm">
+          <div className="relative w-full max-w-lg bg-white border-2 border-slate-200 rounded-3xl shadow-2xl flex flex-col max-h-[85vh]">
+            {/* Header */}
+            <div className="flex items-center justify-between px-6 py-4 border-b border-slate-100 shrink-0">
+              <div>
+                <h3 className="text-lg font-black text-slate-800">
+                  📅 {new Date(popupDate + "T12:00:00").getDate()} {TURKISH_MONTHS[new Date(popupDate + "T12:00:00").getMonth()]} {new Date(popupDate + "T12:00:00").getFullYear()}
+                </h3>
+                <p className="text-xs font-semibold text-slate-400 mt-0.5">O günün randevu detayları ve iş yerleri</p>
+              </div>
+              <button
+                type="button"
+                onClick={() => setPopupDate(null)}
+                className="h-9 w-9 flex items-center justify-center rounded-xl hover:bg-slate-100 transition-colors"
+              >
+                <X className="h-5 w-5 text-slate-500" />
+              </button>
+            </div>
+
+            {/* Content */}
+            <div className="overflow-y-auto flex-1 p-6 space-y-3 scrollbar-thin">
+              {filterAppointmentsForDate(popupDate).length === 0 ? (
+                <div className="text-center py-8">
+                  <p className="text-slate-400 font-semibold text-sm">Bu tarihte randevu bulunmuyor.</p>
+                </div>
+              ) : (
+                filterAppointmentsForDate(popupDate).map(app => {
+                  const color = STATUS_COLORS[app.status] || { bg: "bg-slate-100", text: "text-slate-700", border: "border-slate-300" };
+                  return (
+                    <div key={app.id} className={`p-4 rounded-2xl border-2 ${color.border} ${color.bg} space-y-3 text-left`}>
+                      <div className="flex items-start justify-between gap-2">
+                        <div>
+                          <div className="flex items-center gap-1.5">
+                            <span className="text-sm font-black text-slate-800">{app.start_time.substring(0, 5)} - {app.end_time.substring(0, 5)}</span>
+                            {app.priority !== "normal" && (
+                              <span className={`inline-flex items-center gap-1 px-1.5 py-0.5 rounded-md text-[10px] font-black ${app.priority === "acil" ? "bg-red-100 text-red-700" : "bg-amber-100 text-amber-700"}`}>
+                                {app.priority.toUpperCase()}
+                              </span>
+                            )}
+                          </div>
+                          <h4 className="font-extrabold text-slate-800 text-sm mt-1">{app.customer?.name || "Bilinmeyen Müşteri"}</h4>
+                          <p className={`text-xs font-bold mt-0.5 ${color.text}`}>{app.service_type}</p>
+                        </div>
+                        <span className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-[10px] font-black border ${color.border} ${color.bg} ${color.text}`}>
+                          {app.status}
+                        </span>
+                      </div>
+
+                      {app.address && (
+                        <div className="flex items-start gap-1.5 text-xs text-slate-600 bg-white/50 p-2.5 rounded-xl border border-white/60">
+                          <MapPin className="h-3.5 w-3.5 text-cyan-600 shrink-0 mt-0.5" />
+                          <span>{app.address} {app.district ? `(${app.district})` : ""}</span>
+                        </div>
+                      )}
+
+                      <div className="flex items-center gap-2 pt-2 border-t border-white/40">
+                        {app.customer?.phone && (
+                          <a
+                            href={`tel:${app.customer.phone}`}
+                            className="flex-1 flex items-center justify-center gap-1.5 h-9 rounded-xl bg-white border border-slate-200 text-xs font-black text-slate-700 hover:bg-slate-50 transition-colors"
+                          >
+                            <Phone className="h-3.5 w-3.5 text-emerald-600" /> Ara
+                          </a>
+                        )}
+                        {app.location_link && (
+                          <a
+                            href={app.location_link}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="flex-1 flex items-center justify-center gap-1.5 h-9 bg-emerald-600 text-white rounded-xl text-xs font-black hover:bg-emerald-700 transition-colors"
+                          >
+                            <Navigation className="h-3.5 w-3.5" /> Yol Tarifi
+                          </a>
+                        )}
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setPopupDate(null);
+                            handleOpenEditModal(app);
+                          }}
+                          className="flex-1 h-9 rounded-xl bg-cyan-600 text-white text-xs font-black hover:bg-cyan-700 transition-colors"
+                        >
+                          Düzenle
+                        </button>
+                      </div>
+                    </div>
+                  );
+                })
+              )}
+            </div>
+
+            {/* Footer */}
+            <div className="flex gap-2 px-6 py-4 border-t border-slate-100 bg-slate-50/50 rounded-b-3xl shrink-0">
+              <button
+                type="button"
+                onClick={() => setPopupDate(null)}
+                className="flex-1 inline-flex h-11 items-center justify-center rounded-xl border-2 border-slate-200 bg-white text-sm font-black text-slate-600 hover:bg-slate-50 transition-colors"
+              >
+                Kapat
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  setPopupDate(null);
+                  handleOpenAddModal(popupDate);
+                }}
+                className="flex-1 inline-flex h-11 items-center justify-center rounded-xl bg-cyan-600 border-2 border-cyan-700 text-sm font-black text-white hover:bg-cyan-700 transition-colors"
+              >
+                Yeni Randevu
+              </button>
+            </div>
           </div>
         </div>
       )}

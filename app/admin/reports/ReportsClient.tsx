@@ -306,44 +306,44 @@ export function ReportsClient({
   return (
     <div className="space-y-6">
       {/* Date Filters & Export Toolbar */}
-      <div className="bg-white border-2 border-slate-200 rounded-3xl p-5 shadow-sm flex flex-col md:flex-row items-center justify-between gap-4">
+      <div className="bg-white border-2 border-slate-200 rounded-3xl p-6 shadow-sm flex flex-col gap-6">
         
         {/* Date Inputs */}
-        <div className="flex flex-wrap items-center gap-3 w-full md:w-auto">
-          <div className="space-y-1">
-            <label className="text-[10px] font-black text-slate-400 uppercase">Başlangıç Tarihi</label>
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 w-full">
+          <div className="space-y-2 w-full">
+            <label className="text-xs font-black text-slate-500 uppercase tracking-wider">Başlangıç Tarihi</label>
             <input
               type="date"
               value={startDate}
               onChange={(e) => setStartDate(e.target.value)}
-              className="h-10 px-3 rounded-xl border-2 border-slate-200 bg-white text-xs font-semibold outline-none focus:border-cyan-500 transition-colors"
+              className="h-14 w-full px-4 rounded-xl border-2 border-slate-200 bg-white text-base font-semibold outline-none focus:border-cyan-500 transition-colors shadow-sm"
             />
           </div>
-          <div className="space-y-1">
-            <label className="text-[10px] font-black text-slate-400 uppercase">Bitiş Tarihi</label>
+          <div className="space-y-2 w-full">
+            <label className="text-xs font-black text-slate-500 uppercase tracking-wider">Bitiş Tarihi</label>
             <input
               type="date"
               value={endDate}
               onChange={(e) => setEndDate(e.target.value)}
-              className="h-10 px-3 rounded-xl border-2 border-slate-200 bg-white text-xs font-semibold outline-none focus:border-cyan-500 transition-colors"
+              className="h-14 w-full px-4 rounded-xl border-2 border-slate-200 bg-white text-base font-semibold outline-none focus:border-cyan-500 transition-colors shadow-sm"
             />
           </div>
         </div>
 
         {/* Action buttons */}
-        <div className="flex gap-2 w-full md:w-auto shrink-0 justify-end">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-end gap-3 border-t border-slate-100 pt-4">
           <button
             onClick={handleExportCSV}
-            className="inline-flex h-11 items-center gap-2 rounded-xl bg-slate-100 hover:bg-slate-200 border-2 border-slate-200 px-4 text-xs font-black text-slate-700 transition-colors"
+            className="inline-flex h-12 items-center justify-center gap-2 rounded-xl bg-slate-100 hover:bg-slate-200 border-2 border-slate-200 px-5 text-xs font-black text-slate-700 transition-colors"
           >
-            <FileSpreadsheet className="h-4 w-4 text-emerald-600" /> Excel / CSV Dışa Aktar
+            <FileSpreadsheet className="h-5 w-5 text-emerald-600" /> Excel / CSV Dışa Aktar
           </button>
           
           <button
             onClick={() => window.print()}
-            className="inline-flex h-11 items-center gap-2 rounded-xl bg-cyan-600 hover:bg-cyan-700 border-2 border-cyan-700 px-4 text-xs font-black text-white transition-colors"
+            className="inline-flex h-12 items-center justify-center gap-2 rounded-xl bg-cyan-600 hover:bg-cyan-700 border-2 border-cyan-700 px-5 text-xs font-black text-white transition-colors"
           >
-            <Printer className="h-4 w-4" /> Yazdır / PDF
+            <Printer className="h-5 w-5" /> Yazdır / PDF
           </button>
         </div>
       </div>
