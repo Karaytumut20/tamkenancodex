@@ -178,11 +178,11 @@ export function ServiceGrid({ dynamicData }: ServiceGridProps) {
   };
 
   const visible = useMemo(() => {
-    return tab === "Tümü" ? filtered.slice(0, 8) : filtered;
+    return filtered;
   }, [filtered, tab]);
 
-  const pageCount = Math.max(1, Math.ceil(visible.length / 4));
-  const desktopVisible = visible.slice(cardPage * 4, cardPage * 4 + 4);
+  const pageCount = Math.max(1, visible.length - 3);
+  const desktopVisible = visible.slice(cardPage, cardPage + 4);
 
   useEffect(() => {
     setCardPage(0);
