@@ -23,6 +23,9 @@ import { getDashboardStats } from "@/lib/admin/data";
 import { getServiceDashboardStats } from "@/lib/admin/service-system";
 import { adminResources } from "@/lib/admin/resources";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
+import { TodayProgramList, UpcomingAppointmentsList, DelayedJobsList } from "@/components/admin/dashboard/DashboardAppointmentsList";
+import { DashboardStocksList } from "@/components/admin/dashboard/DashboardStocksList";
+import { DashboardCustomersList } from "@/components/admin/dashboard/DashboardCustomersList";
 
 export const dynamic = "force-dynamic";
 
@@ -51,6 +54,8 @@ export default async function AdminDashboardPage() {
   let lowStockAlerts: any[] = [];
   let recentCustomers: any[] = [];
   let recentLogs: any[] = [];
+  let allCustomers: any[] = [];
+  let allEmployees: any[] = [];
 
   const todayStr = new Date().toISOString().split("T")[0];
 
@@ -146,6 +151,13 @@ export default async function AdminDashboardPage() {
       .order("created_at", { ascending: false })
       .limit(5);
     if (logs) recentLogs = logs;
+
+    // 8. Get all customers and employees for modals
+    const { data: custs } = await supabase.from("customers").select("id, name, phone, address, city, district").is("deleted_at", null).order("name");
+    if (custs) allCustomers = custs;
+
+    const { data: emps } = await supabase.from("employees").select("id, full_name").eq("is_active", true).order("full_name");
+    if (emps) allEmployees = emps;
 
   } catch (err) {
     console.error("Failed to load service tracking stats on dashboard:", err);
@@ -307,202 +319,19 @@ export default async function AdminDashboardPage() {
 
         {/* Double Column Program Panels */}
         <div className="grid gap-6 md:grid-cols-2">
-          {/* 1. Bugünün Programı */}
-          <section className="bg-white border-2 border-slate-200 rounded-2xl p-5 shadow-sm">
-            <div className="flex items-center justify-between mb-4 pb-2 border-b border-slate-100">
-              <h3 className="text-lg font-black text-slate-800 flex items-center gap-2">
-                <Clock className="h-5 w-5 text-rose-500" /> Bugünün Programı
-              </h3>
-              <span className="text-xs font-bold text-slate-400 bg-slate-100 px-2.5 py-0.5 rounded-full">{todayProgram.length} İş</span>
-            </div>
-
-            {todayProgram.length === 0 ? (
-              <div className="py-8 text-center text-sm font-semibold text-slate-400">
-                Bugün için planlanmış randevu bulunmamaktadır.
-              </div>
-            ) : (
-              <div className="divide-y divide-slate-100">
-                {todayProgram.map((app) => (
-                  <div key={app.id} className="py-3 flex items-start justify-between gap-3">
-                    <div>
-                      <p className="font-extrabold text-sm text-slate-800">{app.customer?.name}</p>
-                      <p className="text-xs font-semibold text-slate-500 mt-0.5">
-                        {app.service_type} &bull; {app.start_time.substring(0, 5)} - {app.end_time.substring(0, 5)}
-                      </p>
-                    </div>
-                    <span className="px-2.5 py-0.5 rounded-full text-xs font-bold bg-slate-100 text-slate-700 border border-slate-200 shrink-0">
-                      {app.status}
-                    </span>
-                  </div>
-                ))}
-              </div>
-            )}
-          </section>
-
-          {/* 2. Yaklaşan Randevular */}
-          <section className="bg-white border-2 border-slate-200 rounded-2xl p-5 shadow-sm">
-            <div className="flex items-center justify-between mb-4 pb-2 border-b border-slate-100">
-              <h3 className="text-lg font-black text-slate-800 flex items-center gap-2">
-                <Calendar className="h-5 w-5 text-cyan-600" /> Yaklaşan Randevular
-              </h3>
-              <Link href="/admin/calendar" className="text-xs font-black text-cyan-600 hover:text-cyan-700">Takvim →</Link>
-            </div>
-
-            {upcomingAppointments.length === 0 ? (
-              <div className="py-8 text-center text-sm font-semibold text-slate-400">
-                Gelecek günlerde planlanmış randevu bulunmamaktadır.
-              </div>
-            ) : (
-              <div className="divide-y divide-slate-100">
-                {upcomingAppointments.map((app) => (
-                  <div key={app.id} className="py-3 flex items-start justify-between gap-3">
-                    <div>
-                      <p className="font-extrabold text-sm text-slate-800">{app.customer?.name}</p>
-                      <p className="text-xs font-semibold text-slate-500 mt-0.5">
-                        {app.service_type} - {app.appointment_date} @ {app.start_time.substring(0, 5)}
-                      </p>
-                    </div>
-                    <span className={`inline-flex px-2.5 py-0.5 rounded-full text-xs font-bold ${
-                      app.priority === 'acil' ? 'bg-red-50 text-red-600 border border-red-200' :
-                      app.priority === 'önemli' ? 'bg-amber-50 text-amber-600 border border-amber-200' :
-                      'bg-slate-50 text-slate-600 border border-slate-200'
-                    } shrink-0`}>
-                      {app.priority}
-                    </span>
-                  </div>
-                ))}
-              </div>
-            )}
-          </section>
+          <TodayProgramList todayProgram={todayProgram} customers={allCustomers} employees={allEmployees} />
+          <UpcomingAppointmentsList upcomingAppointments={upcomingAppointments} customers={allCustomers} employees={allEmployees} />
         </div>
 
         {/* Double Column Alerts Panels */}
         <div className="grid gap-6 md:grid-cols-2">
-          {/* 3. Geciken İşler */}
-          <section className="bg-white border-2 border-slate-200 rounded-2xl p-5 shadow-sm">
-            <div className="flex items-center justify-between mb-4 pb-2 border-b border-slate-100">
-              <h3 className="text-lg font-black text-slate-800 flex items-center gap-2">
-                <AlertTriangle className="h-5 w-5 text-red-500" /> Geciken İşler (Planı Geçenler)
-              </h3>
-              <span className="text-xs font-bold text-red-600 bg-red-50 px-2.5 py-0.5 rounded-full">{delayedJobs.length} Geciken</span>
-            </div>
-
-            {delayedJobs.length === 0 ? (
-              <div className="py-8 text-center text-sm font-semibold text-slate-400">
-                Günü geçmiş açık randevu veya tamamlanmamış iş bulunmuyor.
-              </div>
-            ) : (
-              <div className="divide-y divide-slate-100">
-                {delayedJobs.map((app) => (
-                  <div key={app.id} className="py-3 flex items-start justify-between gap-3">
-                    <div>
-                      <p className="font-extrabold text-sm text-slate-800">{app.customer?.name}</p>
-                      <p className="text-xs font-semibold text-red-500 mt-0.5">
-                        Tarih: {app.appointment_date} @ {app.start_time.substring(0, 5)} (İşlem gecikti)
-                      </p>
-                    </div>
-                    <span className="px-2.5 py-0.5 rounded-full text-xs font-bold bg-slate-100 text-slate-700 border border-slate-200 shrink-0">
-                      {app.status}
-                    </span>
-                  </div>
-                ))}
-              </div>
-            )}
-          </section>
-
-          {/* 4. Düşük Stok Uyarıları */}
-          <section className="bg-white border-2 border-slate-200 rounded-2xl p-5 shadow-sm">
-            <div className="flex items-center justify-between mb-4 pb-2 border-b border-slate-100">
-              <h3 className="text-lg font-black text-slate-800 flex items-center gap-2">
-                <Package className="h-5 w-5 text-amber-500" /> Düşük Stok Uyarıları
-              </h3>
-              <Link href="/admin/stocks" className="text-xs font-black text-amber-600 hover:text-amber-700">Depo →</Link>
-            </div>
-
-            {lowStockAlerts.length === 0 ? (
-              <div className="py-8 text-center text-sm font-semibold text-slate-400">
-                Kritik seviyenin altında malzeme bulunmuyor.
-              </div>
-            ) : (
-              <div className="divide-y divide-slate-100">
-                {lowStockAlerts.map((mat) => (
-                  <div key={mat.id} className="py-3 flex items-center justify-between gap-3">
-                    <div>
-                      <p className="font-extrabold text-sm text-slate-800">{mat.name}</p>
-                      <p className="text-xs font-semibold text-slate-500 mt-0.5">Marka: {mat.brand || "Belirtilmemiş"}</p>
-                    </div>
-                    <div className="text-right">
-                      <p className="text-sm font-black text-red-600">{Number(mat.stock_quantity)} adet</p>
-                      <p className="text-[10px] font-bold text-slate-400 mt-0.5">Min: {Number(mat.min_stock_level)}</p>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            )}
-          </section>
+          <DelayedJobsList delayedJobs={delayedJobs} customers={allCustomers} employees={allEmployees} />
+          <DashboardStocksList lowStockAlerts={lowStockAlerts} />
         </div>
 
         {/* Double Column Customer/Debtors Panels */}
         <div className="grid gap-6 md:grid-cols-2">
-          {/* 5. Son Eklenen Müşteriler */}
-          <section className="bg-white border-2 border-slate-200 rounded-2xl p-5 shadow-sm">
-            <div className="flex items-center justify-between mb-4 pb-2 border-b border-slate-100">
-              <h3 className="text-lg font-black text-slate-800 flex items-center gap-2">
-                <UserPlus className="h-5 w-5 text-emerald-600" /> Son Eklenen Müşteriler
-              </h3>
-              <Link href="/admin/customers" className="text-xs font-black text-cyan-600 hover:text-cyan-700">Tümü →</Link>
-            </div>
-
-            {recentCustomers.length === 0 ? (
-              <div className="py-8 text-center text-sm font-semibold text-slate-400">
-                Kayıtlı müşteri bulunmamaktadır.
-              </div>
-            ) : (
-              <div className="divide-y divide-slate-100">
-                {recentCustomers.map((c) => (
-                  <div key={c.id} className="py-3 flex items-center justify-between gap-3">
-                    <div>
-                      <Link href={`/admin/customers/${c.id}`} className="font-extrabold text-sm text-slate-800 hover:text-cyan-600 transition-colors block">
-                        {c.name}
-                      </Link>
-                      <p className="text-xs font-semibold text-slate-500 mt-0.5">{c.phone} &bull; {c.type}</p>
-                    </div>
-                    <span className="text-[10px] font-bold text-slate-400">{c.created_at.split('T')[0]}</span>
-                  </div>
-                ))}
-              </div>
-            )}
-          </section>
-
-          {/* 6. Tahsilat Bekleyen Müşteriler */}
-          <section className="bg-white border-2 border-slate-200 rounded-2xl p-5 shadow-sm">
-            <div className="flex items-center justify-between mb-4 pb-2 border-b border-slate-100">
-              <h3 className="text-lg font-black text-slate-800 flex items-center gap-2">
-                <DollarSign className="h-5 w-5 text-rose-500" /> Tahsilat Bekleyen Müşteriler
-              </h3>
-              <Link href="/admin/reports?tab=borclu_musteriler" className="text-xs font-black text-cyan-600 hover:text-cyan-700">Borç Raporu →</Link>
-            </div>
-
-            {unpaidCustomers.length === 0 ? (
-              <div className="py-8 text-center text-sm font-semibold text-slate-400">
-                Borcu bulunan müşteri bulunmamaktadır.
-              </div>
-            ) : (
-              <div className="divide-y divide-slate-100">
-                {unpaidCustomers.map((c, i) => (
-                  <div key={i} className="py-3 flex items-center justify-between gap-3">
-                    <div>
-                      <p className="font-extrabold text-sm text-slate-800">{c.name}</p>
-                      <p className="text-xs font-semibold text-slate-500 mt-0.5">{c.phone}</p>
-                    </div>
-                    <span className="text-sm font-black text-rose-600">
-                      {c.remaining.toLocaleString("tr-TR", { style: "currency", currency: "TRY", minimumFractionDigits: 0 })}
-                    </span>
-                  </div>
-                ))}
-              </div>
-            )}
-          </section>
+          <DashboardCustomersList recentCustomers={recentCustomers} unpaidCustomers={unpaidCustomers} />
         </div>
 
         {/* 7. Son Yapılan İşlemler (Activity Logs) */}

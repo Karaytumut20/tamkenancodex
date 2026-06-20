@@ -2,8 +2,9 @@
 
 import React, { useState } from "react";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import {
+  ArrowLeft,
   BookOpen,
   Boxes,
   Home,
@@ -176,11 +177,22 @@ export function AdminPageHeader({
   description?: string;
   action?: React.ReactNode;
 }) {
+  const router = useRouter();
+  
   return (
-    <div className="mb-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-      <div>
-        <h2 className="text-2xl font-black text-slate-900 md:text-3xl">{title}</h2>
-        {description ? <p className="mt-1 text-sm text-slate-500 font-semibold">{description}</p> : null}
+    <div className="mb-6 flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+      <div className="flex items-start gap-3">
+        <button
+          onClick={() => router.back()}
+          className="mt-1 shrink-0 inline-flex h-8 w-8 items-center justify-center rounded-lg border-2 border-slate-200 bg-white text-slate-500 hover:border-cyan-500 hover:text-cyan-600 transition-colors shadow-sm"
+          title="Geri Dön"
+        >
+          <ArrowLeft className="h-4 w-4" />
+        </button>
+        <div>
+          <h2 className="text-2xl font-black text-slate-900 md:text-3xl leading-none">{title}</h2>
+          {description ? <p className="mt-1 text-sm text-slate-500 font-semibold">{description}</p> : null}
+        </div>
       </div>
       {action && <div className="shrink-0">{action}</div>}
     </div>

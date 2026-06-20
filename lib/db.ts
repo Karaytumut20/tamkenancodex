@@ -277,12 +277,16 @@ export const getProducts = cache(async function getProducts(): Promise<any[]> {
       .eq("is_active", true)
       .order("sort_order", { ascending: true });
 
-    if (error || !dbProducts || dbProducts.length === 0) {
+    if (error || !dbProducts) {
       console.warn(
-        "Using fallback products due to DB error or empty table:",
+        "Using fallback products due to DB error:",
         error,
       );
       return staticProducts;
+    }
+
+    if (dbProducts.length === 0) {
+      return [];
     }
 
     return (dbProducts as any[]).map((p) => {
