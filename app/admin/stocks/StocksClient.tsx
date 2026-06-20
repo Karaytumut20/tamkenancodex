@@ -14,6 +14,7 @@ import {
   TrendingDown,
   Building,
   CheckCircle,
+  RefreshCw,
   X
 } from "lucide-react";
 import { saveMaterial, deleteMaterial } from "./actions";
@@ -35,6 +36,7 @@ export function StocksClient({ materials }: Props) {
   const [loading, setLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
   const [successMessage, setSuccessMessage] = useState("");
+  const [isSyncing, setIsSyncing] = useState(false);
 
   const [formId, setFormId] = useState("");
   const [formName, setFormName] = useState("");
@@ -170,6 +172,23 @@ export function StocksClient({ materials }: Props) {
     setLoading(false);
   };
 
+  const handleProductSync = async () => {
+    setIsSyncing(true);
+    setErrorMessage("");
+    setSuccessMessage("");
+    try {
+      const response = await fetch("/api/oksid-cek", { cache: "no-store" });
+      const result = await response.json();
+      if (!response.ok || result.error) throw new Error(result.error || "Ürünler alınamadı.");
+      setSuccessMessage(`${result.stogaAktarilan || 0} ürün stok ve malzeme listesine aktarıldı.`);
+      router.refresh();
+    } catch (error) {
+      setErrorMessage(error instanceof Error ? error.message : "Ürün aktarımı başarısız oldu.");
+    } finally {
+      setIsSyncing(false);
+    }
+  };
+
   return (
     <div className="space-y-6">
       {/* Top Banner / Metrics */}
@@ -242,13 +261,29 @@ export function StocksClient({ materials }: Props) {
           </button>
 
           <button
+            onClick={handleProductSync}
+            disabled={isSyncing}
+            className="h-11 px-4 rounded-xl border-2 border-cyan-200 bg-cyan-50 hover:bg-cyan-100 text-cyan-800 text-xs font-black flex items-center gap-1.5 transition-colors disabled:opacity-60 shrink-0 ml-auto sm:ml-0"
+          >
+            <RefreshCw className={`h-4 w-4 ${isSyncing ? "animate-spin" : ""}`} />
+            {isSyncing ? "Ürünler Çekiliyor..." : "Ürünleri XML'den Çek"}
+          </button>
+
+          <button
             onClick={handleOpenAdd}
-            className="h-11 px-4 rounded-xl bg-cyan-600 hover:bg-cyan-700 text-white text-xs font-black flex items-center gap-1.5 transition-colors shrink-0 ml-auto sm:ml-0"
+            className="h-11 px-4 rounded-xl bg-cyan-600 hover:bg-cyan-700 text-white text-xs font-black flex items-center gap-1.5 transition-colors shrink-0"
           >
             <Plus className="h-4 w-4" /> Yeni Stok Kartı
           </button>
         </div>
       </div>
+
+      {!isOpen && (errorMessage || successMessage) && (
+        <div className={`flex items-center gap-3 rounded-xl border p-4 text-sm font-semibold ${errorMessage ? "border-red-200 bg-red-50 text-red-800" : "border-emerald-200 bg-emerald-50 text-emerald-800"}`}>
+          {errorMessage ? <AlertTriangle className="h-5 w-5 shrink-0" /> : <CheckCircle className="h-5 w-5 shrink-0" />}
+          <span>{errorMessage || successMessage}</span>
+        </div>
+      )}
 
       {/* Grid / Table list */}
       {filtered.length === 0 ? (

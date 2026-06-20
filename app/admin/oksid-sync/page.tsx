@@ -17,6 +17,7 @@ export default function OksidSyncPage() {
   const [result, setResult] = useState<{
     success?: boolean;
     islenen?: number;
+    stogaAktarilan?: number;
     atlanan?: number;
     hatalar?: string[];
     error?: string;
@@ -164,6 +165,7 @@ export default function OksidSyncPage() {
                     <p className="text-sm text-emerald-700 mt-0.5">
                       {result.islenen?.toLocaleString("tr-TR")} ürün işlendi,{" "}
                       {result.atlanan?.toLocaleString("tr-TR")} ürün atlandı.
+                      {result.stogaAktarilan !== undefined && ` ${result.stogaAktarilan.toLocaleString("tr-TR")} ürün stok ve malzeme modülüne aktarıldı.`}
                       {duration && ` (${duration} saniye)`}
                     </p>
                   </div>

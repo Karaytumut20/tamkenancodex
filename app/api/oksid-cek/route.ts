@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { XMLParser } from "fast-xml-parser";
-import https from "https";
 import { createClient } from "@supabase/supabase-js";
+import { createSupabaseServerClient } from "@/lib/supabase/server";
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Sabitler
@@ -40,17 +40,13 @@ function slugify(text: string): string {
 // Yardımcı: HTTPS URL'yi string olarak indirir
 // ─────────────────────────────────────────────────────────────────────────────
 async function fetchXmlText(url: string): Promise<string> {
-  return new Promise((resolve, reject) => {
-    https
-      .get(url, (res) => {
-        let data = "";
-        res.setEncoding("utf8");
-        res.on("data", (chunk: string) => (data += chunk));
-        res.on("end", () => resolve(data));
-        res.on("error", reject);
-      })
-      .on("error", reject);
+  const response = await fetch(url, {
+    cache: "no-store",
+    signal: AbortSignal.timeout(60_000),
+    headers: { "User-Agent": "PrimeSec-Product-Sync/1.0" },
   });
+  if (!response.ok) throw new Error(`XML kaynağı ${response.status} yanıtı verdi.`);
+  return response.text();
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -69,10 +65,13 @@ function urunEklenecekMi(anaGrup: string, altGrup: string): boolean {
 function resimlerCikar(stok: Record<string, string>): string[] {
   const resimler: string[] = [];
   for (let i = 1; i <= 15; i++) {
-    const val = stok[`Res${i}`];
-    if (val && val.trim()) resimler.push(val.trim());
+    const val = stok[`Res${i}`] || stok[`res${i}`];
+    if (!val || !String(val).trim()) continue;
+    const raw = String(val).trim().replace(/&amp;/g, "&");
+    const normalized = raw.startsWith("//") ? `https:${raw}` : raw;
+    if (/^https?:\/\//i.test(normalized)) resimler.push(normalized);
   }
-  return resimler;
+  return Array.from(new Set(resimler));
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -94,6 +93,11 @@ function ozelliklerCikar(stok: Record<string, string>): Record<string, string> {
 // GET /api/oksid-cek
 // ─────────────────────────────────────────────────────────────────────────────
 export async function GET() {
+  const sessionClient = await createSupabaseServerClient();
+  const { data: { user } } = await sessionClient.auth.getUser();
+  if (!user) {
+    return NextResponse.json({ error: "Bu işlem için yönetici oturumu gerekli." }, { status: 401 });
+  }
   // Service Role Key ile Supabase bağlantısı (admin yetkisi gerekir)
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
   const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
@@ -147,6 +151,7 @@ export async function GET() {
 
     // Batch upsert için liste
     const upsertBatch: Record<string, unknown>[] = [];
+    const materialBatch: Record<string, unknown>[] = [];
 
     for (const stok of stokListesi) {
       const anaGrup = (stok["AnaGrup_Ad"] || "").trim();
@@ -180,7 +185,7 @@ export async function GET() {
         garanti_ay: parseInt(stok["Garanti"] || "0", 10) || 0,
         desi: parseFloat(stok["Desi"] || "0") || 0,
         kdv: parseInt(stok["Kdv"] || "18", 10) || 18,
-        barkod: (stok["Barkod"] || "").trim() || null,
+        barkod: (stok["Barkod"] || stok["barkod"] || "").trim() || null,
         resimler: resimler.length > 0 ? resimler : null,
         ozellikler:
           Object.keys(ozellikler).length > 0 ? ozellikler : null,
@@ -189,6 +194,20 @@ export async function GET() {
       };
 
       upsertBatch.push(paket);
+      materialBatch.push({
+        name: urunAdi,
+        category: altGrup || anaGrup,
+        brand: paket.marka,
+        barcode: paket.barkod,
+        sku: stokKodu,
+        stock_quantity: paket.stok_adet,
+        min_stock_level: 0,
+        supplier: "Oksid XML",
+        description: "Oksid ürün kataloğundan otomatik aktarıldı.",
+        is_active: true,
+        deleted_at: null,
+        updated_at: new Date().toISOString(),
+      });
       islenen++;
     }
 
@@ -205,6 +224,22 @@ export async function GET() {
       }
     }
 
+    // Aynı ürünleri stok/malzeme modülüne de aktar. Fiyat alanlarını pakete
+    // koymadığımız için yöneticinin girdiği alış/satış fiyatları korunur.
+    let stogaAktarilan = 0;
+    for (let i = 0; i < materialBatch.length; i += BATCH_SIZE) {
+      const batch = materialBatch.slice(i, i + BATCH_SIZE);
+      const { error } = await supabase
+        .from("materials")
+        .upsert(batch as any, { onConflict: "sku" });
+      if (error) {
+        console.error("[oksid-cek] Stok aktarım hatası:", error);
+        hatalar.push(`Stok aktarımı: ${error.message}`);
+      } else {
+        stogaAktarilan += batch.length;
+      }
+    }
+
     console.log(
       `[oksid-cek] Tamamlandı. İşlenen: ${islenen}, Atlanan: ${atlanan}`,
     );
@@ -212,6 +247,7 @@ export async function GET() {
     return NextResponse.json({
       success: true,
       islenen,
+      stogaAktarilan,
       atlanan,
       hatalar: hatalar.length > 0 ? hatalar : undefined,
     });

@@ -9,7 +9,7 @@ export function ProductCard({ product }: { product: Product }) {
   return (
     <article className="group flex h-full min-w-0 flex-col rounded-xl border border-border bg-white p-4 transition-all duration-300 hover:-translate-y-1 hover:border-cyan-500 hover:shadow-md sm:rounded-2xl sm:p-5">
       <Link href={`/urunler/${product.slug}`} className="product-card-image relative mb-4 block overflow-hidden rounded-lg border border-border/70 bg-white sm:rounded-xl">
-        <Image src={product.image} alt={`${product.name} ürün görseli`} fill sizes="(min-width: 1024px) 33vw, (min-width: 520px) 50vw, 100vw" className="object-contain p-4 sm:p-5" />
+        <Image src={product.image} alt={`${product.name} ürün görseli`} fill sizes="(min-width: 1024px) 33vw, (min-width: 520px) 50vw, 100vw" className="object-contain p-4 sm:p-5" unoptimized={/^https?:\/\//.test(product.image)} referrerPolicy="no-referrer" />
       </Link>
       <div className="mb-3 hidden flex-wrap gap-2 sm:flex">
         {(product.tags || []).slice(0, 3).map((tag) => (

@@ -23,6 +23,7 @@ import {
   Package,
   Contact,
   BarChart3,
+  Receipt,
 } from "lucide-react";
 import { signOutAdmin } from "@/lib/admin/actions";
 import type { AdminProfile } from "@/lib/admin/auth";
@@ -35,6 +36,7 @@ const navItems = [
   { href: "/admin/stocks", label: "Stok & Malzeme", icon: Package, desc: "Stok miktarları", roles: ["super_admin", "editor", "support", "viewer"] },
   { href: "/admin/employees", label: "Personeller", icon: Contact, desc: "Çalışma saatleri", roles: ["super_admin", "editor", "viewer"] },
   { href: "/admin/reports", label: "Raporlar", icon: BarChart3, desc: "Kâr & performans", roles: ["super_admin", "support", "viewer"] },
+  { href: "/admin/accounting", label: "Muhasebe", icon: Receipt, desc: "Tahsilat & alacaklar", roles: ["super_admin", "support", "viewer"] },
   { href: "/admin/leads", label: "Gelen Mesajlar", icon: MessageCircle, desc: "Müşteri talepleri", roles: ["super_admin", "editor", "support", "viewer"] },
   { href: "/admin/products", label: "Ürünler", icon: Boxes, desc: "Ürün yönetimi", roles: ["super_admin", "editor", "viewer"] },
   { href: "/admin/brands", label: "Markalar", icon: Tags, desc: "Marka yönetimi", roles: ["super_admin", "editor", "viewer"] },

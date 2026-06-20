@@ -28,7 +28,7 @@ export async function BrandChips() {
           Güvenilir Markalar, Kaliteli Çözümler
         </h2>
       </div>
-      <div className="relative mt-8 py-5">
+      <div className="relative mt-8 py-6">
         <DraggableMarquee>
           {dynamicBrands.map((brand) => (
             <BrandLogo key={brand.id} brand={brand} />
@@ -41,10 +41,10 @@ export async function BrandChips() {
 
 function BrandLogo({ brand }: { brand: Brand }) {
   return (
-    <div className="flex h-24 w-auto min-w-[220px] shrink-0 items-center justify-center rounded-xl bg-white px-6 transition-all mx-2 pointer-events-none select-none whitespace-nowrap">
+    <div className="flex h-32 w-auto min-w-[270px] shrink-0 items-center justify-center rounded-xl bg-white px-7 transition-all mx-2 pointer-events-none select-none whitespace-nowrap">
       {brand.logoUrl ? (
-        <div className="relative h-[72px] w-[165px]">
-          <Image src={brand.logoUrl} alt={`${brand.name || "Marka"} logosu`} fill sizes="165px" className="object-contain pointer-events-none" unoptimized />
+        <div className="relative h-[96px] w-[220px]">
+          <Image src={brand.logoUrl} alt={`${brand.name || "Marka"} logosu`} fill sizes="220px" className="object-contain pointer-events-none" unoptimized />
         </div>
       ) : (
         <div className="flex items-center gap-3 text-[#111827] pointer-events-none">
@@ -52,7 +52,7 @@ function BrandLogo({ brand }: { brand: Brand }) {
             <span className="absolute inset-0 rotate-45 rounded-[7px] border-2 border-current opacity-80" />
             <span className="h-3.5 w-3.5 rounded-sm bg-current opacity-90" />
           </span>
-          <span className={`text-[20px] leading-none ${logoStyles[brand.name || ""] ?? "font-black"}`}>{brand.name}</span>
+          <span className={`text-[25px] leading-none ${logoStyles[brand.name || ""] ?? "font-black"}`}>{brand.name}</span>
         </div>
       )}
     </div>

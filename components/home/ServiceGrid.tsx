@@ -140,10 +140,7 @@ export function ServiceGrid({ dynamicData }: ServiceGridProps) {
   const [canScrollLeft, setCanScrollLeft] = useState(false);
   const [canScrollRight, setCanScrollRight] = useState(false);
 
-  // Card scroll refs & state (desktop grid, max 4 visible)
-  const cardScrollRef = useRef<HTMLDivElement>(null);
-  const [canCardScrollLeft, setCanCardScrollLeft] = useState(false);
-  const [canCardScrollRight, setCanCardScrollRight] = useState(false);
+  const [cardPage, setCardPage] = useState(0);
 
   const checkScroll = () => {
     const el = scrollRef.current;
@@ -151,15 +148,6 @@ export function ServiceGrid({ dynamicData }: ServiceGridProps) {
       const { scrollLeft, scrollWidth, clientWidth } = el;
       setCanScrollLeft(scrollLeft > 1);
       setCanScrollRight(scrollLeft < scrollWidth - clientWidth - 1);
-    }
-  };
-
-  const checkCardScroll = () => {
-    const el = cardScrollRef.current;
-    if (el) {
-      const { scrollTop, scrollHeight, clientHeight } = el;
-      setCanCardScrollLeft(scrollTop > 1);
-      setCanCardScrollRight(scrollTop < scrollHeight - clientHeight - 1);
     }
   };
 
@@ -178,21 +166,6 @@ export function ServiceGrid({ dynamicData }: ServiceGridProps) {
     }
   }, [tabs]);
 
-  useEffect(() => {
-    const el = cardScrollRef.current;
-    if (el) {
-      el.scrollTop = 0;
-      const timer = setTimeout(checkCardScroll, 100);
-      el.addEventListener("scroll", checkCardScroll);
-      window.addEventListener("resize", checkCardScroll);
-      return () => {
-        clearTimeout(timer);
-        el.removeEventListener("scroll", checkCardScroll);
-        window.removeEventListener("resize", checkCardScroll);
-      };
-    }
-  }, [filtered]);
-
   const scrollTabs = (direction: "left" | "right") => {
     const el = scrollRef.current;
     if (el) {
@@ -204,21 +177,24 @@ export function ServiceGrid({ dynamicData }: ServiceGridProps) {
     }
   };
 
-  const scrollCards = (direction: "up" | "down") => {
-    const el = cardScrollRef.current;
-    if (el) {
-      // Her card yaklaşık 245px + 16px gap = 261px, 2 card = 522px
-      const scrollAmount = 261 * 2;
-      el.scrollBy({
-        top: direction === "up" ? -scrollAmount : scrollAmount,
-        behavior: "smooth",
-      });
-    }
-  };
-
   const visible = useMemo(() => {
     return tab === "Tümü" ? filtered.slice(0, 8) : filtered;
   }, [filtered, tab]);
+
+  const pageCount = Math.max(1, Math.ceil(visible.length / 4));
+  const desktopVisible = visible.slice(cardPage * 4, cardPage * 4 + 4);
+
+  useEffect(() => {
+    setCardPage(0);
+  }, [tab]);
+
+  const scrollCards = (direction: "up" | "down") => {
+    setCardPage((current) =>
+      direction === "up"
+        ? Math.max(0, current - 1)
+        : Math.min(pageCount - 1, current + 1)
+    );
+  };
 
   return (
     <section className="bg-[#FFFFFF] relative overflow-hidden py-16 md:py-24">
@@ -307,20 +283,16 @@ export function ServiceGrid({ dynamicData }: ServiceGridProps) {
           <div className="xl:hidden overflow-x-auto -mx-4 sm:-mx-5 md:-mx-8 pt-4 pb-4 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
             <div className="flex gap-4 px-4 sm:px-5 md:px-8" style={{ scrollSnapType: 'x mandatory' }}>
               {visible.map((service) => (
-                <Link
+                <div
                   key={service.title}
-                  href={service.href}
                   className={cn(
-                    "group flex flex-col justify-start min-h-[200px] w-[280px] md:w-[320px] flex-shrink-0 overflow-hidden rounded-[24px] border border-border md:hover:border-cyan-500 md:hover:shadow-lg transition-all duration-300 bg-white p-5 md:hover:-translate-y-1"
+                    "flex flex-col justify-start min-h-[200px] w-[280px] md:w-[320px] flex-shrink-0 overflow-hidden rounded-[24px] border border-border md:hover:border-cyan-500 md:hover:shadow-md transition-[border-color,box-shadow] duration-150 bg-white p-5"
                   )}
                   style={{ scrollSnapAlign: 'start' }}
                 >
                   <h3 className="text-xl font-black leading-tight tracking-[-0.04em] text-ink break-words">{service.title}</h3>
                   <p className="mt-2 text-sm leading-6 text-ink-muted break-words">{service.description}</p>
-                  <span className="mt-auto inline-flex items-center gap-1 pt-4 text-sm font-extrabold text-primary-600 group-hover:text-cyan-600">
-                    Detayları incele <ChevronRight className="h-4 w-4" />
-                  </span>
-                </Link>
+                </div>
               ))}
             </div>
           </div>
@@ -331,10 +303,10 @@ export function ServiceGrid({ dynamicData }: ServiceGridProps) {
             <div className="flex justify-end gap-2">
               <button
                 onClick={() => scrollCards("up")}
-                disabled={!canCardScrollLeft}
+                disabled={cardPage === 0}
                 className={cn(
                   "flex h-8 w-8 items-center justify-center rounded-full border border-border bg-white shadow-md text-ink transition-all duration-200",
-                  canCardScrollLeft
+                  cardPage > 0
                     ? "hover:text-cyan-500 hover:border-cyan-500 cursor-pointer"
                     : "opacity-30 cursor-not-allowed"
                 )}
@@ -344,10 +316,10 @@ export function ServiceGrid({ dynamicData }: ServiceGridProps) {
               </button>
               <button
                 onClick={() => scrollCards("down")}
-                disabled={!canCardScrollRight}
+                disabled={cardPage >= pageCount - 1}
                 className={cn(
                   "flex h-8 w-8 items-center justify-center rounded-full border border-border bg-white shadow-md text-ink transition-all duration-200",
-                  canCardScrollRight
+                  cardPage < pageCount - 1
                     ? "hover:text-cyan-500 hover:border-cyan-500 cursor-pointer"
                     : "opacity-30 cursor-not-allowed"
                 )}
@@ -359,12 +331,10 @@ export function ServiceGrid({ dynamicData }: ServiceGridProps) {
 
             {/* Cards container — max 2 rows (4 cards) visible, scrollable */}
             <div
-              ref={cardScrollRef}
-              onScroll={checkCardScroll}
-              className="grid gap-4 md:grid-cols-2 content-start overflow-y-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
-              style={{ maxHeight: "calc(2 * 245px + 16px)" }}
+              key={`${tab}-${cardPage}`}
+              className="service-card-page grid gap-4 md:grid-cols-2 content-start"
             >
-              {visible.map((service) => {
+              {desktopVisible.map((service) => {
                 if ("placeholder" in service && service.placeholder) {
                   return (
                     <div
@@ -374,19 +344,15 @@ export function ServiceGrid({ dynamicData }: ServiceGridProps) {
                   );
                 }
                 return (
-                  <Link
+                  <div
                     key={service.title}
-                    href={service.href}
                     className={cn(
-                      "group flex flex-col justify-start min-h-[245px] overflow-hidden rounded-[24px] border border-border md:hover:border-cyan-500 md:hover:shadow-lg transition-all duration-300 bg-white p-5 md:hover:-translate-y-1"
+                      "flex flex-col justify-start min-h-[245px] overflow-hidden rounded-[24px] border border-border md:hover:border-cyan-500 md:hover:shadow-md transition-[border-color,box-shadow] duration-150 bg-white p-5"
                     )}
                   >
                     <h3 className="text-2xl font-black leading-tight tracking-[-0.04em] text-ink break-words">{service.title}</h3>
                     <p className="mt-2 text-sm leading-6 text-ink-muted break-words">{service.description}</p>
-                    <span className="mt-auto inline-flex items-center gap-1 pt-4 text-sm font-extrabold text-primary-600 group-hover:text-cyan-600">
-                      Detayları incele <ChevronRight className="h-4 w-4" />
-                    </span>
-                  </Link>
+                  </div>
                 );
               })}
             </div>

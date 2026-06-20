@@ -31,7 +31,7 @@ export const dynamic = "force-dynamic";
 
 export default async function AdminDashboardPage() {
   const supabase = await createSupabaseServerClient();
-  const stats = await getDashboardStats();
+  const statsPromise = getDashboardStats();
   
   // Fetch service tracking stats
   let serviceStats = {
@@ -162,6 +162,8 @@ export default async function AdminDashboardPage() {
   } catch (err) {
     console.error("Failed to load service tracking stats on dashboard:", err);
   }
+
+  const stats = await statsPromise;
 
   const actions = [
     {

@@ -51,6 +51,8 @@ export function ProductImageGallery({
                 fill
                 sizes="64px"
                 className="object-contain p-1.5 rounded-xl"
+                unoptimized={/^https?:\/\//.test(img)}
+                referrerPolicy="no-referrer"
               />
             </button>
           ))}
@@ -100,6 +102,8 @@ export function ProductImageGallery({
             fill
             sizes="(min-width: 768px) 80vw, 100vw"
             className="object-contain filter saturate-100"
+            unoptimized={/^https?:\/\//.test(activeImage)}
+            referrerPolicy="no-referrer"
           />
         </div>
       </div>
@@ -122,6 +126,7 @@ export function ProductImageGallery({
             <img
               src={activeImage}
               alt=""
+              referrerPolicy="no-referrer"
               className="max-h-full max-w-full object-contain rounded-lg shadow-2xl animate-in zoom-in-95 duration-200"
             />
           </div>

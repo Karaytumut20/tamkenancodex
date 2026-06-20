@@ -14,8 +14,8 @@ const logsResource: AdminResource = {
   canCreate: false,
   canEdit: false,
   canDelete: false,
-  searchable: ["action", "entity_type"],
-  columns: [{ key: "action", label: "İşlem" }, { key: "entity_type", label: "Varlık" }, { key: "entity_id", label: "ID" }, { key: "created_at", label: "Tarih" }],
+  searchable: ["action_type", "target_table", "user_fullname"],
+  columns: [{ key: "action_type", label: "İşlem" }, { key: "target_table", label: "Varlık" }, { key: "record_id", label: "ID" }, { key: "created_at", label: "Tarih" }],
   fields: [],
 };
 

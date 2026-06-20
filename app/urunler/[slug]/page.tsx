@@ -339,6 +339,8 @@ export default async function ProductDetailPage({
                 src={product.image}
                 alt={`${product.name} Teknik Görünüm`}
                 fill
+                unoptimized={/^https?:\/\//.test(product.image)}
+                referrerPolicy="no-referrer"
                 className="object-contain p-6 transition-transform duration-700 group-hover:scale-105"
                 sizes="(max-width: 1024px) 100vw, 50vw"
               />

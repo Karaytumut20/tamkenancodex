@@ -358,6 +358,27 @@ svg {
 }
 
 /* ─── Marquee Animation ────────────────────────────────────────────────── */
+@keyframes service-card-page-in {
+  from {
+    opacity: 0.72;
+    transform: translateY(3px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.service-card-page {
+  animation: service-card-page-in 140ms ease-out;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .service-card-page {
+    animation: none;
+  }
+}
+
 @keyframes brand-marquee {
   from {
     transform: translateX(0);
