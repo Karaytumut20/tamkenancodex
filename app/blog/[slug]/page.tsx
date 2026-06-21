@@ -19,7 +19,7 @@ import { buildMetadata } from "@/lib/seo";
 import { getBlogPostBySlug, getBlogPosts, getProducts } from "@/lib/db";
 import { breadcrumbSchema, faqSchema } from "@/data/schemas";
 
-export const revalidate = 3600;
+export const dynamic = "force-dynamic";
 
 export async function generateStaticParams() {
   const posts = await getBlogPosts();

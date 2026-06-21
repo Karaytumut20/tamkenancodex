@@ -1,5 +1,6 @@
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { isCriticalStock } from "@/lib/admin/stock";
+import { toTurkeyDateKey } from "@/lib/admin/calendar-date";
 
 // -------------------------------------------------------------
 // TYPES
@@ -237,11 +238,11 @@ export async function getLowStockAlerts() {
 // Get dashboard summaries
 export async function getServiceDashboardStatsSequential() {
   const supabase = await createSupabaseServerClient();
-  const todayStr = new Date().toISOString().split('T')[0];
+  const todayStr = toTurkeyDateKey();
   
   const tomorrow = new Date();
   tomorrow.setDate(tomorrow.getDate() + 1);
-  const tomorrowStr = tomorrow.toISOString().split('T')[0];
+  const tomorrowStr = toTurkeyDateKey(tomorrow);
 
   // Week limits
   const startOfWeek = new Date();
@@ -327,7 +328,7 @@ export async function getServiceDashboardStatsSequential() {
 export async function getServiceDashboardStats() {
   const supabase = await createSupabaseServerClient();
   const today = new Date();
-  const todayStr = today.toISOString().split('T')[0];
+  const todayStr = toTurkeyDateKey(today);
   const tomorrow = new Date(today);
   tomorrow.setDate(tomorrow.getDate() + 1);
   const startOfWeek = new Date(today);
@@ -338,7 +339,7 @@ export async function getServiceDashboardStats() {
   const [todayRes, tomorrowRes, weeklyRes, pendingRes, collectionRes, customersRes, monthRes, materialsRes] =
     await Promise.all([
       supabase.from('appointments').select('id', { count: 'exact', head: true }).eq('appointment_date', todayStr),
-      supabase.from('appointments').select('id', { count: 'exact', head: true }).eq('appointment_date', tomorrow.toISOString().split('T')[0]),
+      supabase.from('appointments').select('id', { count: 'exact', head: true }).eq('appointment_date', toTurkeyDateKey(tomorrow)),
       supabase.from('service_orders').select('id', { count: 'exact', head: true }).eq('status', 'Tamamland\u0131').gte('finished_at', startOfWeek.toISOString()),
       supabase.from('service_orders').select('id', { count: 'exact', head: true }).in('status', ['Taslak', '\u0130\u015flem Ba\u015flad\u0131', 'Malzeme Bekleniyor']),
       supabase.from('appointments').select('id', { count: 'exact', head: true }).eq('status', 'Tahsilat Bekleniyor'),

@@ -4,7 +4,9 @@ import { Container } from "@/components/ui/Container";
 import { buildMetadata } from "@/lib/seo";
 import { getBlogPosts } from "@/lib/db";
 
-export const revalidate = 3600;
+// Blog posts may also be published directly from Supabase SQL Editor.
+// Always read the current published list instead of serving a stale ISR page.
+export const dynamic = "force-dynamic";
 
 export const metadata = buildMetadata({
   title: "Güvenlik Sistemleri Blog | PrimeSec Teknoloji",

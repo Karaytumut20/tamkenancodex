@@ -15,6 +15,7 @@ import {
   AlertTriangle,
   FileSpreadsheet
 } from "lucide-react";
+import { dateKeyToLocalDate, toCalendarDateKey } from "@/lib/admin/calendar-date";
 
 type Props = {
   customers: any[];
@@ -40,8 +41,8 @@ export function ReportsClient({
   defaultStart.setDate(1);
   const defaultEnd = new Date();
   
-  const [startDate, setStartDate] = useState(defaultStart.toISOString().split("T")[0]);
-  const [endDate, setEndDate] = useState(defaultEnd.toISOString().split("T")[0]);
+  const [startDate, setStartDate] = useState(toCalendarDateKey(defaultStart));
+  const [endDate, setEndDate] = useState(toCalendarDateKey(defaultEnd));
 
   // Selected Report Category
   const [reportType, setReportType] = useState<
@@ -54,9 +55,9 @@ export function ReportsClient({
     | "stok_hareket"
   >("gelir_gider");
 
-  const start = new Date(startDate);
+  const start = dateKeyToLocalDate(startDate);
   start.setHours(0,0,0,0);
-  const end = new Date(endDate);
+  const end = dateKeyToLocalDate(endDate);
   end.setHours(23,59,59,999);
 
   // Helper date checker

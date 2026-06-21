@@ -20,6 +20,7 @@ import {
 } from "lucide-react";
 import { saveEmployee, deleteEmployee } from "./actions";
 import { useRouter } from "next/navigation";
+import { dateKeyToLocalDate, toCalendarDateKey } from "@/lib/admin/calendar-date";
 
 type Props = {
   employees: any[];
@@ -139,7 +140,7 @@ export function EmployeesClient({ employees }: Props) {
 
   // Helper to categorize appointments for the selected employee
   const getCategorizedAppointments = (apps: any[]) => {
-    const todayStr = new Date().toISOString().split("T")[0];
+    const todayStr = toCalendarDateKey(new Date());
     
     // Week limits
     const startOfWeek = new Date();
@@ -151,11 +152,11 @@ export function EmployeesClient({ employees }: Props) {
 
     const todayApps = apps.filter(a => a.appointment_date === todayStr);
     const weeklyApps = apps.filter(a => {
-      const appDate = new Date(a.appointment_date);
+      const appDate = dateKeyToLocalDate(a.appointment_date);
       return appDate >= startOfWeek && appDate <= endOfWeek && a.appointment_date !== todayStr;
     });
     const monthlyApps = apps.filter(a => {
-      const appDate = new Date(a.appointment_date);
+      const appDate = dateKeyToLocalDate(a.appointment_date);
       return (appDate < startOfWeek || appDate > endOfWeek) && a.appointment_date !== todayStr;
     });
 

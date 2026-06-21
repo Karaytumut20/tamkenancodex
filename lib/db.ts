@@ -78,7 +78,7 @@ export const getSiteSettings = cache(
           siteConfig.description,
         phone: settingValue(settings.get("contact.phone")) ?? siteConfig.phone,
         whatsapp:
-          settingValue(settings.get("contact.rep1.whatsapp")) ?? settingValue(settings.get("contact.whatsapp")) ?? siteConfig.whatsapp,
+          settingValue(settings.get("contact.whatsapp")) ?? siteConfig.whatsapp,
         email: settingValue(settings.get("contact.email")) ?? siteConfig.email,
         address:
           settingValue(settings.get("contact.address")) ?? siteConfig.address,

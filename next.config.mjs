@@ -23,7 +23,7 @@ const nextConfig = {
       },
       {
         // Pages — 1 hour CDN cache, always revalidate in background
-        source: "/((?!api|admin|images|fonts|icons|_next/static|_next/image).*)",
+        source: "/((?!api|admin|blog|whatsapp|images|fonts|icons|_next/static|_next/image).*)",
         headers: [
           { key: "Cache-Control", value: "public, s-maxage=3600, stale-while-revalidate=86400" },
         ],

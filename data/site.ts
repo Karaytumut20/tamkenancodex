@@ -3,7 +3,7 @@ export const siteConfig = {
   legalName: "PrimeSec Teknoloji Güvenlik Sistemleri",
   siteUrl: "https://www.primesecteknoloji.com",
   phone: "+90 262 000 00 00",
-  whatsapp: "905320000000",
+  whatsapp: "905519542605",
   email: "info@primesecteknoloji.com",
   address: "Kocaeli, Türkiye",
   city: "Kocaeli",

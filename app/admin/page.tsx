@@ -27,6 +27,7 @@ import { TodayProgramList, UpcomingAppointmentsList, DelayedJobsList } from "@/c
 import { DashboardStocksList } from "@/components/admin/dashboard/DashboardStocksList";
 import { DashboardCustomersList } from "@/components/admin/dashboard/DashboardCustomersList";
 import { isCriticalStock } from "@/lib/admin/stock";
+import { toTurkeyDateKey } from "@/lib/admin/calendar-date";
 
 export const dynamic = "force-dynamic";
 
@@ -58,7 +59,7 @@ export default async function AdminDashboardPage() {
   let allCustomers: any[] = [];
   let allEmployees: any[] = [];
 
-  const todayStr = new Date().toISOString().split("T")[0];
+  const todayStr = toTurkeyDateKey();
 
   try {
     serviceStats = await getServiceDashboardStats();

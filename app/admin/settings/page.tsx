@@ -31,8 +31,8 @@ const settingLabels: Record<string, { label: string; placeholder: string; helpTe
   },
   "contact.whatsapp": {
     label: "💬 WhatsApp Numarası",
-    placeholder: "905320000000",
-    helpText: "Başına 90 koyarak yazın, boşluk ve tire olmadan. Örnek: 905321234567",
+    placeholder: "905519542605",
+    helpText: "Sitedeki genel WhatsApp butonları bu numaraya gider. Başına 90 koyarak, boşluksuz yazın.",
   },
   "contact.email": {
     label: "📧 E-posta Adresi",
@@ -172,6 +172,7 @@ export default async function SettingsPage() {
     "site.url",
     "site.description",
     "contact.phone",
+    "contact.whatsapp",
     "contact.email",
     "contact.address",
     "contact.city",

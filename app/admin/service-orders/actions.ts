@@ -5,6 +5,7 @@ import fs from "node:fs";
 import path from "node:path";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { logActivity, generateServiceOrderNumber } from "@/lib/admin/service-system";
+import { toTurkeyDateKey } from "@/lib/admin/calendar-date";
 
 export type ServiceOrderInput = {
   id?: string;
@@ -575,7 +576,7 @@ export async function createDirectServiceOrder(input: {
       const paymentResult = await addPayment({
         customer_id: input.customer_id,
         service_order_id: orderData.id,
-        payment_date: new Date().toISOString(),
+        payment_date: toTurkeyDateKey(),
         amount: paymentAmount,
         method: (input.payment_method as any) || 'Nakit',
         description: "Peşin Tahsilat (Hızlı İşlem)",

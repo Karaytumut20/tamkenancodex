@@ -34,6 +34,7 @@ import {
 } from "../actions";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import { toCalendarDateKey } from "@/lib/admin/calendar-date";
 
 type Props = {
   order: any;
@@ -95,7 +96,7 @@ export function ServiceOrderClient({
   // Form states - New Payment
   const [payAmount, setPayAmount] = useState(0);
   const [payMethod, setPayMethod] = useState<any>("Nakit");
-  const [payDate, setPayDate] = useState(new Date().toISOString().split("T")[0]);
+  const [payDate, setPayDate] = useState(toCalendarDateKey(new Date()));
   const [payTxNum, setPayTxNum] = useState("");
   const [payEmployeeId, setPayEmployeeId] = useState("");
   const [payDesc, setPayDesc] = useState("");

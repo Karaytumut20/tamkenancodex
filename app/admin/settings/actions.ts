@@ -1,6 +1,6 @@
 "use server";
 
-import { revalidatePath } from "next/cache";
+import { revalidatePath, revalidateTag } from "next/cache";
 import { requireAdmin } from "@/lib/admin/auth";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 
@@ -40,35 +40,23 @@ export async function saveSetting(
   const supabase = await createSupabaseServerClient();
 
   try {
+    const rows: { key: string; value: { value: string } }[] = [];
     for (const key of knownKeys) {
       const rawValue = formData.get(key);
-      if (rawValue === null) continue; // field not in form
+      if (rawValue === null) continue;
       const value = String(rawValue).trim();
-
-      // Check if this setting already exists
-      const { data: existing } = await supabase
-        .from("site_settings")
-        .select("id")
-        .eq("key", key)
-        .maybeSingle();
-
-      const jsonValue = { value };
-
-      if (existing) {
-        await supabase
-          .from("site_settings")
-          .update({ value: jsonValue })
-          .eq("id", existing.id);
-      } else if (value) {
-        // Only insert if there's a value
-        await supabase
-          .from("site_settings")
-          .insert({ key, value: jsonValue });
-      }
+      if (value) rows.push({ key, value: { value } });
     }
 
+    if (rows.length > 0) {
+      const { error } = await supabase.from("site_settings").upsert(rows, { onConflict: "key" });
+      if (error) throw new Error(error.message);
+    }
+
+    revalidateTag("site-settings");
     revalidatePath("/admin/settings");
     revalidatePath("/");
+    revalidatePath("/whatsapp");
     revalidatePath("/urunler", "layout");
     return { success: true, error: null };
   } catch (err) {

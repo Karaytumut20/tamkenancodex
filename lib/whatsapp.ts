@@ -1,7 +1,7 @@
 import { siteConfig } from "@/data/site";
 import type { Product } from "@/data/products";
 
-function normalizeWhatsAppNumber(phone?: string) {
+export function normalizeWhatsAppNumber(phone?: string) {
   const digits = (phone || siteConfig.whatsapp).replace(/\D/g, "");
   if (digits.startsWith("0")) return `90${digits.slice(1)}`;
   if (digits.length === 10) return `90${digits}`;
@@ -9,6 +9,11 @@ function normalizeWhatsAppNumber(phone?: string) {
 }
 
 export function whatsappUrl(message: string, phone?: string) {
+  if (!phone) return `/whatsapp?text=${encodeURIComponent(message)}`;
+  return `https://wa.me/${normalizeWhatsAppNumber(phone)}?text=${encodeURIComponent(message)}`;
+}
+
+export function directWhatsappUrl(message: string, phone: string) {
   return `https://wa.me/${normalizeWhatsAppNumber(phone)}?text=${encodeURIComponent(message)}`;
 }
 

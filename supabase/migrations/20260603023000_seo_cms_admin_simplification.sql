@@ -360,7 +360,7 @@ insert into public.site_settings (key, value)
 values
   ('site.name', '{"value":"PrimeSec Teknoloji"}'::jsonb),
   ('contact.phone', '{"value":"+90 262 000 00 00"}'::jsonb),
-  ('contact.whatsapp', '{"value":"905320000000"}'::jsonb),
+  ('contact.whatsapp', '{"value":"905519542605"}'::jsonb),
   ('contact.email', '{"value":"info@primesecteknoloji.com"}'::jsonb),
   ('seo.defaults', '{"title":"PrimeSec Teknoloji","description":"Alarm, kamera ve guvenlik sistemleri icin profesyonel kesif ve kurulum.","ogImage":"/images/primesec-hero-guvenlik-sistemleri.svg"}'::jsonb)
 on conflict (key) do nothing;

@@ -182,6 +182,13 @@ async function normalizePayload(resourceKey: string, table: string, id: string |
     if (payload.name === null || payload.name === undefined || String(payload.name).trim() === "") {
       payload.name = "";
     }
+
+    // A newly-created brand is intended for the public brand strip by default.
+    // Without this, an unchecked/omitted checkbox stores false and the public
+    // query deliberately filters the brand out.
+    if (id === null) {
+      payload.is_active = true;
+    }
   }
 
   if ("sort_order" in payload && (payload.sort_order === null || payload.sort_order === undefined)) {
@@ -253,6 +260,10 @@ async function normalizePayload(resourceKey: string, table: string, id: string |
       delete payload.categories_list;
     }
   }
+  if (resourceKey === "blog") {
+    revalidatePath("/blog");
+    if (typeof payload.slug === "string") revalidatePath(`/blog/${payload.slug}`);
+  }
 
   if (resourceKey === "menuItems") {
     if (!payload.target) payload.target = "_self";
@@ -286,6 +297,9 @@ export async function saveResource(resourceKey: string, id: string | null, formD
     revalidatePath("/urunler");
     if (typeof payload.slug === "string") revalidatePath(`/urunler/${payload.slug}`);
   }
+  if (resourceKey === "brands") {
+    revalidatePath("/");
+  }
   redirect(resource.path);
 }
 
@@ -301,6 +315,8 @@ export async function deleteResource(resourceKey: string, id: string) {
     throw new Error(error.message);
   }
   revalidatePath(resource.path);
+  if (resourceKey === "blog") revalidatePath("/blog");
+  if (resourceKey === "brands") revalidatePath("/");
 }
 
 export async function signOutAdmin() {

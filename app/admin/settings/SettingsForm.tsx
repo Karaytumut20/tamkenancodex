@@ -69,7 +69,8 @@ export function SettingsForm({ items }: { items: SettingItem[] }) {
   const [state, formAction] = useActionState(saveSetting, { success: false, error: null });
 
   // Split into contact, site, seo and popup groups
-  const contactItems = items.filter((i) => i.key.startsWith("contact."));
+  const whatsappItems = items.filter((i) => i.key.includes(".whatsapp"));
+  const contactItems = items.filter((i) => i.key.startsWith("contact.") && !i.key.includes(".whatsapp"));
   const siteItems = items.filter((i) => i.key.startsWith("site."));
   const seoItems = items.filter((i) => i.key.startsWith("seo."));
   const popupItems = items.filter((i) => i.key.startsWith("popup."));
@@ -92,6 +93,21 @@ export function SettingsForm({ items }: { items: SettingItem[] }) {
         <h3 className="text-xl font-black text-slate-800 mb-3">📢 Anasayfa Kampanya Pop-up Ayarları</h3>
         <div className="grid gap-4 md:grid-cols-2">
           {popupItems.map((item) => (
+            <SettingCard key={item.key} item={item} />
+          ))}
+        </div>
+      </section>
+
+      {/* Contact info */}
+      <section className="border-b-2 border-slate-100 pb-6">
+        <div className="mb-3">
+          <h3 className="text-xl font-black text-slate-800">💬 Tüm WhatsApp'ları Yönet</h3>
+          <p className="mt-1 text-sm font-semibold text-slate-500">
+            Genel site butonunu ve temsilcilere özel WhatsApp hatlarını tek yerden yönetin.
+          </p>
+        </div>
+        <div className="grid gap-4 md:grid-cols-2">
+          {whatsappItems.map((item) => (
             <SettingCard key={item.key} item={item} />
           ))}
         </div>

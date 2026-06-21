@@ -18,6 +18,7 @@ import {
   Navigation
 } from "lucide-react";
 import { saveAppointment, updateAppointmentDate, deleteAppointment, createQuickCustomer } from "./actions";
+import { isDateKeyOnOrAfter, toCalendarDateKey } from "@/lib/admin/calendar-date";
 
 type DBAppointment = {
   id: string;
@@ -123,7 +124,7 @@ export function CalendarClient({ initialAppointments, customers: initialCustomer
   };
 
   const formatDateString = (date: Date) => {
-    return date.toISOString().split("T")[0];
+    return toCalendarDateKey(date);
   };
 
   const getDaysInMonthGrid = (date: Date) => {
@@ -656,7 +657,7 @@ export function CalendarClient({ initialAppointments, customers: initialCustomer
               </thead>
               <tbody className="divide-y divide-slate-100 font-medium">
                 {appointments
-                  .filter(app => new Date(app.appointment_date) >= new Date(formatDateString(new Date())))
+                  .filter(app => isDateKeyOnOrAfter(app.appointment_date, formatDateString(new Date())))
                   .sort((a,b) => a.appointment_date.localeCompare(b.appointment_date))
                   .map(app => {
                     const color = STATUS_COLORS[app.status] || { bg: "bg-slate-100", text: "text-slate-700", border: "border-slate-300" };
