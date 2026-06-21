@@ -259,7 +259,7 @@ export const adminResources: Record<string, AdminResource> = {
       { name: "reading_time", label: "Okuma süresi", group: "content" },
       { name: "author_name", label: "Yazar", group: "content" },
       { name: "published_at", label: "Yayın tarihi", type: "datetime", group: "publish" },
-      { name: "status", label: "Durum", type: "select", group: "publish", options: statusOptions, helpText: "Taslak: sadece siz görürsünüz. Yayında: herkes görür." },
+      { name: "status", label: "Durum", type: "select", group: "publish", required: true, options: statusOptions, helpText: "Yeni yazılar varsayılan olarak yayına alınır. Taslak: sadece siz görürsünüz. Yayında: herkes görür." },
       { name: "table_of_contents", label: "İçindekiler", type: "json", group: "content" },
       { name: "faqs", label: "Sık Sorulan Sorular", type: "json", group: "content" },
       ...seoFields,

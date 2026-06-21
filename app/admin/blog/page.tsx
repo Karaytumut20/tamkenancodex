@@ -2,6 +2,8 @@ import Link from "next/link";
 import { Edit, Plus } from "lucide-react";
 import { AdminPageHeader } from "@/components/admin/AdminShell";
 import { ProtectedAdminPage } from "@/components/admin/ProtectedAdminPage";
+import { ConfirmDeleteButton } from "@/components/admin/ConfirmDeleteButton";
+import { deleteResource } from "@/lib/admin/actions";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 
 export default async function BlogAdminPage() {
@@ -73,13 +75,18 @@ export default async function BlogAdminPage() {
                     )}
                   </div>
                 </div>
-                <Link
-                  href={`/admin/blog/${post.id}/edit`}
-                  className="inline-flex h-10 items-center gap-2 rounded-xl border-2 border-slate-200 bg-white px-4 text-sm font-black text-slate-700 hover:bg-slate-50 hover:border-cyan-300 transition-colors shrink-0"
-                >
-                  <Edit className="h-4 w-4" />
-                  Düzenle
-                </Link>
+                <div className="flex shrink-0 items-center gap-2">
+                  <Link
+                    href={`/admin/blog/${post.id}/edit`}
+                    className="inline-flex h-10 items-center gap-2 rounded-xl border-2 border-slate-200 bg-white px-4 text-sm font-black text-slate-700 hover:bg-slate-50 hover:border-cyan-300 transition-colors"
+                  >
+                    <Edit className="h-4 w-4" />
+                    Düzenle
+                  </Link>
+                  <form action={deleteResource.bind(null, "blog", post.id)}>
+                    <ConfirmDeleteButton showLabel />
+                  </form>
+                </div>
               </div>
             );
           })}

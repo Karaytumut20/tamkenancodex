@@ -16,15 +16,10 @@ import { ButtonLink } from "@/components/ui/Button";
 import { Container } from "@/components/ui/Container";
 import { siteConfig } from "@/data/site";
 import { buildMetadata } from "@/lib/seo";
-import { getBlogPostBySlug, getBlogPosts, getProducts } from "@/lib/db";
+import { getBlogPostBySlug, getProducts } from "@/lib/db";
 import { breadcrumbSchema, faqSchema } from "@/data/schemas";
 
 export const dynamic = "force-dynamic";
-
-export async function generateStaticParams() {
-  const posts = await getBlogPosts();
-  return posts.map((post) => ({ slug: post.slug }));
-}
 
 export async function generateMetadata({
   params,

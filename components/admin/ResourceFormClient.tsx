@@ -643,10 +643,14 @@ function Field({ field, row }: { field: AdminField; row: Record<string, unknown>
   }
 
   if (field.type === "select") {
+    const defaultValue = !row && field.name === "status"
+      ? "published"
+      : getValue(row, field);
+
     return (
       <label className="block">
         <span className="text-base font-black text-slate-700">{field.label}{requiredMark}</span>
-        <select name={field.name} defaultValue={getValue(row, field)} required={field.required} className={`${baseInputClass} h-14`}>
+        <select name={field.name} defaultValue={defaultValue} required={field.required} className={`${baseInputClass} h-14`}>
           <option value="">-- Seçin --</option>
           {field.options?.map((opt) => (
             <option key={opt.value} value={opt.value}>{opt.label}</option>

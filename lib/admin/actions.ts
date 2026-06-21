@@ -260,11 +260,17 @@ async function normalizePayload(resourceKey: string, table: string, id: string |
       delete payload.categories_list;
     }
   }
-  if (resourceKey === "blog") {
-    revalidatePath("/blog");
-    if (typeof payload.slug === "string") revalidatePath(`/blog/${payload.slug}`);
-  }
 
+  if (resourceKey === "blog") {
+    // Public blog queries intentionally show only published records. Make a new
+    // admin-created article immediately visible unless the editor chose Draft.
+    if (id === null && !payload.status) {
+      payload.status = "published";
+    }
+    if (payload.status === "published" && !payload.published_at) {
+      payload.published_at = new Date().toISOString();
+    }
+  }
   if (resourceKey === "menuItems") {
     if (!payload.target) payload.target = "_self";
     if (!payload.menu_key) payload.menu_key = "header";
@@ -297,6 +303,11 @@ export async function saveResource(resourceKey: string, id: string | null, formD
     revalidatePath("/urunler");
     if (typeof payload.slug === "string") revalidatePath(`/urunler/${payload.slug}`);
   }
+  if (resourceKey === "blog") {
+    revalidatePath("/blog");
+    revalidatePath("/");
+    if (typeof payload.slug === "string") revalidatePath(`/blog/${payload.slug}`);
+  }
   if (resourceKey === "brands") {
     revalidatePath("/");
   }
@@ -309,13 +320,26 @@ export async function deleteResource(resourceKey: string, id: string) {
   await requireAdmin(resource.roles);
 
   const supabase = await createSupabaseServerClient();
+  let deletedSlug: string | null = null;
+  if (resourceKey === "blog") {
+    const { data } = await supabase
+      .from(resource.table)
+      .select("slug")
+      .eq("id", id)
+      .maybeSingle();
+    deletedSlug = typeof data?.slug === "string" ? data.slug : null;
+  }
   const { error } = await supabase.from(resource.table).delete().eq("id", id);
   if (error) {
     if (isMissingTableError(error.message)) return;
     throw new Error(error.message);
   }
   revalidatePath(resource.path);
-  if (resourceKey === "blog") revalidatePath("/blog");
+  if (resourceKey === "blog") {
+    revalidatePath("/blog");
+    revalidatePath("/");
+    if (deletedSlug) revalidatePath(`/blog/${deletedSlug}`);
+  }
   if (resourceKey === "brands") revalidatePath("/");
 }
 
