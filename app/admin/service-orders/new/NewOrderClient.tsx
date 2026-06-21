@@ -1,14 +1,23 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { useRouter } from "next/navigation";
 import { createDirectServiceOrder } from "../actions";
-import { AlertTriangle, Calendar, User, Tag, CheckCircle, Package, CreditCard } from "lucide-react";
+import { saveMaterial } from "../../stocks/actions";
+import { AlertTriangle, Calendar, User, Tag, CheckCircle, Package, CreditCard, Plus, X } from "lucide-react";
 
-export function NewOrderClient({ customers, materials }: { customers: any[], materials: any[] }) {
+type MaterialOption = {
+  id: string;
+  name: string;
+  stock_quantity: number;
+  selling_price: number;
+};
+
+export function NewOrderClient({ customers, materials: initialMaterials }: { customers: any[], materials: MaterialOption[] }) {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const [materials, setMaterials] = useState(initialMaterials);
 
   const [customerId, setCustomerId] = useState("");
   const [serviceName, setServiceName] = useState("");
@@ -17,6 +26,11 @@ export function NewOrderClient({ customers, materials }: { customers: any[], mat
   // Stock / Material Selection
   const [materialId, setMaterialId] = useState("");
   const [materialQty, setMaterialQty] = useState<number>(1);
+  const [isMaterialModalOpen, setIsMaterialModalOpen] = useState(false);
+  const [materialSaving, setMaterialSaving] = useState(false);
+  const [newMaterialName, setNewMaterialName] = useState("");
+  const [newMaterialStock, setNewMaterialStock] = useState(0);
+  const [newMaterialPrice, setNewMaterialPrice] = useState(0);
 
   // Payment Status
   const [isPaid, setIsPaid] = useState(false);
@@ -27,16 +41,56 @@ export function NewOrderClient({ customers, materials }: { customers: any[], mat
   const [appointmentDate, setAppointmentDate] = useState("");
   const [startTime, setStartTime] = useState("09:00");
 
-  // Auto-fill service name & price if material is selected
-  useEffect(() => {
-    if (materialId) {
-      const mat = materials.find(m => m.id === materialId);
-      if (mat) {
-        setServiceName(mat.name);
-        setServicePrice((Number(mat.selling_price || 0) * materialQty).toString());
-      }
+  const selectedMaterial = materials.find((material) => material.id === materialId);
+
+  const handleMaterialChange = (id: string) => {
+    setMaterialId(id);
+    const material = materials.find((item) => item.id === id);
+    if (material) {
+      setServiceName(material.name);
+      // Material price is added from the stock line. This field is only the
+      // additional service/labor price, otherwise the product is counted twice.
+      setServicePrice("0");
     }
-  }, [materialId, materialQty, materials]);
+  };
+
+  const handleCreateMaterial = async (event: React.FormEvent) => {
+    event.preventDefault();
+    if (!newMaterialName.trim()) return;
+    setMaterialSaving(true);
+    setError("");
+
+    const result = await saveMaterial({
+      name: newMaterialName.trim(),
+      stock_quantity: newMaterialStock,
+      min_stock_level: 3,
+      buying_price: 0,
+      selling_price: newMaterialPrice,
+      is_active: true,
+    });
+
+    if (!result.success || !result.id) {
+      setError(result.error || "Yeni malzeme eklenemedi.");
+      setMaterialSaving(false);
+      return;
+    }
+
+    const material = {
+      id: result.id,
+      name: newMaterialName.trim(),
+      stock_quantity: newMaterialStock,
+      selling_price: newMaterialPrice,
+    };
+    setMaterials((current) => [...current, material].sort((a, b) => a.name.localeCompare(b.name, "tr")));
+    handleMaterialChange(result.id);
+    setServiceName(material.name);
+    setServicePrice("0");
+    setIsMaterialModalOpen(false);
+    setNewMaterialName("");
+    setNewMaterialStock(0);
+    setNewMaterialPrice(0);
+    setMaterialSaving(false);
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -121,16 +175,23 @@ export function NewOrderClient({ customers, materials }: { customers: any[], mat
               <label className="text-xs font-black text-slate-500 uppercase flex items-center gap-1"><Package className="h-4 w-4" /> Stoktan Malzeme Seçimi (Opsiyonel)</label>
               <select
                 value={materialId}
-                onChange={(e) => setMaterialId(e.target.value)}
+                onChange={(e) => handleMaterialChange(e.target.value)}
                 className="h-12 w-full px-4 rounded-xl border-2 border-slate-200 bg-white text-sm font-semibold outline-none focus:border-cyan-500 transition-colors"
               >
                 <option value="">-- Stok Kullanılmayacak --</option>
                 {materials.map((m) => (
                   <option key={m.id} value={m.id}>
-                    {m.name} (Stok: {m.stock_quantity} {m.unit})
+                    {m.name} (Stok: {m.stock_quantity} Adet)
                   </option>
                 ))}
               </select>
+              <button
+                type="button"
+                onClick={() => setIsMaterialModalOpen(true)}
+                className="mt-2 inline-flex items-center gap-1.5 text-xs font-black text-cyan-700 hover:text-cyan-800"
+              >
+                <Plus className="h-4 w-4" /> Yeni ürün / malzeme ekle
+              </button>
             </div>
 
             {materialId && (
@@ -160,7 +221,7 @@ export function NewOrderClient({ customers, materials }: { customers: any[], mat
           </div>
 
           <div className="space-y-1.5">
-            <label className="text-xs font-black text-slate-500 uppercase">Hizmet / Satış Fiyatı (TL) *</label>
+            <label className="text-xs font-black text-slate-500 uppercase">Hizmet / İşçilik Fiyatı (TL) *</label>
             <div className="relative">
               <input
                 required
@@ -174,6 +235,11 @@ export function NewOrderClient({ customers, materials }: { customers: any[], mat
               />
               <Tag className="absolute left-3.5 top-3.5 h-5 w-5 text-slate-400" />
             </div>
+            {selectedMaterial && (
+              <p className="mt-2 text-xs font-bold text-slate-500">
+                Malzeme tutarı ayrıca eklenecek: {(Number(selectedMaterial.selling_price || 0) * materialQty).toLocaleString("tr-TR", { style: "currency", currency: "TRY" })}
+              </p>
+            )}
           </div>
         </div>
 
@@ -276,6 +342,41 @@ export function NewOrderClient({ customers, materials }: { customers: any[], mat
           </button>
         </div>
       </form>
+
+      {isMaterialModalOpen && (
+        <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/40 p-4">
+          <div className="w-full max-w-md rounded-2xl border-2 border-slate-200 bg-white p-6 shadow-2xl">
+            <div className="mb-5 flex items-center justify-between">
+              <h3 className="text-lg font-black text-slate-800">Yeni Ürün / Malzeme</h3>
+              <button type="button" onClick={() => setIsMaterialModalOpen(false)} className="flex h-9 w-9 items-center justify-center rounded-lg border-2 border-slate-200">
+                <X className="h-4 w-4" />
+              </button>
+            </div>
+            <form onSubmit={handleCreateMaterial} className="space-y-4">
+              <div>
+                <label className="text-xs font-black uppercase text-slate-500">Ürün adı *</label>
+                <input required value={newMaterialName} onChange={(e) => setNewMaterialName(e.target.value)} className="mt-1 h-11 w-full rounded-xl border-2 border-slate-200 px-4 text-sm font-semibold outline-none focus:border-cyan-500" />
+              </div>
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="text-xs font-black uppercase text-slate-500">Başlangıç stoku</label>
+                  <input type="number" min="0" step="0.01" value={newMaterialStock} onChange={(e) => setNewMaterialStock(Number(e.target.value))} className="mt-1 h-11 w-full rounded-xl border-2 border-slate-200 px-4 text-sm font-semibold outline-none focus:border-cyan-500" />
+                </div>
+                <div>
+                  <label className="text-xs font-black uppercase text-slate-500">Satış fiyatı</label>
+                  <input type="number" min="0" step="0.01" value={newMaterialPrice} onChange={(e) => setNewMaterialPrice(Number(e.target.value))} className="mt-1 h-11 w-full rounded-xl border-2 border-slate-200 px-4 text-sm font-semibold outline-none focus:border-cyan-500" />
+                </div>
+              </div>
+              <div className="flex justify-end gap-2 pt-2">
+                <button type="button" onClick={() => setIsMaterialModalOpen(false)} className="h-11 rounded-xl border-2 border-slate-200 px-5 text-sm font-black text-slate-600">Vazgeç</button>
+                <button type="submit" disabled={materialSaving} className="h-11 rounded-xl bg-cyan-600 px-5 text-sm font-black text-white disabled:opacity-60">
+                  {materialSaving ? "Ekleniyor..." : "Ekle ve Seç"}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

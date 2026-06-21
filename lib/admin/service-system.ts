@@ -1,4 +1,5 @@
 import { createSupabaseServerClient } from "@/lib/supabase/server";
+import { isCriticalStock } from "@/lib/admin/stock";
 
 // -------------------------------------------------------------
 // TYPES
@@ -230,7 +231,7 @@ export async function getLowStockAlerts() {
     .order('name');
     
   if (!data) return [];
-  return data.filter((m) => Number(m.stock_quantity) <= Number(m.min_stock_level));
+  return data.filter((m) => isCriticalStock(m.stock_quantity));
 }
 
 // Get dashboard summaries
@@ -305,7 +306,7 @@ export async function getServiceDashboardStatsSequential() {
 
   // Low stock materials count
   const allMaterials = await supabase.from('materials').select('stock_quantity, min_stock_level').eq('is_active', true);
-  const lowStockCount = (allMaterials.data ?? []).filter(m => Number(m.stock_quantity) <= Number(m.min_stock_level)).length;
+  const lowStockCount = (allMaterials.data ?? []).filter(m => isCriticalStock(m.stock_quantity)).length;
 
   return {
     todayAppointments: todayAppointments || 0,
@@ -365,6 +366,6 @@ export async function getServiceDashboardStats() {
     monthlyCiro: totals.ciro,
     monthlyCost: totals.cost,
     monthlyProfit: totals.profit,
-    lowStockCount: (materialsRes.data ?? []).filter((row) => Number(row.stock_quantity) <= Number(row.min_stock_level)).length,
+    lowStockCount: (materialsRes.data ?? []).filter((row) => isCriticalStock(row.stock_quantity)).length,
   };
 }

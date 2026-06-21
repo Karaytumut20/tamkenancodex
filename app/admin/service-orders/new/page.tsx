@@ -13,7 +13,7 @@ export default async function NewServiceOrderPage() {
     { data: materials }
   ] = await Promise.all([
     supabase.from("customers").select("id, name, phone").is("deleted_at", null).order("name", { ascending: true }),
-    supabase.from("materials").select("id, name, stock_quantity, selling_price, unit").is("deleted_at", null).eq("is_active", true).order("name", { ascending: true })
+    supabase.from("materials").select("id, name, stock_quantity, selling_price").is("deleted_at", null).eq("is_active", true).order("name", { ascending: true })
   ]);
 
   return (

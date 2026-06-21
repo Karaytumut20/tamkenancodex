@@ -14,6 +14,7 @@ import {
 } from "lucide-react";
 import { saveMaterial, deleteMaterial } from "./actions";
 import { useRouter } from "next/navigation";
+import { isCriticalStock } from "@/lib/admin/stock";
 
 type Props = {
   materials: any[];
@@ -40,14 +41,14 @@ export function StocksClient({ materials }: Props) {
     const query = q.toLowerCase();
     const nameMatch = m.name.toLowerCase().includes(query);
     
-    const isLow = Number(m.stock_quantity) <= Number(m.min_stock_level || 0);
+    const isLow = isCriticalStock(m.stock_quantity);
     const lowMatch = !lowStockOnly || isLow;
 
     return nameMatch && lowMatch;
   }), [materials, q, lowStockOnly]);
 
   const lowStockCount = useMemo(() => materials.filter(
-    (m) => Number(m.stock_quantity) <= Number(m.min_stock_level || 0)
+    (m) => isCriticalStock(m.stock_quantity)
   ).length, [materials]);
 
   const handleOpenAdd = () => {
@@ -127,7 +128,7 @@ export function StocksClient({ materials }: Props) {
             <AlertTriangle className="h-6 w-6 animate-pulse" />
           </div>
           <div>
-            <p className="text-xs font-black text-slate-400 uppercase">Kritik Stok Uyarısı</p>
+            <p className="text-xs font-black text-slate-400 uppercase">Kritik Stok (3'ten az)</p>
             <p className="text-2xl font-black text-rose-600 mt-0.5">{lowStockCount} Ürün</p>
           </div>
         </div>
@@ -165,7 +166,7 @@ export function StocksClient({ materials }: Props) {
                 : "bg-white border-slate-200 text-slate-600 hover:bg-slate-50"
             }`}
           >
-            <TrendingDown className="h-4 w-4" /> Kritik Stok
+            <TrendingDown className="h-4 w-4" /> Kritik Stok (&lt; 3)
           </button>
 
           <button
@@ -206,7 +207,7 @@ export function StocksClient({ materials }: Props) {
               </thead>
               <tbody className="divide-y divide-slate-100 font-medium">
                 {filtered.map((m) => {
-                  const isLow = Number(m.stock_quantity) <= Number(m.min_stock_level || 0);
+                  const isLow = isCriticalStock(m.stock_quantity);
                   return (
                     <tr key={m.id} className="hover:bg-slate-50/55">
                       <td className="p-4">

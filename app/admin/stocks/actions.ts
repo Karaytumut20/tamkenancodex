@@ -61,6 +61,7 @@ export async function isSkuUnique(sku: string, excludeId?: string): Promise<bool
 // Save or Update Material
 export async function saveMaterial(input: MaterialInput) {
   const supabase = await createSupabaseServerClient();
+  let savedMaterialId = input.id;
 
   try {
     if (input.barcode) {
@@ -104,6 +105,7 @@ export async function saveMaterial(input: MaterialInput) {
         .single();
 
       if (error) throw new Error(error.message);
+      savedMaterialId = data.id;
 
       // Handle stock adjustment logs manually if stock quantity changed
       if (oldData && Number(oldData.stock_quantity) !== Number(input.stock_quantity)) {
@@ -140,6 +142,7 @@ export async function saveMaterial(input: MaterialInput) {
         .single();
 
       if (error) throw new Error(error.message);
+      savedMaterialId = data.id;
 
       // Log stock movement for initial stock
       if (input.stock_quantity > 0) {
@@ -156,7 +159,7 @@ export async function saveMaterial(input: MaterialInput) {
 
     revalidatePath("/admin/stocks");
     revalidatePath("/admin/service-orders");
-    return { success: true };
+    return { success: true, id: savedMaterialId };
   } catch (err) {
     return { success: false, error: err instanceof Error ? err.message : "Malzeme kaydedilemedi." };
   }

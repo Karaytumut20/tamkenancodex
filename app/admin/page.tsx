@@ -26,6 +26,7 @@ import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { TodayProgramList, UpcomingAppointmentsList, DelayedJobsList } from "@/components/admin/dashboard/DashboardAppointmentsList";
 import { DashboardStocksList } from "@/components/admin/dashboard/DashboardStocksList";
 import { DashboardCustomersList } from "@/components/admin/dashboard/DashboardCustomersList";
+import { isCriticalStock } from "@/lib/admin/stock";
 
 export const dynamic = "force-dynamic";
 
@@ -132,7 +133,7 @@ export default async function AdminDashboardPage() {
       .is("deleted_at", null);
 
     if (mats) {
-      lowStockAlerts = mats.filter(m => Number(m.stock_quantity) <= Number(m.min_stock_level)).slice(0, 5);
+      lowStockAlerts = mats.filter(m => isCriticalStock(m.stock_quantity)).slice(0, 5);
     }
 
     // 6. Get recently added customers
