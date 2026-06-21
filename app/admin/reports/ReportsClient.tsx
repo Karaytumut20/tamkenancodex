@@ -68,7 +68,7 @@ export function ReportsClient({
   // -----------------------------------------------------------------
   // 1. Gelir & Gider Raporu
   // -----------------------------------------------------------------
-  const filteredOrders = serviceOrders.filter((o) => o.finished_at && inRange(o.finished_at));
+  const filteredOrders = serviceOrders.filter((o) => o.created_at && inRange(o.created_at));
   
   let totalCiro = 0;
   let totalCost = 0;
@@ -96,7 +96,7 @@ export function ReportsClient({
   // 3. Müşteri Bazlı Hizmet Raporu
   // -----------------------------------------------------------------
   const customerReportData = customers.map((c) => {
-    const cOrders = serviceOrders.filter((o) => o.customer_id === c.id && o.finished_at && inRange(o.finished_at));
+    const cOrders = serviceOrders.filter((o) => o.customer_id === c.id && o.created_at && inRange(o.created_at));
     const totalBilled = cOrders.reduce((sum, o) => sum + Number(o.grand_total || 0), 0);
     const totalPaid = payments
       .filter((p) => p.customer_id === c.id && inRange(p.payment_date))
@@ -143,7 +143,7 @@ export function ReportsClient({
     );
     const appIds = empApps.map((a) => a.id);
     const empOrders = serviceOrders.filter(
-      (o) => o.appointment_id && appIds.includes(o.appointment_id) && o.finished_at && inRange(o.finished_at)
+      (o) => o.appointment_id && appIds.includes(o.appointment_id) && o.created_at && inRange(o.created_at)
     );
 
     const completed = empOrders.filter((o) => o.status === "Tamamlandı");
@@ -177,7 +177,7 @@ export function ReportsClient({
   // -----------------------------------------------------------------
   const filteredOrderMaterials = orderMaterials.filter((m) => {
     const order = serviceOrders.find((o) => o.id === m.service_order_id);
-    return order && order.finished_at && inRange(order.finished_at);
+    return order && order.created_at && inRange(order.created_at);
   });
 
   // Aggregate materials used

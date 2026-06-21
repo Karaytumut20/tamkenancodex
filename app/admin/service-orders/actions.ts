@@ -477,6 +477,10 @@ export async function createDirectServiceOrder(input: {
   service_price: number;
   appointment_date?: string;
   start_time?: string;
+  material_id?: string;
+  material_quantity?: number;
+  is_paid?: boolean;
+  payment_method?: string;
 }) {
   const supabase = await createSupabaseServerClient();
   try {
@@ -504,19 +508,60 @@ export async function createDirectServiceOrder(input: {
 
     // İş Emrini Oluştur
     const orderNumber = await generateServiceOrderNumber();
+    
+    // Eğer takvim (appointment) yoksa işlemi direkt tamamlandı olarak işaretle
+    const initialStatus = input.appointment_date ? 'Planlandı' : 'Tamamlandı';
+
     const { data: orderData, error: orderErr } = await supabase
       .from('service_orders')
       .insert({
         order_number: orderNumber,
         appointment_id: appointmentId,
         customer_id: input.customer_id,
-        labor_price: input.service_price, // Hizmet satış fiyatı
-        status: 'Taslak',
+        labor_price: input.service_price, // Hizmet satış fiyatı (ya da malzeme toplamı)
+        status: initialStatus,
+        started_at: initialStatus === 'Tamamlandı' ? new Date().toISOString() : null,
+        finished_at: initialStatus === 'Tamamlandı' ? new Date().toISOString() : null,
       })
       .select()
       .single();
 
     if (orderErr) throw new Error("İş emri oluşturulamadı: " + orderErr.message);
+
+    // Eğer Stok/Malzeme seçilmişse, malzemeyi ekle (addMaterialToOrder trigger ile stok düşer)
+    if (input.material_id && input.material_quantity && input.material_quantity > 0) {
+      // Önce malzemenin detaylarını al
+      const { data: matData } = await supabase.from('materials').select('*').eq('id', input.material_id).maybeSingle();
+      if (matData) {
+        // unit formatını ayarlıyoruz
+        const validUnits = ['Adet', 'Metre', 'Paket', 'Kutu', 'Kilogram', 'Litre', 'Set'];
+        const unit = validUnits.includes(matData.unit) ? (matData.unit as any) : 'Adet';
+
+        await addMaterialToOrder(orderData.id, input.material_id, {
+          name: matData.name,
+          category: matData.category,
+          brand: matData.brand,
+          model: matData.model,
+          unit: unit,
+          quantity: input.material_quantity,
+          buying_price: Number(matData.buying_price || 0),
+          selling_price: Number(matData.selling_price || 0),
+          description: "Hızlı satış ekranından eklendi.",
+        });
+      }
+    }
+
+    // Eğer Tahsilat alındıysa (is_paid = true)
+    if (input.is_paid) {
+      await addPayment({
+        customer_id: input.customer_id,
+        service_order_id: orderData.id,
+        payment_date: new Date().toISOString(),
+        amount: input.service_price, // Total sales price
+        method: (input.payment_method as any) || 'Nakit',
+        description: "Peşin Tahsilat (Hızlı İşlem)",
+      });
+    }
 
     await recalculateOrderTotals(orderData.id, supabase);
     
