@@ -57,6 +57,7 @@ export function AdminShell({
   profile: AdminProfile;
 }) {
   const pathname = usePathname();
+  const router = useRouter();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   const visibleNavItems = navItems.filter((item) => {
@@ -71,6 +72,9 @@ export function AdminShell({
       <Link
         key={item.href}
         href={item.href}
+        prefetch={false}
+        onMouseEnter={() => router.prefetch(item.href)}
+        onFocus={() => router.prefetch(item.href)}
         onClick={() => setMobileMenuOpen(false)}
         className={`flex items-center gap-3 rounded-2xl px-3 lg:px-5 py-3 lg:py-4 text-sm lg:text-lg font-black transition-all ${
           isActive

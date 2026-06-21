@@ -1,4 +1,6 @@
 import { redirect } from "next/navigation";
+import { cache } from "react";
+import { headers } from "next/headers";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 
 export type AdminRole = "super_admin" | "editor" | "support" | "viewer";
@@ -11,7 +13,22 @@ export type AdminProfile = {
   is_active: boolean;
 };
 
-export async function getCurrentAdmin() {
+export const getCurrentAdmin = cache(async () => {
+  const requestHeaders = await headers();
+  if (requestHeaders.get("x-primesec-login") === "1") return null;
+
+  if (requestHeaders.get("x-primesec-authenticated") === "1") {
+    const encodedProfile = requestHeaders.get("x-primesec-admin");
+    if (encodedProfile) {
+      try {
+        const profile = JSON.parse(decodeURIComponent(encodedProfile)) as AdminProfile;
+        return { user: { id: profile.id }, profile };
+      } catch {
+        // Fall through to a direct verification if an internal header is malformed.
+      }
+    }
+  }
+
   const supabase = await createSupabaseServerClient();
   const {
     data: { user },
@@ -28,7 +45,7 @@ export async function getCurrentAdmin() {
 
   if (!profile) return null;
   return { user, profile };
-}
+});
 
 export async function requireAdmin(roles?: AdminRole[]) {
   const admin = await getCurrentAdmin();

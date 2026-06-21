@@ -25,7 +25,7 @@ export default async function ServiceOrdersPage({ searchParams }: { searchParams
     `)
     .is("deleted_at", null)
     .order("created_at", { ascending: false })
-    .limit(1000);
+    .limit(250);
 
   if (statusFilter) {
     query = query.eq("status", statusFilter);

@@ -19,7 +19,7 @@ export default async function CustomersPage({ searchParams }: { searchParams: Se
     .select("id, name, type, contact_person, phone, city, district, is_active")
     .is("deleted_at", null)
     .order("name", { ascending: true })
-    .limit(1000);
+    .limit(250);
 
   if (q) {
     query = query.or(`name.ilike.%${q}%,phone.ilike.%${q}%,contact_person.ilike.%${q}%`);

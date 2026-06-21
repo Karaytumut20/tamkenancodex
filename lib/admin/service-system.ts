@@ -234,7 +234,7 @@ export async function getLowStockAlerts() {
 }
 
 // Get dashboard summaries
-export async function getServiceDashboardStats() {
+export async function getServiceDashboardStatsSequential() {
   const supabase = await createSupabaseServerClient();
   const todayStr = new Date().toISOString().split('T')[0];
   
@@ -318,5 +318,53 @@ export async function getServiceDashboardStats() {
     monthlyCost,
     monthlyProfit,
     lowStockCount,
+  };
+}
+
+// Keep the dashboard's independent aggregates concurrent. The previous
+// implementation paid one network round trip after another.
+export async function getServiceDashboardStats() {
+  const supabase = await createSupabaseServerClient();
+  const today = new Date();
+  const todayStr = today.toISOString().split('T')[0];
+  const tomorrow = new Date(today);
+  tomorrow.setDate(tomorrow.getDate() + 1);
+  const startOfWeek = new Date(today);
+  startOfWeek.setDate(startOfWeek.getDate() - startOfWeek.getDay() + 1);
+  startOfWeek.setHours(0, 0, 0, 0);
+  const startOfMonth = new Date(today.getFullYear(), today.getMonth(), 1);
+
+  const [todayRes, tomorrowRes, weeklyRes, pendingRes, collectionRes, customersRes, monthRes, materialsRes] =
+    await Promise.all([
+      supabase.from('appointments').select('id', { count: 'exact', head: true }).eq('appointment_date', todayStr),
+      supabase.from('appointments').select('id', { count: 'exact', head: true }).eq('appointment_date', tomorrow.toISOString().split('T')[0]),
+      supabase.from('service_orders').select('id', { count: 'exact', head: true }).eq('status', 'Tamamland\u0131').gte('finished_at', startOfWeek.toISOString()),
+      supabase.from('service_orders').select('id', { count: 'exact', head: true }).in('status', ['Taslak', '\u0130\u015flem Ba\u015flad\u0131', 'Malzeme Bekleniyor']),
+      supabase.from('appointments').select('id', { count: 'exact', head: true }).eq('status', 'Tahsilat Bekleniyor'),
+      supabase.from('customers').select('id', { count: 'exact', head: true }).eq('is_active', true),
+      supabase.from('service_orders').select('grand_total, total_cost, net_profit').eq('status', 'Tamamland\u0131').gte('finished_at', startOfMonth.toISOString()),
+      supabase.from('materials').select('stock_quantity, min_stock_level').eq('is_active', true),
+    ]);
+
+  const totals = (monthRes.data ?? []).reduce(
+    (sum, row) => ({
+      ciro: sum.ciro + Number(row.grand_total || 0),
+      cost: sum.cost + Number(row.total_cost || 0),
+      profit: sum.profit + Number(row.net_profit || 0),
+    }),
+    { ciro: 0, cost: 0, profit: 0 },
+  );
+
+  return {
+    todayAppointments: todayRes.count ?? 0,
+    tomorrowAppointments: tomorrowRes.count ?? 0,
+    weeklyCompleted: weeklyRes.count ?? 0,
+    pendingOrders: pendingRes.count ?? 0,
+    collectionPending: collectionRes.count ?? 0,
+    totalCustomers: customersRes.count ?? 0,
+    monthlyCiro: totals.ciro,
+    monthlyCost: totals.cost,
+    monthlyProfit: totals.profit,
+    lowStockCount: (materialsRes.data ?? []).filter((row) => Number(row.stock_quantity) <= Number(row.min_stock_level)).length,
   };
 }

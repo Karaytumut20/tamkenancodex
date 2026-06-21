@@ -14,7 +14,7 @@ export default async function StocksPage() {
     .select("id, name, stock_quantity, min_stock_level")
     .is("deleted_at", null)
     .order("name", { ascending: true })
-    .limit(1000);
+    .limit(250);
 
   return (
     <ProtectedAdminPage>

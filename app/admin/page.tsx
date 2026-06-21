@@ -19,7 +19,7 @@ import {
 import { AdminPageHeader } from "@/components/admin/AdminShell";
 import { AdminTable } from "@/components/admin/AdminTable";
 import { ProtectedAdminPage } from "@/components/admin/ProtectedAdminPage";
-import { getDashboardStats } from "@/lib/admin/data";
+import { getLatestLeads } from "@/lib/admin/data";
 import { getServiceDashboardStats } from "@/lib/admin/service-system";
 import { adminResources } from "@/lib/admin/resources";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
@@ -31,7 +31,7 @@ export const dynamic = "force-dynamic";
 
 export default async function AdminDashboardPage() {
   const supabase = await createSupabaseServerClient();
-  const statsPromise = getDashboardStats();
+  const latestLeadsPromise = getLatestLeads();
   
   // Fetch service tracking stats
   let serviceStats = {
@@ -163,7 +163,7 @@ export default async function AdminDashboardPage() {
     console.error("Failed to load service tracking stats on dashboard:", err);
   }
 
-  const stats = await statsPromise;
+  const latestLeads = await latestLeadsPromise;
 
   const actions = [
     {
@@ -380,7 +380,7 @@ export default async function AdminDashboardPage() {
           </div>
           <AdminTable
             resource={{ ...adminResources.leads, canCreate: false, canEdit: true, canDelete: false }}
-            rows={stats.latestLeads}
+            rows={latestLeads}
           />
         </section>
       </div>

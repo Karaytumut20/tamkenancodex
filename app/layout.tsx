@@ -12,6 +12,7 @@ import { siteConfig } from "@/data/site";
 import { getMenuItems, getSiteSettings, getMegaMenuData } from "@/lib/db";
 import { localBusinessSchema } from "@/data/schemas";
 import { Inter, Monoton } from "next/font/google";
+import { unstable_cache } from "next/cache";
 
 const googleSans = Inter({
   subsets: ["latin"],
@@ -27,10 +28,29 @@ const monoton = Monoton({
   display: "swap",
 });
 
+const getCachedSiteSettings = unstable_cache(getSiteSettings, ["site-settings-v1"], {
+  revalidate: 3600,
+  tags: ["site-settings"],
+});
+
+const getCachedPublicChrome = unstable_cache(async () => {
+  const settings = await getCachedSiteSettings();
+  const headerNavigation = await getMenuItems("header");
+  const knownMegaMenuKeys = headerNavigation
+    .map((item) => item.menuKey)
+    .filter((key): key is string => Boolean(key));
+  const megaMenuResults = await Promise.all(knownMegaMenuKeys.map((key) => getMegaMenuData(key)));
+  const megaMenusData = Object.fromEntries(
+    knownMegaMenuKeys.map((key, index) => [key, megaMenuResults[index] ?? null]),
+  );
+
+  return { settings, headerNavigation, megaMenusData };
+}, ["public-chrome-v1"], { revalidate: 3600, tags: ["site-navigation", "mega-menu"] });
+
 export const revalidate = 3600;
 
 export async function generateMetadata(): Promise<Metadata> {
-  const settings = await getSiteSettings();
+  const settings = await getCachedSiteSettings();
   return {
     metadataBase: new URL(settings.siteUrl || siteConfig.siteUrl),
     title: {
@@ -79,21 +99,7 @@ export const viewport = {
 export default async function RootLayout({
   children,
 }: Readonly<{ children: ReactNode }>) {
-  const settings = await getSiteSettings();
-  const headerNavigation = await getMenuItems("header");
-
-  const knownMegaMenuKeys = headerNavigation
-    .map((item) => item.menuKey)
-    .filter((key): key is string => !!key);
-
-  const megaMenuResults = await Promise.all(
-    knownMegaMenuKeys.map((key) => getMegaMenuData(key))
-  );
-
-  const megaMenusData: Record<string, any> = {};
-  knownMegaMenuKeys.forEach((key, index) => {
-    megaMenusData[key] = megaMenuResults[index] ?? null;
-  });
+  const { settings, headerNavigation, megaMenusData } = await getCachedPublicChrome();
 
   return (
     <html lang="tr" className={`${googleSans.variable} ${monoton.variable}`}>

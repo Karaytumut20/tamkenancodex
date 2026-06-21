@@ -1,4 +1,6 @@
 import type { Metadata } from "next";
+import { AdminLayoutClient } from "@/components/admin/AdminLayoutClient";
+import { getCurrentAdmin } from "@/lib/admin/auth";
 
 export const dynamic = "force-dynamic";
 
@@ -15,6 +17,7 @@ export const metadata: Metadata = {
   },
 };
 
-export default function AdminLayout({ children }: { children: React.ReactNode }) {
-  return children;
+export default async function AdminLayout({ children }: { children: React.ReactNode }) {
+  const admin = await getCurrentAdmin();
+  return <AdminLayoutClient profile={admin?.profile ?? null}>{children}</AdminLayoutClient>;
 }

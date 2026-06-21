@@ -114,6 +114,10 @@ async function safeRows(table: string, columns = "*", limit = 10) {
   }
 }
 
+export async function getLatestLeads() {
+  return safeRows("leads", "id, full_name, phone, email, source, status, created_at", 8);
+}
+
 export async function getDashboardStats() {
   const supabase = await createSupabaseServerClient();
   const today = new Date();
