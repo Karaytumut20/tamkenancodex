@@ -2,10 +2,23 @@ import { siteConfig } from "@/data/site";
 import type { Product } from "@/data/products";
 
 export function normalizeWhatsAppNumber(phone?: string) {
-  const digits = (phone || siteConfig.whatsapp).replace(/\D/g, "");
+  let digits = (phone || siteConfig.whatsapp).replace(/\D/g, "");
+  if (digits.startsWith("00")) digits = digits.slice(2);
   if (digits.startsWith("0")) return `90${digits.slice(1)}`;
   if (digits.length === 10) return `90${digits}`;
   return digits;
+}
+
+export function phoneCallUrl(phone: string) {
+  const normalized = normalizeWhatsAppNumber(phone);
+  return normalized ? `tel:+${normalized}` : "#";
+}
+
+export function customerWhatsappUrl(phone: string, customerName?: string) {
+  const greeting = customerName
+    ? `Merhaba ${customerName}, PrimeSec Teknoloji'den ulaşıyoruz.`
+    : "Merhaba, PrimeSec Teknoloji'den ulaşıyoruz.";
+  return directWhatsappUrl(greeting, phone);
 }
 
 export function whatsappUrl(message: string, phone?: string) {

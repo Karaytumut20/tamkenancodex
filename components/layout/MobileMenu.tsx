@@ -1,10 +1,10 @@
 "use client";
 
 import Link from "next/link";
-import { ChevronDown, Phone, SlidersHorizontal, X } from "lucide-react";
+import { ChevronDown, SlidersHorizontal, X } from "lucide-react";
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Button, ButtonLink } from "@/components/ui/Button";
+import { ButtonLink } from "@/components/ui/Button";
 import { mainNavigation } from "@/data/navigation";
 import { megaMenus, type MegaMenuKey } from "@/data/mega-menu";
 import type { NavigationItem, MegaMenuData } from "@/lib/db";
@@ -164,17 +164,6 @@ export function MobileMenu({ open, onClose, navigation = mainNavigation, megaMen
                 >
                   <SlidersHorizontal className="h-5 w-5" /> Kendi Sistemini Tasarla
                 </ButtonLink>
-                <Button
-                  variant="outlineBlue"
-                  size="lg"
-                  className="h-[52px] w-full rounded-lg px-4 text-base"
-                  onClick={() => {
-                    onClose();
-                    window.dispatchEvent(new Event("open-contact-popup"));
-                  }}
-                >
-                  <Phone className="h-5 w-5" /> Teklif Al
-                </Button>
               </div>
             </div>
           </motion.div>

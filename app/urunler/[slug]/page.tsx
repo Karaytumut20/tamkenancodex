@@ -132,13 +132,8 @@ export default async function ProductDetailPage({
   );
   const productWhatsApp = omer?.whatsapp || representatives[1]?.whatsapp || "905519542605";
 
-  // Önce Oksid ürününü kontrol et
   const oksidProduct = await getOksidProductBySlug(slug);
-  if (oksidProduct) {
-    return <OksidProductPage product={oksidProduct} productWhatsApp={productWhatsApp} />;
-  }
-
-  const product = await getProductBySlug(slug);
+  const product: any = oksidProduct ?? await getProductBySlug(slug);
   if (!product) notFound();
 
   // Redirect Guard
@@ -171,7 +166,7 @@ export default async function ProductDetailPage({
     sku: product.code,
     brand: product.brand,
     description: product.description,
-    image: `${siteConfig.siteUrl}${product.image}`,
+    image: /^https?:\/\//.test(product.image) ? product.image : `${siteConfig.siteUrl}${product.image}`,
     url: `${siteConfig.siteUrl}/urunler/${product.slug}`,
     ...(product.jsonLd || {}),
   };

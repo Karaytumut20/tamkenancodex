@@ -65,7 +65,7 @@ from (
     ('header', 'Kamera Sistemleri', '/kamera-sistemleri', '_self', 'kamera-sistemleri', 3, true),
     ('header', 'Urunler', '/urunler', '_self', null, 4, true),
     ('header', 'Kurumsal', '/kurumsal', '_self', null, 5, true),
-    ('header', 'Blog', '/blog', '_self', null, 6, true)
+    ('header', 'Referanslarımız', '/referanslarimiz', '_self', null, 6, true)
 ) as seed(menu_key, label, url, target, mega_menu_key, sort_order, is_active)
 where not exists (
   select 1

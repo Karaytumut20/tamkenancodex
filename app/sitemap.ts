@@ -21,6 +21,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     const paths = [
       { url: "", priority: 1, changeFrequency: "daily" },
       { url: "urunler", priority: 0.9, changeFrequency: "daily" },
+      { url: "referanslarimiz", priority: 0.8, changeFrequency: "monthly" },
       { url: "blog", priority: 0.9, changeFrequency: "daily" },
       {
         url: "kendi-sistemini-tasarla",

@@ -147,7 +147,10 @@ export const getMenuItems = cache(async function getMenuItems(
       });
     }
 
-    return (data as any[]).map((item) => {
+    const items = (data as any[]).filter((item) =>
+      String(item.url).replace(/\/$/, "") !== "/blog" &&
+      String(item.label).toLocaleLowerCase("tr-TR") !== "blog"
+    ).map((item) => {
       const dynamicLabel = item.mega_menu_key ? sectionTitleMap.get(item.mega_menu_key) : undefined;
       return {
         label: dynamicLabel || item.label,
@@ -155,6 +158,16 @@ export const getMenuItems = cache(async function getMenuItems(
         menuKey: item.mega_menu_key || undefined,
       };
     });
+
+    if (menuKey === "header" && !items.some((item) => item.href === "/referanslarimiz")) {
+      const contactIndex = items.findIndex((item) => item.href === "/iletisim");
+      items.splice(contactIndex >= 0 ? contactIndex : items.length, 0, {
+        label: "Referanslarımız",
+        href: "/referanslarimiz",
+        menuKey: undefined,
+      });
+    }
+    return items;
   } catch (err) {
     console.error("Error in getMenuItems:", err);
     return menuKey === "header" ? staticMainNavigation : [];
@@ -228,6 +241,32 @@ export type SiteContentBlock = {
   imageAlt?: string;
   items?: unknown[];
 };
+
+export type ReferenceCompany = {
+  id: string;
+  companyName: string;
+  logoUrl: string;
+};
+
+export const getReferences = cache(async function getReferences(): Promise<ReferenceCompany[]> {
+  try {
+    const supabase = getSupabase();
+    const { data, error } = await supabase
+      .from("references")
+      .select("id, company_name, logo_url")
+      .eq("is_active", true)
+      .order("sort_order", { ascending: true });
+
+    if (error || !data) return [];
+    return (data as any[]).map((item) => ({
+      id: String(item.id),
+      companyName: String(item.company_name),
+      logoUrl: String(item.logo_url),
+    }));
+  } catch {
+    return [];
+  }
+});
 
 export const getSiteContentBlock = cache(async function getSiteContentBlock(
   sectionKey: string,
@@ -1038,9 +1077,18 @@ export type OksidProduct = {
   image: string;
   gallery: string[];
   description: string;
+  longDescription: string;
   tags: string[];
   features: { title: string; description: string; active: boolean }[];
+  showFeatures: boolean;
   specs: { title: string; description: string; active: boolean }[];
+  specsTitle?: string;
+  specsDescription?: string;
+  showSpecs: boolean;
+  benefits: { title: string; description: string; active: boolean }[];
+  benefitsTitle?: string;
+  benefitsDescription?: string;
+  showBenefits: boolean;
   faqs: { question: string; answer: string }[];
   usage: string[];
   // SEO
@@ -1085,19 +1133,28 @@ function normalizeOksidRow(row: any): OksidProduct {
     // Uyumluluk alias'ları
     image,
     gallery,
-    description: row.kategori_alt
+    description: row.short_description || (row.kategori_alt
       ? `${row.kategori_alt} kategorisinde ${row.marka || ""}${row.marka ? " " : ""}ürün.`
-      : "",
+      : ""),
+    longDescription: row.long_description || "",
     tags: [row.kategori_ana, row.kategori_alt, row.marka].filter(
       Boolean,
     ) as string[],
-    features: [
+    features: Array.isArray(row.features) && row.features.length > 0 ? row.features : [
       { title: "Garanti", description: garantiLabel, active: true },
       { title: "Marka", description: row.marka || "—", active: true },
       { title: "KDV", description: `%${row.kdv ?? 18}`, active: true },
     ],
+    showFeatures: row.show_features !== false,
     specs,
-    faqs: [],
+    specsTitle: row.specs_title || undefined,
+    specsDescription: row.specs_description || undefined,
+    showSpecs: row.show_specs !== false,
+    benefits: [],
+    benefitsTitle: row.benefits_title || undefined,
+    benefitsDescription: row.benefits_description || undefined,
+    showBenefits: row.show_benefits !== false,
+    faqs: Array.isArray(row.faqs) ? row.faqs : [],
     usage: [row.kategori_alt || row.kategori_ana].filter(Boolean) as string[],
     metaTitle: `${row.urun_adi || ""} | PrimeSec Teknoloji`,
     metaDescription: `${row.urun_adi || ""} — ${row.kategori_alt || row.kategori_ana || ""} kategorisinde ${row.marka || ""} ürünü. Teknik özellikler için inceleyin.`,
@@ -1313,6 +1370,33 @@ export type SystemBuilderGroup = {
   is_active: boolean;
   items: SystemBuilderItem[];
 };
+
+export type SystemBuilderService = {
+  id: string;
+  title: string;
+  description: string;
+  image: string;
+};
+
+export const getSystemBuilderServices = cache(async function getSystemBuilderServices(): Promise<SystemBuilderService[]> {
+  try {
+    const supabase = getSupabase();
+    const { data, error } = await supabase
+      .from("services")
+      .select("id, title, hero_description, intro_content, image_url")
+      .eq("is_active", true)
+      .order("sort_order", { ascending: true });
+    if (error || !data) return [];
+    return (data as any[]).map((service) => ({
+      id: String(service.id),
+      title: String(service.title),
+      description: String(service.hero_description || service.intro_content || ""),
+      image: String(service.image_url || "/images/alarm-sistemi.svg"),
+    }));
+  } catch {
+    return [];
+  }
+});
 
 export const getSystemBuilderData = cache(
   async function getSystemBuilderData(): Promise<SystemBuilderGroup[]> {

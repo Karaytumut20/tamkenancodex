@@ -1,6 +1,6 @@
-import { ResourceEditPage } from "@/components/admin/ResourcePage";
-import { adminResources } from "@/lib/admin/resources";
+import { redirect } from "next/navigation";
 
-export default function EditServicePage({ params }: { params: Promise<{ id: string }> }) {
-  return <ResourceEditPage resource={adminResources.services} params={params} />;
+export default async function LegacyEditServicePage({ params }: { params: Promise<{ id: string }> }) {
+  const { id } = await params;
+  redirect(`/admin/system-builder/${id}/edit`);
 }

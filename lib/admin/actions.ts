@@ -191,6 +191,10 @@ async function normalizePayload(resourceKey: string, table: string, id: string |
     }
   }
 
+  if (resourceKey === "references" && id === null && payload.is_active === false) {
+    payload.is_active = true;
+  }
+
   if ("sort_order" in payload && (payload.sort_order === null || payload.sort_order === undefined)) {
     payload.sort_order = 0;
   }
@@ -260,6 +264,9 @@ async function normalizePayload(resourceKey: string, table: string, id: string |
       delete payload.categories_list;
     }
   }
+  if (resourceKey === "oksidProducts") {
+    revalidatePath("/urunler");
+  }
 
   if (resourceKey === "blog") {
     // Public blog queries intentionally show only published records. Make a new
@@ -311,6 +318,7 @@ export async function saveResource(resourceKey: string, id: string | null, formD
   if (resourceKey === "brands") {
     revalidatePath("/");
   }
+  if (resourceKey === "references") revalidatePath("/referanslarimiz");
   redirect(resource.path);
 }
 
@@ -341,6 +349,7 @@ export async function deleteResource(resourceKey: string, id: string) {
     if (deletedSlug) revalidatePath(`/blog/${deletedSlug}`);
   }
   if (resourceKey === "brands") revalidatePath("/");
+  if (resourceKey === "references") revalidatePath("/referanslarimiz");
 }
 
 export async function signOutAdmin() {

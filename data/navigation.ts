@@ -3,6 +3,6 @@ export const mainNavigation = [
   { label: "Akıllı Ev Sistemleri", href: "/akilli-ev-sistemleri", menuKey: "akilli-ev-sistemleri" },
   { label: "Kamera Sistemleri", href: "/kamera-sistemleri", menuKey: "kamera-sistemleri" },
   { label: "Ürünler", href: "/urunler" },
-  { label: "Blog", href: "/blog" },
+  { label: "Referanslarımız", href: "/referanslarimiz" },
   { label: "İletişim", href: "/iletisim" },
 ];

@@ -20,7 +20,8 @@ import {
   Phone,
   MapPin,
   ExternalLink,
-  Printer
+  Printer,
+  MessageCircle,
 } from "lucide-react";
 import { 
   saveServiceOrder, 
@@ -35,6 +36,7 @@ import {
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { toCalendarDateKey } from "@/lib/admin/calendar-date";
+import { customerWhatsappUrl, phoneCallUrl } from "@/lib/whatsapp";
 
 type Props = {
   order: any;
@@ -393,6 +395,16 @@ export function ServiceOrderClient({
         </div>
 
         <div className="flex gap-2 shrink-0">
+          {order.customer?.phone && (
+            <>
+              <a href={phoneCallUrl(order.customer.phone)} className="inline-flex h-11 items-center gap-1.5 rounded-xl border-2 border-slate-200 bg-white px-4 text-sm font-black text-slate-700 hover:bg-slate-50">
+                <Phone className="h-4 w-4 text-emerald-600" /> Ara
+              </a>
+              <a href={customerWhatsappUrl(order.customer.phone, order.customer.name)} target="_blank" rel="noopener noreferrer" className="inline-flex h-11 items-center gap-1.5 rounded-xl bg-[#25D366] px-4 text-sm font-black text-white hover:bg-[#20ba59]">
+                <MessageCircle className="h-4 w-4" /> WhatsApp
+              </a>
+            </>
+          )}
           <button
             onClick={() => window.print()}
             className="inline-flex h-11 items-center gap-1.5 rounded-xl border-2 border-slate-200 bg-white hover:bg-slate-50 px-4 text-sm font-black text-slate-700 transition-colors"

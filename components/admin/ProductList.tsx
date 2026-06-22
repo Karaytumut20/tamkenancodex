@@ -156,9 +156,9 @@ export function ProductList({ initialProducts }: { initialProducts: ProductRow[]
                 </div>
                 
                 <div className="flex items-center gap-2 shrink-0">
-                  {product.type === "product" && (
+                  {(
                     <Link
-                      href={`/admin/products/${product.id}/edit`}
+                      href={product.type === "product" ? `/admin/products/${product.id}/edit` : `/admin/products/xml/${product.id}/edit`}
                       className="inline-flex h-10 items-center gap-2 rounded-xl border-2 border-slate-200 bg-white px-4 text-sm font-black text-slate-700 hover:bg-slate-50 hover:border-cyan-300 transition-colors"
                     >
                       <Edit className="h-4 w-4" />

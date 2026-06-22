@@ -1,6 +1,5 @@
-import { ResourceListPage } from "@/components/admin/ResourcePage";
-import { adminResources } from "@/lib/admin/resources";
+import { redirect } from "next/navigation";
 
-export default function ServicesPage({ searchParams }: { searchParams: Promise<{ q?: string }> }) {
-  return <ResourceListPage resource={adminResources.services} searchParams={searchParams} />;
+export default function LegacyServicesPage() {
+  redirect("/admin/system-builder");
 }

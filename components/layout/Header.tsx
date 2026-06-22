@@ -4,7 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import dynamic from "next/dynamic";
 import { usePathname } from "next/navigation";
-import { ChevronDown, Menu, Phone, SlidersHorizontal } from "lucide-react";
+import { ChevronDown, Menu, SlidersHorizontal } from "lucide-react";
 import { Logo } from "@/components/layout/Logo";
 import { MegaMenu } from "@/components/layout/MegaMenu";
 import { ButtonLink } from "@/components/ui/Button";
@@ -114,14 +114,6 @@ export function Header({ navigation = mainNavigation, megaMenusData = {} }: Prop
             className="hidden shrink-0 items-center gap-2 xl:flex"
             onMouseEnter={() => setActiveMenu(null)}
           >
-            <ButtonLink
-              href="/iletisim"
-              variant="outlineBlue"
-              size="sm"
-              className="h-9 rounded-full border-border bg-transparent px-4 text-[13px] text-ink hover:border-cyan-500 hover:text-cyan-500 flex items-center gap-1.5 whitespace-nowrap"
-            >
-              <Phone className="h-3.5 w-3.5" /> Teklif Al
-            </ButtonLink>
             <ButtonLink
               href="/kendi-sistemini-tasarla"
               size="sm"

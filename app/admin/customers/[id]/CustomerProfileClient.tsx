@@ -18,12 +18,14 @@ import {
   Mail,
   Building,
   CheckCircle,
-  AlertTriangle
+  AlertTriangle,
+  MessageCircle,
 } from "lucide-react";
 import { CustomerForm } from "../CustomerForm";
 import { addCustomerNote, deleteCustomer } from "../actions";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import { customerWhatsappUrl, phoneCallUrl } from "@/lib/whatsapp";
 
 type Props = {
   customer: any;
@@ -118,6 +120,17 @@ export function CustomerProfileClient({
             {customer.email && <p className="flex items-center gap-2"><Mail className="h-4 w-4 text-slate-400 shrink-0" /> {customer.email}</p>}
             <p className="flex items-center gap-2"><MapPin className="h-4 w-4 text-slate-400 shrink-0" /> {customer.district || 'İlçe belirtilmemiş'}</p>
           </div>
+
+          {customer.phone && (
+            <div className="mt-4 grid grid-cols-2 gap-2">
+              <a href={phoneCallUrl(customer.phone)} className="inline-flex h-10 items-center justify-center gap-1.5 rounded-xl border border-slate-200 bg-slate-50 text-xs font-black text-slate-700 hover:bg-slate-100">
+                <Phone className="h-4 w-4 text-emerald-600" /> Ara
+              </a>
+              <a href={customerWhatsappUrl(customer.phone, customer.name)} target="_blank" rel="noopener noreferrer" className="inline-flex h-10 items-center justify-center gap-1.5 rounded-xl bg-[#25D366] text-xs font-black text-white hover:bg-[#20ba59]">
+                <MessageCircle className="h-4 w-4" /> WhatsApp
+              </a>
+            </div>
+          )}
 
           <button
             onClick={handleSoftDeleteCustomer}

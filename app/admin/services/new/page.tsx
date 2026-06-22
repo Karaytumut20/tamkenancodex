@@ -1,6 +1,5 @@
-import { ResourceNewPage } from "@/components/admin/ResourcePage";
-import { adminResources } from "@/lib/admin/resources";
+import { redirect } from "next/navigation";
 
-export default function NewServicePage() {
-  return <ResourceNewPage resource={adminResources.services} />;
+export default function LegacyNewServicePage() {
+  redirect("/admin/system-builder/new");
 }

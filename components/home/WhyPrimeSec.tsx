@@ -14,7 +14,7 @@ const reasons = [
   },
   {
     icon: Users,
-    title: "Bizzat Danışmanlık",
+    title: "Danışmanlık",
     desc: "Sizin ihtiyacınıza özel sistem tasarımı yapıyoruz.",
   },
   {

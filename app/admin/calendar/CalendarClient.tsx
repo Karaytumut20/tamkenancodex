@@ -15,10 +15,12 @@ import {
   X,
   Trash2,
   AlertCircle,
-  Navigation
+  Navigation,
+  MessageCircle,
 } from "lucide-react";
 import { saveAppointment, updateAppointmentDate, deleteAppointment, createQuickCustomer } from "./actions";
 import { isDateKeyOnOrAfter, toCalendarDateKey } from "@/lib/admin/calendar-date";
+import { customerWhatsappUrl, phoneCallUrl } from "@/lib/whatsapp";
 
 type DBAppointment = {
   id: string;
@@ -1034,10 +1036,20 @@ export function CalendarClient({ initialAppointments, customers: initialCustomer
                       <div className="flex items-center gap-2 pt-2 border-t border-white/40">
                         {app.customer?.phone && (
                           <a
-                            href={`tel:${app.customer.phone}`}
+                            href={phoneCallUrl(app.customer.phone)}
                             className="flex-1 flex items-center justify-center gap-1.5 h-9 rounded-xl bg-white border border-slate-200 text-xs font-black text-slate-700 hover:bg-slate-50 transition-colors"
                           >
                             <Phone className="h-3.5 w-3.5 text-emerald-600" /> Ara
+                          </a>
+                        )}
+                        {app.customer?.phone && (
+                          <a
+                            href={customerWhatsappUrl(app.customer.phone, app.customer.name)}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="flex-1 flex items-center justify-center gap-1.5 h-9 rounded-xl bg-[#25D366] text-xs font-black text-white hover:bg-[#20ba59] transition-colors"
+                          >
+                            <MessageCircle className="h-3.5 w-3.5" /> WhatsApp
                           </a>
                         )}
                         {app.location_link && (

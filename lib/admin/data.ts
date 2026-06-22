@@ -294,7 +294,7 @@ async function getMediaSeoRows() {
 export async function getSeoOverview() {
   const [pages, services, blog, projects, products, serviceAreas, media] = await Promise.all([
     getSeoRows({ table: "pages", type: "Page", pathPrefix: "/", editBasePath: "/admin/pages", altColumn: "image_alt" }),
-    getSeoRows({ table: "services", type: "Service", pathPrefix: "/", editBasePath: "/admin/services", altColumn: "image_alt" }),
+    getSeoRows({ table: "services", type: "Service", pathPrefix: "/", editBasePath: "/admin/system-builder", altColumn: "image_alt" }),
     getSeoRows({ table: "blog_posts", type: "Blog", pathPrefix: "/blog/", editBasePath: "/admin/blog", altColumn: "cover_image_alt" }),
     getSeoRows({ table: "projects", type: "Project", pathPrefix: "/projeler/", editBasePath: "/admin/projects", altColumn: "image_alt" }),
     getSeoRows({ table: "products", type: "Product", pathPrefix: "/urunler/", editBasePath: "/admin/products", altColumn: "image_alt" }),
