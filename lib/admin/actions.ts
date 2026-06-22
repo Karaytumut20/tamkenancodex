@@ -265,7 +265,7 @@ async function normalizePayload(resourceKey: string, table: string, id: string |
     }
   }
   if (resourceKey === "oksidProducts") {
-    revalidatePath("/urunler");
+    revalidatePath("/urunler", "layout");
   }
 
   if (resourceKey === "blog") {

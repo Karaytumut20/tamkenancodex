@@ -337,6 +337,9 @@ export const getProducts = cache(async function getProducts(): Promise<any[]> {
         slug: p.slug,
         name: p.title,
         code: p.sku || "",
+        garantiAy: Number(p.warranty_months || 0),
+        sideAttributes: Array.isArray(p.side_attributes) ? p.side_attributes : [],
+        technicalAttributes: Array.isArray(p.technical_attributes) ? p.technical_attributes : [],
         category: categoryName,
         brand: brandName,
         usage: Array.isArray(p.usage_areas) ? p.usage_areas : [],
@@ -442,6 +445,9 @@ export const getProductBySlug = cache(async function getProductBySlug(
       slug: pData.slug,
       name: pData.title,
       code: pData.sku || "",
+      garantiAy: Number(pData.warranty_months || 0),
+      sideAttributes: Array.isArray(pData.side_attributes) ? pData.side_attributes : [],
+      technicalAttributes: Array.isArray(pData.technical_attributes) ? pData.technical_attributes : [],
       category: categoryName,
       brand: brandName,
       usage: Array.isArray(pData.usage_areas) ? pData.usage_areas : [],
@@ -1091,6 +1097,8 @@ export type OksidProduct = {
   showBenefits: boolean;
   faqs: { question: string; answer: string }[];
   usage: string[];
+  sideAttributes: { title: string; description: string; active: boolean }[];
+  technicalAttributes: { title: string; description: string; active: boolean }[];
   // SEO
   metaTitle?: string;
   metaDescription?: string;
@@ -1098,15 +1106,40 @@ export type OksidProduct = {
 
 function normalizeOksidRow(row: any): OksidProduct {
   const resimler: string[] = Array.isArray(row.resimler) ? row.resimler : [];
-  const ozellikler: Record<string, string> =
+  const customAttributes = Array.isArray(row.custom_attributes)
+    ? row.custom_attributes
+        .filter((item: any) => item?.active !== false && item?.title)
+        .map((item: any) => ({
+          title: String(item.title),
+          description: String(item.description || ""),
+          active: true,
+        }))
+    : [];
+  const xmlAttributes: Record<string, string> =
     row.ozellikler && typeof row.ozellikler === "object" ? row.ozellikler : {};
+  const ozellikler: Record<string, string> = customAttributes.length > 0
+    ? Object.fromEntries(customAttributes.map((item: any) => [item.title, item.description]))
+    : xmlAttributes;
 
   // Özellikler dizisini teknik specs'e dönüştür
-  const specs = Object.entries(ozellikler).map(([title, description]) => ({
-    title,
-    description: String(description),
-    active: true,
-  }));
+  const specs = customAttributes.length > 0
+    ? customAttributes
+    : Object.entries(ozellikler).map(([title, description]) => ({
+        title,
+        description: String(description),
+        active: true,
+      }));
+  const normalizeAttributeList = (value: unknown) => Array.isArray(value)
+    ? value
+        .filter((item: any) => item?.active !== false && item?.title)
+        .map((item: any) => ({
+          title: String(item.title),
+          description: String(item.description || ""),
+          active: true,
+        }))
+    : [];
+  const sideAttributes = normalizeAttributeList(row.side_attributes);
+  const technicalAttributes = normalizeAttributeList(row.technical_attributes);
 
   const image = resimler[0] || "/images/alarm-sistemi.svg";
   const gallery = resimler.slice(1);
@@ -1156,6 +1189,8 @@ function normalizeOksidRow(row: any): OksidProduct {
     showBenefits: row.show_benefits !== false,
     faqs: Array.isArray(row.faqs) ? row.faqs : [],
     usage: [row.kategori_alt || row.kategori_ana].filter(Boolean) as string[],
+    sideAttributes,
+    technicalAttributes,
     metaTitle: `${row.urun_adi || ""} | PrimeSec Teknoloji`,
     metaDescription: `${row.urun_adi || ""} — ${row.kategori_alt || row.kategori_ana || ""} kategorisinde ${row.marka || ""} ürünü. Teknik özellikler için inceleyin.`,
   };

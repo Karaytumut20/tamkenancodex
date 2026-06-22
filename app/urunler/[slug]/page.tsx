@@ -13,9 +13,7 @@ import {
   Shield,
   Activity,
   Layers,
-  HelpCircle,
   Sparkles,
-  ChevronDown,
   Package,
   HardDrive,
   Tag,
@@ -32,7 +30,7 @@ import { productWhatsappUrl, whatsappUrl as buildWhatsAppUrl } from "@/lib/whats
 import { buildMetadata } from "@/lib/seo";
 import { getProductBySlug, getProducts, getOksidProductBySlug, getOksidProducts, getSiteSettings, type OksidProduct } from "@/lib/db";
 import { ProductImageGallery } from "@/components/products/ProductImageGallery";
-import { breadcrumbSchema, faqSchema } from "@/data/schemas";
+import { breadcrumbSchema } from "@/data/schemas";
 
 const getCategoryVisuals = (category: string) => {
   switch (category) {
@@ -141,6 +139,13 @@ export default async function ProductDetailPage({
     redirect(product.redirectTo);
   }
 
+  return (
+    <OksidProductPage
+      product={product}
+      productWhatsApp={productWhatsApp}
+    />
+  );
+
   const allOksidProducts = await getOksidProducts();
   const related = [...allOksidProducts]
     .filter((p) => p.slug !== product.slug)
@@ -149,13 +154,6 @@ export default async function ProductDetailPage({
   const copy = buildProductCopy(product);
   const visuals = getCategoryVisuals(product.category);
   const IconComponent = visuals.icon;
-
-  const process = [
-    "Ücretsiz Keşif",
-    "Ürün & Konum Analizi",
-    "Profesyonel Kurulum",
-    "Test & Teslim",
-  ];
 
   // Merge Admin Defined JSON-LD with standard Product schema
   const schemaType = product.schemaType || "Product";
@@ -181,7 +179,6 @@ export default async function ProductDetailPage({
             { name: "Ürünler", url: "/urunler" },
             { name: product.name, url: `/urunler/${product.slug}` },
           ]),
-          faqSchema(product.faqs),
         ]}
       />
 
@@ -485,46 +482,6 @@ export default async function ProductDetailPage({
         </section>
       )}
 
-      {/* ── 5. Dynamic Roadmap / Stepper ── */}
-      <section className="bg-surface py-16 md:py-24 border-b border-border">
-        <Container>
-          <div className="max-w-3xl mx-auto text-center mb-12 md:mb-16 px-2">
-            <span className="text-[10px] md:text-xs font-extrabold uppercase tracking-widest text-primary-600">
-              SÜREÇ AKIŞI
-            </span>
-            <h2 className="mt-3 md:mt-4 text-2xl sm:text-3xl md:text-5xl font-black tracking-tight text-ink">
-              Adım Adım Kurulum Sürecimiz
-            </h2>
-            <p className="mt-3 md:mt-4 text-ink-muted text-sm sm:text-base md:text-lg">
-              Sisteminizi başından sonuna kadar şeffaf, kontrol edilebilir ve
-              kusursuz şekilde teslim ediyoruz.
-            </p>
-          </div>
-
-          <div className="relative grid gap-8 sm:gap-6 grid-cols-1 sm:grid-cols-2 md:grid-cols-4">
-            <div className="absolute top-[24px] left-[12.5%] right-[12.5%] h-[2px] bg-border hidden md:block" />
-
-            {process.map((step, index) => (
-              <div
-                key={step}
-                className="relative z-10 flex flex-col items-center text-center group"
-              >
-                <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl primesec-navy-action text-white font-black group-hover:scale-110 transition-transform duration-300">
-                  {index + 1}
-                </div>
-                <h3 className="mt-4 sm:mt-6 text-lg sm:text-xl font-extrabold text-ink">
-                  {step}
-                </h3>
-                <p className="mt-2 text-xs sm:text-sm leading-6 text-ink-muted px-2">
-                  PrimeSec bu aşamayı net kalite kriterleriyle yönetir ve
-                  teslimat raporunu sizinle paylaşır.
-                </p>
-              </div>
-            ))}
-          </div>
-        </Container>
-      </section>
-
       {/* ── 6. Related Products ── */}
       <section className="bg-white py-12 md:py-20 border-b border-border">
         <Container>
@@ -548,48 +505,6 @@ export default async function ProductDetailPage({
           <div className="grid gap-4 sm:gap-6 grid-cols-1 sm:grid-cols-2 lg:grid-cols-4">
             {related.map((item: any) => (
               <ProductCard key={item.slug} product={item} />
-            ))}
-          </div>
-        </Container>
-      </section>
-
-      {/* ── 7. FAQ & Help Section ── */}
-      <section className="bg-surface py-12 md:py-20 border-b border-border">
-        <Container className="grid gap-8 lg:gap-12 xl:grid-cols-12">
-          {/* Left Column Info */}
-          <div className="xl:col-span-5 space-y-4 md:space-y-6">
-            <div className="inline-flex h-10 w-10 sm:h-12 sm:w-12 items-center justify-center rounded-2xl bg-white text-primary-600 border border-primary-100">
-              <HelpCircle className="h-5 w-5 sm:h-6 sm:w-6" />
-            </div>
-            <h2 className="text-2xl sm:text-3xl md:text-4xl font-extrabold tracking-tight text-ink leading-tight">
-              Merak Edilen Sıkça Sorulan Sorular
-            </h2>
-            <p className="text-sm sm:text-base md:text-lg leading-7 sm:leading-8 text-ink-muted">
-              Bu ürünle ilgili aklınıza takılabilecek genel soruların
-              yanıtlarını hazırladık. Daha fazlası için her zaman desteğe
-              hazırız.
-            </p>
-          </div>
-
-          {/* Right Column Accordion Layout */}
-          <div className="xl:col-span-7 space-y-3 sm:space-y-4">
-            {product.faqs.map((faq: any, index: number) => (
-              <details
-                key={`${faq.question}-${index}`}
-                className="group rounded-2xl border border-border bg-[#FFFFFF] cursor-pointer transition-all duration-300 open:border-cyan-500 open:shadow-md open:shadow-slate-50"
-              >
-                <summary className="flex items-center justify-between list-none outline-none p-4 md:p-5">
-                  <h3 className="text-sm sm:text-base font-bold text-ink leading-snug group-hover:text-cyan-600 transition-colors select-none pr-4">
-                    {faq.question}
-                  </h3>
-                  <span className="shrink-0 transition-transform duration-300 group-open:rotate-180 text-slate-400 group-hover:text-cyan-500">
-                    <ChevronDown className="h-4 w-4 sm:h-5 sm:w-5" />
-                  </span>
-                </summary>
-                <div className="text-xs sm:text-sm leading-relaxed text-ink-muted border-t border-slate-100/80 px-4 md:px-5 pb-4 md:pb-5 pt-3 transition-all duration-300">
-                  <p>{faq.answer}</p>
-                </div>
-              </details>
             ))}
           </div>
         </Container>
@@ -655,21 +570,25 @@ function buildProductCopy(product: Product | any) {
 // Oksid Ürün Detay Sayfası — XML kaynaklı ürünler için premium layout
 // Fiyat / döviz bilgisi HİÇBİR YERDE render edilmez.
 // ─────────────────────────────────────────────────────────────────────────────
-async function OksidProductPage({ product, productWhatsApp }: { product: OksidProduct; productWhatsApp: string }) {
-  const tumOksidUrunler = await getOksidProducts();
-  // İlgili ürünler (kategori ismi içindeki kelimelerden herhangi biri eşleşen ürünler)
-  const getCleanWords = (cat: string) => 
-    (cat || "").toLowerCase().split(/[\s,.\-\/]+/).filter(w => w.length > 2);
-    
-  const productCatWords = getCleanWords(product.categoryAlt || product.category);
-  
-  const ilgiliUrunler = [...tumOksidUrunler]
-    .filter((p) => p.slug !== product.slug)
-    .sort(() => 0.5 - Math.random())
-    .slice(0, 4);
+async function OksidProductPage({ product, productWhatsApp }: { product: OksidProduct | any; productWhatsApp: string }) {
+  const [manuelUrunler, tumOksidUrunler] = await Promise.all([getProducts(), getOksidProducts()]);
+  const tumUrunler = [...manuelUrunler, ...tumOksidUrunler];
+  const ayniKategori = tumUrunler.filter((item: any) =>
+    item.slug !== product.slug &&
+    item.category &&
+    product.category &&
+    item.category.toLocaleLowerCase("tr-TR") === product.category.toLocaleLowerCase("tr-TR"),
+  );
+  const ilgiliUrunler = (ayniKategori.length > 0 ? ayniKategori : tumUrunler.filter((item: any) => item.slug !== product.slug)).slice(0, 4);
 
-  const stokVar = product.stokAdet > 0;
-  const ozellikEntries = Object.entries(product.ozellikler);
+  const stokVar = typeof product.stokAdet === "number" ? product.stokAdet > 0 : null;
+  const attributeEntries = (items: unknown): [string, string][] => Array.isArray(items)
+    ? items
+        .filter((item: any) => item?.active !== false && item?.title && item?.description)
+        .map((item: any) => [String(item.title), String(item.description)])
+    : [];
+  const sideAttributeEntries = attributeEntries(product.sideAttributes);
+  const technicalAttributeEntries = attributeEntries(product.technicalAttributes);
 
   const whatsappMesaj = `Merhaba, ${product.name} ürünü hakkında bilgi almak istiyorum. Ürün Kodu: ${product.code}`;
   const whatsappUrl = buildWhatsAppUrl(whatsappMesaj, productWhatsApp);
@@ -682,13 +601,13 @@ async function OksidProductPage({ product, productWhatsApp }: { product: OksidPr
     brand: { "@type": "Brand", name: product.brand },
     image: product.image,
     url: `${siteConfig.siteUrl}/urunler/${product.slug}`,
-    offers: {
+    ...(stokVar === null ? {} : { offers: {
       "@type": "Offer",
       availability: stokVar
         ? "https://schema.org/InStock"
         : "https://schema.org/OutOfStock",
       priceCurrency: "TRY",
-    },
+    }}),
   };
 
   return (
@@ -768,10 +687,10 @@ async function OksidProductPage({ product, productWhatsApp }: { product: OksidPr
 
             {/* Fiyat alanı kasıtlı olarak kaldırıldı */}
 
-            {/* Hızlı Özellik Özeti (ilk 4 özellik) */}
-            {ozellikEntries.length > 0 && (
-              <div className="grid grid-cols-2 gap-3">
-                {ozellikEntries.slice(0, 4).map(([ad, deger]) => (
+            {/* Ürüne özel etiket/değer kartları */}
+            {sideAttributeEntries.length > 0 && (
+              <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+                {sideAttributeEntries.map(([ad, deger]) => (
                   <div
                     key={ad}
                     className="rounded-xl border border-slate-100 bg-slate-50 p-3 hover:border-cyan-200 hover:bg-cyan-50/50 transition-colors"
@@ -780,7 +699,7 @@ async function OksidProductPage({ product, productWhatsApp }: { product: OksidPr
                       {ad}
                     </p>
                     <p className="mt-1 text-sm font-extrabold text-ink leading-snug break-words">
-                      {deger}
+                      {String(deger)}
                     </p>
                   </div>
                 ))}
@@ -807,7 +726,7 @@ async function OksidProductPage({ product, productWhatsApp }: { product: OksidPr
       </section>
 
       {/* ── 2. Tüm Teknik Özellikler ── */}
-      {ozellikEntries.length > 0 && (
+      {technicalAttributeEntries.length > 0 && (
         <section className="bg-slate-50/60 py-12 md:py-20 border-t border-b border-slate-100">
           <Container>
             <div className="mb-8 md:mb-12 text-center max-w-2xl mx-auto">
@@ -817,18 +736,15 @@ async function OksidProductPage({ product, productWhatsApp }: { product: OksidPr
               <h2 className="mt-3 text-2xl sm:text-3xl md:text-4xl font-black tracking-tight text-ink">
                 Teknik Özellikler
               </h2>
-              <p className="mt-3 text-sm md:text-base text-ink-muted">
-                Aşağıdaki tüm teknik veriler Oksid üretici veri tabanından alınmıştır.
-              </p>
             </div>
 
             {/* Özellik Tablosu */}
             <div className="max-w-4xl mx-auto bg-white rounded-2xl border border-slate-200 overflow-hidden shadow-sm">
-              {ozellikEntries.map(([ad, deger], index) => (
+              {technicalAttributeEntries.map(([ad, deger], index) => (
                 <div
                   key={ad}
                   className={`flex items-start gap-4 px-5 py-4 ${
-                    index !== ozellikEntries.length - 1
+                    index !== technicalAttributeEntries.length - 1
                       ? "border-b border-slate-100"
                       : ""
                   } ${index % 2 === 0 ? "bg-white" : "bg-slate-50/40"} hover:bg-cyan-50/30 transition-colors group`}
@@ -839,7 +755,7 @@ async function OksidProductPage({ product, productWhatsApp }: { product: OksidPr
                       {ad}
                     </span>
                     <span className="text-sm font-bold text-ink break-words">
-                      {deger}
+                      {String(deger)}
                     </span>
                   </div>
                 </div>

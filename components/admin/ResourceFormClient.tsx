@@ -248,12 +248,12 @@ function FeaturesBuilder({
   titlePlaceholder?: string;
   descPlaceholder?: string;
 }) {
-  const isSpecs = name === "installation_steps";
+  const isSpecs = ["installation_steps", "custom_attributes", "side_attributes", "technical_attributes"].includes(name);
   const defaultPlaceholders = [
-    { title: "Kategori", desc: "Kamera Sistemleri" },
-    { title: "Marka", desc: "PrimeSec" },
-    { title: "Ürün Kodu", desc: "PS-GEN-001" },
-    { title: "Garanti", desc: "2 Yıl Kurumsal" }
+    { title: "Lens Tipi", desc: "Sabit Lens" },
+    { title: "Kamera Tipi", desc: "AHD / HD-CVI / HD-TVI" },
+    { title: "Lens Boyutu", desc: "3.6 MM" },
+    { title: "Kullanım Tipi", desc: "Dış Mekan (Bullet)" }
   ];
 
   let initialFeatures: { title: string; description: string; active?: boolean }[] = [];
@@ -310,14 +310,9 @@ function FeaturesBuilder({
 
   const serializedValue = JSON.stringify(
     features
-      .map((f, index) => {
-        const placeholderObj = isSpecs && defaultPlaceholders[index]
-          ? defaultPlaceholders[index]
-          : { title: "", desc: "" };
-
-        const title = f.title.trim() || placeholderObj.title;
-        const description = f.description.trim() || placeholderObj.desc;
-
+      .map((f) => {
+        const title = f.title.trim();
+        const description = f.description.trim();
         return {
           title,
           description,
@@ -343,6 +338,7 @@ function FeaturesBuilder({
                 {index + 1}
               </div>
               <div className="flex-1 space-y-2">
+                {isSpecs ? <span className="block text-xs font-black uppercase tracking-wider text-slate-500">Etiket</span> : null}
                 <input
                   type="text"
                   placeholder={placeholderObj.title}
@@ -350,13 +346,26 @@ function FeaturesBuilder({
                   onChange={(e) => updateFeature(index, "title", e.target.value)}
                   className="w-full h-11 rounded-lg border border-slate-200 px-3 text-sm font-bold outline-none focus:border-cyan-500 bg-white"
                 />
-                <textarea
-                  placeholder={placeholderObj.desc}
-                  value={feature.description}
-                  onChange={(e) => updateFeature(index, "description", e.target.value)}
-                  rows={2}
-                  className="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm outline-none focus:border-cyan-500 bg-white resize-none"
-                />
+                {isSpecs ? (
+                  <>
+                    <span className="block pt-1 text-xs font-black uppercase tracking-wider text-slate-500">Değer</span>
+                    <input
+                      type="text"
+                      placeholder={placeholderObj.desc}
+                      value={feature.description}
+                      onChange={(e) => updateFeature(index, "description", e.target.value)}
+                      className="h-11 w-full rounded-lg border border-slate-200 bg-white px-3 text-sm font-bold outline-none focus:border-cyan-500"
+                    />
+                  </>
+                ) : (
+                  <textarea
+                    placeholder={placeholderObj.desc}
+                    value={feature.description}
+                    onChange={(e) => updateFeature(index, "description", e.target.value)}
+                    rows={2}
+                    className="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm outline-none focus:border-cyan-500 bg-white resize-none"
+                  />
+                )}
               </div>
               <div className="flex flex-col gap-2 justify-center items-center shrink-0 mt-1">
                 <label className="flex items-center gap-1.5 cursor-pointer text-xs font-bold text-slate-500 select-none">
@@ -434,21 +443,22 @@ function isSimpleField(field: AdminField, resourceKey: string): boolean {
       "categories_list",
       "brand_id",
       "sku",
-      "short_description",
-      "long_description",
+      "warranty_months",
       "image_url",
       "is_active",
-      "features",
-      "show_features",
-      "specs_title",
-      "specs_description",
-      "installation_steps",
-      "show_specs",
-      "benefits_title",
-      "benefits_description",
-      "show_benefits",
-      "faqs",
+      "side_attributes",
+      "technical_attributes",
       "gallery"
+    ].includes(field.name);
+  }
+
+  if (resourceKey === "oksidProducts") {
+    return [
+      "urun_adi",
+      "stok_kodu",
+      "side_attributes",
+      "technical_attributes",
+      "is_active",
     ].includes(field.name);
   }
 
@@ -578,14 +588,19 @@ function Field({ field, row }: { field: AdminField; row: Record<string, unknown>
   }
 
   if (field.type === "features_list") {
-    const isSpecs = field.name === "installation_steps";
+    const isSpecs = ["installation_steps", "custom_attributes", "side_attributes", "technical_attributes"].includes(field.name);
+    const listLabel = field.name === "side_attributes"
+      ? "Ürün Yanındaki Label'lar"
+      : field.name === "technical_attributes"
+        ? "Alt Teknik Özellik Label'ları"
+        : "Ürüne Özel Teknik Özellikler";
     return (
       <FeaturesBuilder 
         defaultValue={getValue(row, field)} 
         name={field.name} 
-        label={isSpecs ? "Teknik Özellik Kartları (Detayları)" : "Neden Bu Ürün? — Avantaj Kartları (En fazla 4 adet)"} 
-        titlePlaceholder={isSpecs ? "Özellik Adı (Örn: Garanti)" : "Avantaj Başlığı"}
-        descPlaceholder={isSpecs ? "Değer (Örn: 2 Yıl Kurumsal)" : "Açıklama (Boş bırakırsanız varsayılan metin kullanılır)"}
+        label={isSpecs ? listLabel : "Neden Bu Ürün? — Avantaj Kartları (En fazla 4 adet)"}
+        titlePlaceholder={isSpecs ? "Özellik Adı (Örn: Lens Tipi)" : "Avantaj Başlığı"}
+        descPlaceholder={isSpecs ? "Özellik Değeri (Örn: Sabit Lens)" : "Açıklama (Boş bırakırsanız varsayılan metin kullanılır)"}
       />
     );
   }
@@ -777,7 +792,7 @@ export function ResourceFormClient({
       <section className="rounded-xl border-2 border-slate-200 bg-white p-5 shadow-sm">
         <div className="grid gap-5 md:grid-cols-2">
           {simpleFields.map((field) => (
-            <div key={field.name} className={field.type === "textarea" || field.type === "json" ? "md:col-span-2" : ""}>
+            <div key={field.name} className={field.type === "textarea" || field.type === "json" || field.type === "features_list" ? "md:col-span-2" : ""}>
               <Field field={field} row={row} />
             </div>
           ))}
@@ -785,7 +800,7 @@ export function ResourceFormClient({
       </section>
 
       {/* Product Detail Fields Checkbox & Section */}
-      {isProduct && (
+      {isProduct && allFields.some((field) => productDetailFields.includes(field.name)) && (
         <div className="rounded-xl border-2 border-slate-200 bg-white p-5 shadow-sm space-y-4">
           <label className="flex items-center gap-3 cursor-pointer select-none">
             <input
