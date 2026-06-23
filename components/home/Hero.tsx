@@ -8,7 +8,7 @@ export function Hero({ content: _content }: { content?: unknown }) {
       {/* Background Image & Overlay */}
       <div className="absolute inset-0 z-0">
         <Image
-          src="/images/primesec-hero-cctv-v2.webp"
+          src="/images/primesec-hero-cctv-v3.png"
           alt="PrimeSec Güvenlik Sistemleri Arka Plan"
           fill
           className="object-cover object-right lg:object-center"
