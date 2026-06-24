@@ -117,6 +117,15 @@ export function ServiceOrderClient({
   const remainingBalance = totalBilled - paidAmount;
   const profitMargin = totalBilled > 0 ? (netProfit / totalBilled) * 100 : 0;
 
+  const orderCurrency = order.labor_price_currency || 'TRY';
+  const formatOrderMoney = (value: number) => {
+    return orderCurrency === 'USD'
+      ? value.toLocaleString("en-US", { style: "currency", currency: "USD" })
+      : value.toLocaleString("tr-TR", { style: "currency", currency: "TRY" });
+  };
+  const matSellingSum = orderMaterials.reduce((sum, m) => sum + Number(m.total_selling_price || 0), 0);
+  const matSellingConverted = order.labor_price_currency === 'USD' ? (matSellingSum / 34) : matSellingSum;
+
   // Handle stock selection
   const handleStockChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     const id = e.target.value;
@@ -380,6 +389,8 @@ export function ServiceOrderClient({
 
   return (
     <div className="space-y-6">
+      {/* Screen-only view wrapper */}
+      <div className="print:hidden space-y-6">
       {/* Top Banner / Actions */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 bg-white border-2 border-slate-200 rounded-3xl p-6 shadow-sm">
         <div>
@@ -440,43 +451,35 @@ export function ServiceOrderClient({
       )}
 
       {/* Financial Summary Block (Hidden for service_staff role) */}
-      {!isServiceStaff && (() => {
-        const orderCurrency = order.labor_price_currency || 'TRY';
-        const formatOrderMoney = (value: number) => {
-          return orderCurrency === 'USD'
-            ? value.toLocaleString("en-US", { style: "currency", currency: "USD" })
-            : value.toLocaleString("tr-TR", { style: "currency", currency: "TRY" });
-        };
-        return (
-          <div className="grid gap-4 sm:grid-cols-2 md:grid-cols-4 bg-white border-2 border-slate-200 rounded-3xl p-6 shadow-sm">
-            <div className="text-center sm:text-left border-b sm:border-b-0 sm:border-r border-slate-100 pb-4 sm:pb-0 sm:pr-4">
-              <p className="text-[10px] font-black text-slate-400 uppercase tracking-wider">Toplam Maliyet (TL)</p>
-              <p className="text-xl font-black text-slate-700 mt-1">
-                {totalCost.toLocaleString("tr-TR", { style: "currency", currency: "TRY" })}
-              </p>
-            </div>
-            <div className="text-center sm:text-left border-b sm:border-b-0 sm:border-r border-slate-100 py-4 sm:py-0 sm:px-4">
-              <p className="text-[10px] font-black text-slate-400 uppercase tracking-wider">Müşteri Toplamı</p>
-              <p className="text-xl font-black text-slate-800 mt-1">
-                {formatOrderMoney(totalBilled)}
-              </p>
-            </div>
-            <div className="text-center sm:text-left border-b sm:border-b-0 sm:border-r border-slate-100 py-4 sm:py-0 sm:px-4">
-              <p className="text-[10px] font-black text-slate-400 uppercase tracking-wider">Kalan Bakiye</p>
-              <p className={`text-xl font-black mt-1 ${remainingBalance > 0 ? "text-rose-600" : "text-emerald-600"}`}>
-                {formatOrderMoney(remainingBalance)}
-              </p>
-            </div>
-            <div className="text-center sm:text-left py-4 sm:py-0 sm:pl-4">
-              <p className="text-[10px] font-black text-slate-400 uppercase tracking-wider">Net Kâr (Oran)</p>
-              <p className={`text-xl font-black mt-1 ${netProfit >= 0 ? "text-emerald-600" : "text-red-600"}`}>
-                {formatOrderMoney(netProfit)}
-                <span className="text-xs font-bold block sm:inline sm:ml-1">({profitMargin.toFixed(1)}%)</span>
-              </p>
-            </div>
+      {!isServiceStaff && (
+        <div className="grid gap-4 sm:grid-cols-2 md:grid-cols-4 bg-white border-2 border-slate-200 rounded-3xl p-6 shadow-sm">
+          <div className="text-center sm:text-left border-b sm:border-b-0 sm:border-r border-slate-100 pb-4 sm:pb-0 sm:pr-4">
+            <p className="text-[10px] font-black text-slate-400 uppercase tracking-wider">Toplam Maliyet (TL)</p>
+            <p className="text-xl font-black text-slate-700 mt-1">
+              {totalCost.toLocaleString("tr-TR", { style: "currency", currency: "TRY" })}
+            </p>
           </div>
-        );
-      })()}
+          <div className="text-center sm:text-left border-b sm:border-b-0 sm:border-r border-slate-100 py-4 sm:py-0 sm:px-4">
+            <p className="text-[10px] font-black text-slate-400 uppercase tracking-wider">Müşteri Toplamı</p>
+            <p className="text-xl font-black text-slate-800 mt-1">
+              {formatOrderMoney(totalBilled)}
+            </p>
+          </div>
+          <div className="text-center sm:text-left border-b sm:border-b-0 sm:border-r border-slate-100 py-4 sm:py-0 sm:px-4">
+            <p className="text-[10px] font-black text-slate-400 uppercase tracking-wider">Kalan Bakiye</p>
+            <p className={`text-xl font-black mt-1 ${remainingBalance > 0 ? "text-rose-600" : "text-emerald-600"}`}>
+              {formatOrderMoney(remainingBalance)}
+            </p>
+          </div>
+          <div className="text-center sm:text-left py-4 sm:py-0 sm:pl-4">
+            <p className="text-[10px] font-black text-slate-400 uppercase tracking-wider">Net Kâr (Oran)</p>
+            <p className={`text-xl font-black mt-1 ${netProfit >= 0 ? "text-emerald-600" : "text-red-600"}`}>
+              {formatOrderMoney(netProfit)}
+              <span className="text-xs font-bold block sm:inline sm:ml-1">({profitMargin.toFixed(1)}%)</span>
+            </p>
+          </div>
+        </div>
+      )}
 
       {/* Main Grid: Navigation & Content */}
       <div className="grid gap-6 lg:grid-cols-12 items-start">
@@ -1235,6 +1238,256 @@ export function ServiceOrderClient({
             </div>
           )}
 
+        </div>
+      </div>
+      
+      </div>
+
+      {/* Printable Area for PDF/Invoice */}
+      <div id="printable-area" className="hidden print:block font-sans p-6 text-slate-800 bg-white">
+        {/* Style tag to inject print-specific CSS rules and ensure complete clean layout on print */}
+        <style dangerouslySetInnerHTML={{ __html: `
+          @media print {
+            body {
+              background: white !important;
+              color: black !important;
+              font-family: 'Inter', system-ui, sans-serif !important;
+            }
+            body * {
+              visibility: hidden;
+            }
+            #printable-area, #printable-area * {
+              visibility: visible;
+            }
+            #printable-area {
+              position: absolute;
+              left: 0;
+              top: 0;
+              width: 100%;
+              padding: 0;
+              margin: 0;
+            }
+            @page {
+              size: A4;
+              margin: 1.5cm;
+            }
+            .no-print {
+              display: none !important;
+            }
+          }
+        `}} />
+        
+        {/* 1. Form Header */}
+        <div className="flex justify-between items-start border-b-2 border-slate-200 pb-5 mb-6">
+          <div>
+            <h1 className="text-2xl font-black tracking-tight text-slate-900">PRIMESEC TEKNOLOJİ</h1>
+            <p className="text-xs font-bold text-slate-500 mt-0.5">Güvenlik ve Bilişim Sistemleri</p>
+            <div className="text-[10px] text-slate-400 mt-2 space-y-0.5">
+              <p>Telefon: +90 (533) 000 00 00</p>
+              <p>E-posta: info@primesec.com.tr | Web: www.primesec.com.tr</p>
+              <p>Adres: Kartal, İstanbul</p>
+            </div>
+          </div>
+          <div className="text-right">
+            <h2 className="text-lg font-black text-slate-700 tracking-wide uppercase">SERVİS & HİZMET FORMU</h2>
+            <div className="text-xs mt-3 space-y-1">
+              <p className="font-semibold"><span className="text-slate-400 font-medium">İş Emri No:</span> <span className="font-black text-slate-900">{order.order_number}</span></p>
+              <p className="font-semibold"><span className="text-slate-400 font-medium">Tarih:</span> {new Date(order.created_at).toLocaleDateString("tr-TR")}</p>
+              <p className="font-semibold"><span className="text-slate-400 font-medium">Durum:</span> <span className="font-bold text-cyan-700">{status}</span></p>
+            </div>
+          </div>
+        </div>
+
+        {/* 2. Customer & Service Details Grid */}
+        <div className="grid grid-cols-2 gap-6 mb-6">
+          <div className="border border-slate-200 rounded-2xl p-4 bg-slate-50/50">
+            <h3 className="text-xs font-black text-slate-400 uppercase tracking-wider mb-2">MÜŞTERİ BİLGİLERİ</h3>
+            <div className="text-xs space-y-1.5 font-medium text-slate-700">
+              <p><span className="text-slate-400">Müşteri Adı:</span> <span className="font-black text-slate-900">{order.customer?.name}</span></p>
+              <p><span className="text-slate-400">Telefon:</span> {order.customer?.phone}</p>
+              <p><span className="text-slate-400">Müşteri Tipi:</span> {order.customer?.type === 'corporate' ? 'Kurumsal' : 'Bireysel'}</p>
+              <p className="leading-relaxed">
+                <span className="text-slate-400">Adres:</span> {order.customer?.address || "—"}
+                {order.customer?.district && `, ${order.customer.district}`}
+                {order.customer?.city && ` / ${order.customer.city}`}
+              </p>
+            </div>
+          </div>
+
+          <div className="border border-slate-200 rounded-2xl p-4 bg-slate-50/50">
+            <h3 className="text-xs font-black text-slate-400 uppercase tracking-wider mb-2">SERVİS DETAYLARI</h3>
+            <div className="text-xs space-y-1.5 font-medium text-slate-700">
+              <p><span className="text-slate-400">Hizmet Türü:</span> <span className="font-bold">{order.appointment?.service_type || "Direkt İş Emri / Servis"}</span></p>
+              {order.appointment?.appointment_date && (
+                <p><span className="text-slate-400">Randevu Tarihi:</span> {order.appointment.appointment_date} {order.appointment.start_time ? `- ${order.appointment.start_time}` : ""}</p>
+              )}
+              {laborHours > 0 && (
+                <p><span className="text-slate-400">Çalışma Süresi:</span> {laborHours} Saat</p>
+              )}
+              <p><span className="text-slate-400">Personel Notu:</span> {personnelNotes || "—"}</p>
+            </div>
+          </div>
+        </div>
+
+        {/* 3. Materials Table */}
+        <div className="border border-slate-200 rounded-2xl overflow-hidden mb-6">
+          <table className="w-full text-left text-xs border-collapse">
+            <thead>
+              <tr className="bg-slate-50 border-b border-slate-200 text-[10px] font-black uppercase text-slate-500">
+                <th className="p-3">Kullanılan Malzeme / Ürün</th>
+                <th className="p-3 w-20">Miktar</th>
+                <th className="p-3 w-32 text-right">Birim Fiyat</th>
+                <th className="p-3 w-32 text-right">Toplam</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-slate-200 font-medium text-slate-700">
+              {orderMaterials.length === 0 ? (
+                <tr>
+                  <td colSpan={4} className="p-4 text-center text-slate-400">Bu hizmet için malzeme kullanımı kaydedilmemiştir.</td>
+                </tr>
+              ) : (
+                orderMaterials.map((m) => {
+                  const unitPrice = order.labor_price_currency === 'USD' ? (Number(m.selling_price || 0) / 34) : Number(m.selling_price || 0);
+                  const totalPrice = order.labor_price_currency === 'USD' ? (Number(m.total_selling_price || 0) / 34) : Number(m.total_selling_price || 0);
+                  return (
+                    <tr key={m.id}>
+                      <td className="p-3">
+                        <span className="font-bold text-slate-900 block">{m.name}</span>
+                        <span className="block text-[9px] text-slate-400 mt-0.5">{m.brand} {m.model} {m.serial_number ? `(S/N: ${m.serial_number})` : ""}</span>
+                      </td>
+                      <td className="p-3">{Number(m.quantity)} {m.unit}</td>
+                      <td className="p-3 text-right">{formatOrderMoney(unitPrice)}</td>
+                      <td className="p-3 text-right font-bold text-slate-900">{formatOrderMoney(totalPrice)}</td>
+                    </tr>
+                  );
+                })
+              )}
+            </tbody>
+          </table>
+        </div>
+
+        {/* 4. Financial Summary Grid */}
+        <div className="grid grid-cols-12 gap-6 mb-8 items-start">
+          {/* Notes / T&C */}
+          <div className="col-span-6 border border-slate-150 rounded-2xl p-4 text-[10px] text-slate-400 space-y-1.5 leading-relaxed bg-white">
+            <p className="font-bold text-slate-500 uppercase tracking-wider mb-1">Müşteri Notu / Talimatı</p>
+            <p className="text-slate-600 font-semibold mb-3">{customerNotes || "Müşteri özel notu bulunmamaktadır."}</p>
+            <p className="font-bold text-slate-500 uppercase tracking-wider mb-1">Açıklama & Garanti Koşulları</p>
+            <p>1. Servis kapsamında montajı yapılan sıfır ürünler, üretici firma garantisi altındadır.</p>
+            <p>2. Bu form, teslim edilen hizmet ve malzemelerin tutarını ve teslim durumunu gösteren yasal servis raporudur.</p>
+            <p>3. İşçilik ve bakım hizmetleri teslim tarihinden itibaren firmamız güvencesindedir.</p>
+          </div>
+
+          {/* Financial Totals */}
+          <div className="col-span-6 border border-slate-200 rounded-2xl bg-slate-50/50 p-4 space-y-2">
+            <h3 className="text-xs font-black text-slate-500 uppercase tracking-wider border-b border-slate-200 pb-1.5 mb-2">FİNANSAL HESAP DETAYI</h3>
+            <div className="text-xs space-y-1.5 font-medium text-slate-700">
+              <div className="flex justify-between">
+                <span className="text-slate-400">İşçilik / Hizmet Bedeli:</span>
+                <span className="font-bold">{formatOrderMoney(laborPrice)}</span>
+              </div>
+              
+              {orderMaterials.length > 0 && (
+                <div className="flex justify-between">
+                  <span className="text-slate-400">Malzeme Satış Toplamı:</span>
+                  <span className="font-bold">{formatOrderMoney(matSellingConverted)}</span>
+                </div>
+              )}
+
+              {discount > 0 && (
+                <div className="flex justify-between text-rose-600">
+                  <span>İndirim (Düşülen):</span>
+                  <span>- {formatOrderMoney(discount)}</span>
+                </div>
+              )}
+
+              {taxRate > 0 && (
+                <div className="flex justify-between">
+                  <span className="text-slate-400">KDV (%{taxRate}):</span>
+                  <span className="font-bold">{formatOrderMoney(order.tax_amount || 0)}</span>
+                </div>
+              )}
+
+              <div className="flex justify-between border-t border-slate-200 pt-2 text-sm">
+                <span className="font-black text-slate-950">Genel Toplam (KDV Dahil):</span>
+                <span className="font-black text-slate-950">{formatOrderMoney(totalBilled)}</span>
+              </div>
+
+              <div className="flex justify-between text-emerald-600">
+                <span>Tahsil Edilen (Ödenen):</span>
+                <span className="font-bold">{formatOrderMoney(paidAmount)}</span>
+              </div>
+
+              <div className="flex justify-between border-t border-dashed border-slate-200 pt-1.5 text-xs">
+                <span className="font-extrabold text-slate-800">Kalan Bakiye (Alacak):</span>
+                <span className={`font-black ${remainingBalance > 0 ? "text-rose-600" : "text-emerald-600"}`}>
+                  {formatOrderMoney(remainingBalance)}
+                </span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* 5. Payments History (If any payments are recorded) */}
+        {payments.length > 0 && (
+          <div className="border border-slate-200 rounded-2xl overflow-hidden mb-8">
+            <h3 className="bg-slate-50 px-4 py-2 border-b border-slate-200 text-[10px] font-black text-slate-500 uppercase tracking-wider">TAHSİLAT GEÇMİŞİ</h3>
+            <table className="w-full text-left text-[10px] border-collapse">
+              <thead>
+                <tr className="border-b border-slate-200 text-slate-400 font-bold uppercase">
+                  <th className="px-4 py-2">Tarih</th>
+                  <th className="px-4 py-2">Ödeme Yöntemi</th>
+                  <th className="px-4 py-2">Açıklama</th>
+                  <th className="px-4 py-2 text-right">Tutar</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-slate-150 text-slate-600">
+                {payments.map((p) => (
+                  <tr key={p.id}>
+                    <td className="px-4 py-2">{p.payment_date}</td>
+                    <td className="px-4 py-2">{p.method}</td>
+                    <td className="px-4 py-2">{p.description || "—"}</td>
+                    <td className="px-4 py-2 text-right font-bold text-slate-800">
+                      {p.currency === 'USD'
+                        ? Number(p.amount || 0).toLocaleString("en-US", { style: "currency", currency: "USD" })
+                        : Number(p.amount || 0).toLocaleString("tr-TR", { style: "currency", currency: "TRY" })
+                      }
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
+
+        {/* 6. Signatures Footer */}
+        <div className="grid grid-cols-2 gap-12 mt-12 pt-8 border-t border-dashed border-slate-200">
+          <div className="text-center space-y-8">
+            <p className="text-xs font-black text-slate-700 uppercase tracking-wider">HİZMETİ TESLİM EDEN (TEKNİSYEN)</p>
+            <div className="h-16 flex items-center justify-center">
+              <span className="text-[10px] text-slate-300 italic">[ İmza ve Kaşe ]</span>
+            </div>
+            <div className="text-xs font-bold text-slate-500">
+              <p>Primesec Teknoloji Yetkilisi</p>
+              <p className="text-[10px] text-slate-400 font-medium mt-1">Hizmet başarıyla tamamlanmış ve çalışır durumda teslim edilmiştir.</p>
+            </div>
+          </div>
+
+          <div className="text-center space-y-8 border-l border-slate-100 pl-6">
+            <p className="text-xs font-black text-slate-700 uppercase tracking-wider">MÜŞTERİ (TESLİM ALAN)</p>
+            <div className="h-16 flex items-center justify-center">
+              <span className="text-[10px] text-slate-300 italic">[ Ad Soyadı / İmza ]</span>
+            </div>
+            <div className="text-xs font-bold text-slate-500">
+              <p>{order.customer?.name}</p>
+              <p className="text-[10px] text-slate-400 font-medium mt-1">Sistem ve hizmetleri eksiksiz ve çalışır durumda teslim aldım.</p>
+            </div>
+          </div>
+        </div>
+
+        {/* 7. Document Footer */}
+        <div className="text-center text-[9px] text-slate-400 mt-12 border-t border-slate-100 pt-4">
+          <p>Primesec Bilişim Güvenlik Sistemleri Tic. Ltd. Şti. | Bu belge elektronik olarak üretilmiştir.</p>
         </div>
       </div>
     </div>

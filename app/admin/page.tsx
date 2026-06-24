@@ -5,10 +5,7 @@ import {
   Users, 
   Wrench, 
   AlertTriangle, 
-  TrendingUp, 
-  PiggyBank, 
-  Receipt,
-  Clock,
+  Clock, 
   UserPlus,
   History,
   MessageCircle,
@@ -31,6 +28,13 @@ import { toTurkeyDateKey } from "@/lib/admin/calendar-date";
 
 export const dynamic = "force-dynamic";
 
+const moneyTRY = (value: number) => value.toLocaleString("tr-TR", { style: "currency", currency: "TRY" });
+const moneyUSD = (value: number) => value.toLocaleString("en-US", { style: "currency", currency: "USD" });
+
+function formatMoney(value: number, currency: string = "TRY") {
+  return currency === "USD" ? moneyUSD(value) : moneyTRY(value);
+}
+
 export default async function AdminDashboardPage() {
   const supabase = await createSupabaseServerClient();
   const latestLeadsPromise = getLatestLeads();
@@ -46,6 +50,14 @@ export default async function AdminDashboardPage() {
     monthlyCiro: 0,
     monthlyCost: 0,
     monthlyProfit: 0,
+    trySales: 0,
+    tryCollected: 0,
+    tryReceivable: 0,
+    tryCost: 0,
+    usdSales: 0,
+    usdCollected: 0,
+    usdReceivable: 0,
+    usdCost: 0,
     lowStockCount: 0,
   };
   
@@ -248,39 +260,49 @@ export default async function AdminDashboardPage() {
           </div>
         </div>
 
-        {/* Financial Overview Cards */}
-        <div className="grid gap-4 md:grid-cols-3">
-          <div className="flex items-center gap-4 rounded-xl border-2 border-slate-200 bg-white p-5 shadow-sm">
-            <div className="rounded-full bg-emerald-50 p-3 text-emerald-600">
-              <TrendingUp className="h-6 w-6" />
-            </div>
-            <div>
-              <p className="text-xs font-black text-slate-400 uppercase">Bu Ay Ciro</p>
-              <p className="text-2xl font-black text-slate-800 mt-0.5">
-                {serviceStats.monthlyCiro.toLocaleString("tr-TR", { style: "currency", currency: "TRY" })}
-              </p>
+        {/* Financial Overview - Premium TRY & USD Cashbox (Synced with Accounting) */}
+        <div className="grid gap-6 md:grid-cols-2">
+          {/* TRY Summary Block */}
+          <div className="rounded-3xl border-2 border-slate-200 bg-white p-5 shadow-sm space-y-4">
+            <h3 className="text-sm font-black text-slate-800 uppercase tracking-wider flex items-center gap-2 pb-2 border-b border-slate-100">
+              <span className="text-base">🇹🇷</span> Türk Lirası (TL) Kasası
+            </h3>
+            <div className="grid gap-3 grid-cols-2">
+              {[
+                ["Faturalanan", serviceStats.trySales, "text-slate-900", "TRY"],
+                ["Tahsil Edilen", serviceStats.tryCollected, "text-emerald-700", "TRY"],
+                ["Kalan Alacak", serviceStats.tryReceivable, "text-rose-700", "TRY"],
+                ["Toplam Maliyet", serviceStats.tryCost, "text-amber-700", "TRY"],
+              ].map(([label, value, color, curr]) => (
+                <div key={String(label)} className="bg-slate-50/55 p-3.5 rounded-xl border border-slate-100">
+                  <p className="text-[10px] font-black uppercase text-slate-400">{label}</p>
+                  <p className={`mt-1 text-lg font-black ${color}`}>
+                    {formatMoney(Number(value), String(curr))}
+                  </p>
+                </div>
+              ))}
             </div>
           </div>
-          <div className="flex items-center gap-4 rounded-xl border-2 border-slate-200 bg-white p-5 shadow-sm">
-            <div className="rounded-full bg-rose-50 p-3 text-rose-600">
-              <Receipt className="h-6 w-6" />
-            </div>
-            <div>
-              <p className="text-xs font-black text-slate-400 uppercase">Bu Ay Maliyet</p>
-              <p className="text-2xl font-black text-slate-800 mt-0.5">
-                {serviceStats.monthlyCost.toLocaleString("tr-TR", { style: "currency", currency: "TRY" })}
-              </p>
-            </div>
-          </div>
-          <div className="flex items-center gap-4 rounded-xl border-2 border-slate-200 bg-white p-5 shadow-sm">
-            <div className="rounded-full bg-blue-50 p-3 text-blue-600">
-              <PiggyBank className="h-6 w-6" />
-            </div>
-            <div>
-              <p className="text-xs font-black text-slate-400 uppercase">Bu Ay Net Kâr</p>
-              <p className="text-2xl font-black text-emerald-600 mt-0.5">
-                {serviceStats.monthlyProfit.toLocaleString("tr-TR", { style: "currency", currency: "TRY" })}
-              </p>
+
+          {/* USD Summary Block */}
+          <div className="rounded-3xl border-2 border-amber-200 bg-amber-50/10 p-5 shadow-sm space-y-4">
+            <h3 className="text-sm font-black text-amber-800 uppercase tracking-wider flex items-center gap-2 pb-2 border-b border-amber-100">
+              <span className="text-base">🇺🇸</span> Amerikan Doları (USD) Kasası
+            </h3>
+            <div className="grid gap-3 grid-cols-2">
+              {[
+                ["Faturalanan", serviceStats.usdSales, "text-slate-900", "USD"],
+                ["Tahsil Edilen", serviceStats.usdCollected, "text-emerald-700", "USD"],
+                ["Kalan Alacak", serviceStats.usdReceivable, "text-rose-700", "USD"],
+                ["Toplam Maliyet", serviceStats.usdCost, "text-amber-700", "USD"],
+              ].map(([label, value, color, curr]) => (
+                <div key={String(label)} className="bg-amber-50/30 p-3.5 rounded-xl border border-amber-100/50">
+                  <p className="text-[10px] font-black uppercase text-slate-400">{label}</p>
+                  <p className={`mt-1 text-lg font-black ${color}`}>
+                    {formatMoney(Number(value), String(curr))}
+                  </p>
+                </div>
+              ))}
             </div>
           </div>
         </div>

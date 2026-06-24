@@ -249,11 +249,6 @@ export async function getServiceDashboardStatsSequential() {
   startOfWeek.setDate(startOfWeek.getDate() - startOfWeek.getDay() + 1);
   startOfWeek.setHours(0,0,0,0);
 
-  // Month limits
-  const startOfMonth = new Date();
-  startOfMonth.setDate(1);
-  startOfMonth.setHours(0,0,0,0);
-
   // Queries
   const { count: todayAppointments } = await supabase
     .from('appointments')
@@ -286,29 +281,39 @@ export async function getServiceDashboardStatsSequential() {
     .select('id', { count: 'exact', head: true })
     .eq('is_active', true);
 
-  // Financial aggregates for this month
-  const { data: monthOrders } = await supabase
+  // Financial aggregates for all active orders (matching accounting screen)
+  const { data: activeOrders } = await supabase
     .from('service_orders')
-    .select('grand_total, total_cost, net_profit, labor_price_currency')
-    .eq('status', 'Tamamlandı')
-    .gte('finished_at', startOfMonth.toISOString());
+    .select('grand_total, paid_amount, total_cost, net_profit, labor_price_currency')
+    .is('deleted_at', null);
 
-  let monthlyCiro = 0;
-  let monthlyCost = 0;
-  let monthlyProfit = 0;
+  let trySales = 0, tryCollected = 0, tryCost = 0, tryProfit = 0;
+  let usdSales = 0, usdCollected = 0, usdCost = 0, usdProfit = 0;
 
-  if (monthOrders) {
-    monthOrders.forEach((o) => {
-      const currency = o.labor_price_currency || 'TRY';
-      const ciro = Number(o.grand_total || 0);
-      const cost = Number(o.total_cost || 0);
-      const profit = Number(o.net_profit || 0);
+  if (activeOrders) {
+    activeOrders.forEach((row) => {
+      const currency = row.labor_price_currency || 'TRY';
+      const grandTotal = Number(row.grand_total || 0);
+      const paidAmount = Number(row.paid_amount || 0);
+      const totalCost = Number(row.total_cost || 0);
+      const profit = Number(row.net_profit || 0);
 
-      monthlyCiro += currency === 'USD' ? ciro * 34 : ciro;
-      monthlyCost += cost;
-      monthlyProfit += currency === 'USD' ? profit * 34 : profit;
+      if (currency === 'USD') {
+        usdSales += grandTotal;
+        usdCollected += paidAmount;
+        usdCost += totalCost / 34;
+        usdProfit += profit;
+      } else {
+        trySales += grandTotal;
+        tryCollected += paidAmount;
+        tryCost += totalCost;
+        tryProfit += profit;
+      }
     });
   }
+
+  const tryReceivable = Math.max(0, trySales - tryCollected);
+  const usdReceivable = Math.max(0, usdSales - usdCollected);
 
   // Low stock materials count
   const allMaterials = await supabase.from('materials').select('stock_quantity, min_stock_level').eq('is_active', true);
@@ -321,9 +326,17 @@ export async function getServiceDashboardStatsSequential() {
     pendingOrders: pendingOrders || 0,
     collectionPending: collectionPending || 0,
     totalCustomers: totalCustomers || 0,
-    monthlyCiro,
-    monthlyCost,
-    monthlyProfit,
+    monthlyCiro: trySales + (usdSales * 34),
+    monthlyCost: tryCost + (usdCost * 34),
+    monthlyProfit: tryProfit + (usdProfit * 34),
+    trySales,
+    tryCollected,
+    tryReceivable,
+    tryCost,
+    usdSales,
+    usdCollected,
+    usdReceivable,
+    usdCost,
     lowStockCount,
   };
 }
@@ -339,9 +352,8 @@ export async function getServiceDashboardStats() {
   const startOfWeek = new Date(today);
   startOfWeek.setDate(startOfWeek.getDate() - startOfWeek.getDay() + 1);
   startOfWeek.setHours(0, 0, 0, 0);
-  const startOfMonth = new Date(today.getFullYear(), today.getMonth(), 1);
 
-  const [todayRes, tomorrowRes, weeklyRes, pendingRes, collectionRes, customersRes, monthRes, materialsRes] =
+  const [todayRes, tomorrowRes, weeklyRes, pendingRes, collectionRes, customersRes, activeOrdersRes, materialsRes] =
     await Promise.all([
       supabase.from('appointments').select('id', { count: 'exact', head: true }).eq('appointment_date', todayStr),
       supabase.from('appointments').select('id', { count: 'exact', head: true }).eq('appointment_date', toTurkeyDateKey(tomorrow)),
@@ -349,25 +361,35 @@ export async function getServiceDashboardStats() {
       supabase.from('service_orders').select('id', { count: 'exact', head: true }).in('status', ['Taslak', 'İşlem Başladı', 'Malzeme Bekleniyor']),
       supabase.from('appointments').select('id', { count: 'exact', head: true }).eq('status', 'Tahsilat Bekleniyor'),
       supabase.from('customers').select('id', { count: 'exact', head: true }).eq('is_active', true),
-      supabase.from('service_orders').select('grand_total, total_cost, net_profit, labor_price_currency').eq('status', 'Tamamlandı').gte('finished_at', startOfMonth.toISOString()),
+      supabase.from('service_orders').select('grand_total, paid_amount, total_cost, net_profit, labor_price_currency').is('deleted_at', null),
       supabase.from('materials').select('stock_quantity, min_stock_level').eq('is_active', true),
     ]);
 
-  const totals = (monthRes.data ?? []).reduce(
-    (sum, row) => {
-      const currency = row.labor_price_currency || 'TRY';
-      const ciro = Number(row.grand_total || 0);
-      const cost = Number(row.total_cost || 0);
-      const profit = Number(row.net_profit || 0);
+  let trySales = 0, tryCollected = 0, tryCost = 0, tryProfit = 0;
+  let usdSales = 0, usdCollected = 0, usdCost = 0, usdProfit = 0;
 
-      return {
-        ciro: sum.ciro + (currency === 'USD' ? ciro * 34 : ciro),
-        cost: sum.cost + cost,
-        profit: sum.profit + (currency === 'USD' ? profit * 34 : profit),
-      };
-    },
-    { ciro: 0, cost: 0, profit: 0 },
-  );
+  (activeOrdersRes.data ?? []).forEach((row) => {
+    const currency = row.labor_price_currency || 'TRY';
+    const grandTotal = Number(row.grand_total || 0);
+    const paidAmount = Number(row.paid_amount || 0);
+    const totalCost = Number(row.total_cost || 0);
+    const profit = Number(row.net_profit || 0);
+
+    if (currency === 'USD') {
+      usdSales += grandTotal;
+      usdCollected += paidAmount;
+      usdCost += totalCost / 34;
+      usdProfit += profit;
+    } else {
+      trySales += grandTotal;
+      tryCollected += paidAmount;
+      tryCost += totalCost;
+      tryProfit += profit;
+    }
+  });
+
+  const tryReceivable = Math.max(0, trySales - tryCollected);
+  const usdReceivable = Math.max(0, usdSales - usdCollected);
 
   return {
     todayAppointments: todayRes.count ?? 0,
@@ -376,9 +398,17 @@ export async function getServiceDashboardStats() {
     pendingOrders: pendingRes.count ?? 0,
     collectionPending: collectionRes.count ?? 0,
     totalCustomers: customersRes.count ?? 0,
-    monthlyCiro: totals.ciro,
-    monthlyCost: totals.cost,
-    monthlyProfit: totals.profit,
+    monthlyCiro: trySales + (usdSales * 34),
+    monthlyCost: tryCost + (usdCost * 34),
+    monthlyProfit: tryProfit + (usdProfit * 34),
+    trySales,
+    tryCollected,
+    tryReceivable,
+    tryCost,
+    usdSales,
+    usdCollected,
+    usdReceivable,
+    usdCost,
     lowStockCount: (materialsRes.data ?? []).filter((row) => isCriticalStock(row.stock_quantity)).length,
   };
 }
