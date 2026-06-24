@@ -9,7 +9,7 @@ export default async function AccountingPage() {
   const supabase = await createSupabaseServerClient();
   const ordersPromise = supabase
     .from("service_orders")
-    .select("id, order_number, grand_total, paid_amount, total_cost, net_profit, status, created_at, customer:customer_id(id,name)")
+    .select("id, order_number, grand_total, paid_amount, total_cost, net_profit, status, created_at, labor_price_currency, customer:customer_id(id,name)")
     .is("deleted_at", null)
     .order("created_at", { ascending: false })
     .limit(1000);

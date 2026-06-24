@@ -121,6 +121,7 @@ export function NewOrderClient({ customers, materials: initialMaterials }: { cus
       customer_id: customerId,
       service_name: serviceName,
       service_price: price,
+      labor_price_currency: servicePriceCurrency,
       appointment_date: hasAppointment ? appointmentDate : undefined,
       start_time: hasAppointment ? startTime : undefined,
       material_id: materialId || undefined,

@@ -37,11 +37,41 @@ export function AccountingClient({ orders: initialOrders, customers }: Props) {
     return searchMatch && customerMatch;
   }), [orders, q, customerId]);
 
-  const { totalSales, totalCollected, totalCost, receivable } = useMemo(() => {
-    const s = filtered.reduce((sum, row) => sum + Number(row.grand_total || 0), 0);
-    const col = filtered.reduce((sum, row) => sum + Number(row.paid_amount || 0), 0);
-    const cost = filtered.reduce((sum, row) => sum + Number(row.total_cost || 0), 0);
-    return { totalSales: s, totalCollected: col, totalCost: cost, receivable: Math.max(0, s - col) };
+  const aggregates = useMemo(() => {
+    let trySales = 0, tryCollected = 0, tryCost = 0;
+    let usdSales = 0, usdCollected = 0, usdCost = 0;
+
+    filtered.forEach((row) => {
+      const currency = row.labor_price_currency || "TRY";
+      const grandTotal = Number(row.grand_total || 0);
+      const paidAmount = Number(row.paid_amount || 0);
+      const totalCost = Number(row.total_cost || 0);
+
+      if (currency === "USD") {
+        usdSales += grandTotal;
+        usdCollected += paidAmount;
+        usdCost += totalCost;
+      } else {
+        trySales += grandTotal;
+        tryCollected += paidAmount;
+        tryCost += totalCost;
+      }
+    });
+
+    return {
+      try: {
+        sales: trySales,
+        collected: tryCollected,
+        receivable: Math.max(0, trySales - tryCollected),
+        cost: tryCost,
+      },
+      usd: {
+        sales: usdSales,
+        collected: usdCollected,
+        receivable: Math.max(0, usdSales - usdCollected),
+        cost: usdCost,
+      }
+    };
   }, [filtered]);
 
   const handleDelete = async (id: string, orderNumber: string) => {
@@ -78,18 +108,50 @@ export function AccountingClient({ orders: initialOrders, customers }: Props) {
   return (
     <div className="space-y-6">
       {/* Summary Cards */}
-      <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4 mb-6">
-        {[
-          ["Faturalanan / İşlem Tutarı", totalSales, "text-slate-900"],
-          ["Tahsil Edilen", totalCollected, "text-emerald-700"],
-          ["Kalan Alacak (TL)", receivable, "text-rose-700"],
-          ["Toplam Maliyet", totalCost, "text-amber-700"],
-        ].map(([label, value, color]) => (
-          <div key={String(label)} className="rounded-2xl border-2 border-slate-200 bg-white p-5 shadow-sm">
-            <p className="text-xs font-black uppercase text-slate-400">{label}</p>
-            <p className={`mt-2 text-2xl font-black ${color}`}>{moneyTRY(Number(value))}</p>
+      <div className="grid gap-6 md:grid-cols-2 mb-6">
+        {/* TRY Summary Block */}
+        <div className="rounded-3xl border-2 border-slate-200 bg-white p-5 shadow-sm space-y-4">
+          <h3 className="text-sm font-black text-slate-800 uppercase tracking-wider flex items-center gap-2 pb-2 border-b border-slate-100">
+            <span className="text-base">🇹🇷</span> Türk Lirası (TL) Kasası
+          </h3>
+          <div className="grid gap-3 grid-cols-2">
+            {[
+              ["Faturalanan", aggregates.try.sales, "text-slate-900", "TRY"],
+              ["Tahsil Edilen", aggregates.try.collected, "text-emerald-700", "TRY"],
+              ["Kalan Alacak", aggregates.try.receivable, "text-rose-700", "TRY"],
+              ["Toplam Maliyet", aggregates.try.cost, "text-amber-700", "TRY"],
+            ].map(([label, value, color, curr]) => (
+              <div key={String(label)} className="bg-slate-50/55 p-3.5 rounded-xl border border-slate-100">
+                <p className="text-[10px] font-black uppercase text-slate-400">{label}</p>
+                <p className={`mt-1 text-lg font-black ${color}`}>
+                  {formatMoney(Number(value), String(curr))}
+                </p>
+              </div>
+            ))}
           </div>
-        ))}
+        </div>
+
+        {/* USD Summary Block */}
+        <div className="rounded-3xl border-2 border-amber-200 bg-amber-50/10 p-5 shadow-sm space-y-4">
+          <h3 className="text-sm font-black text-amber-800 uppercase tracking-wider flex items-center gap-2 pb-2 border-b border-amber-100">
+            <span className="text-base">🇺🇸</span> Amerikan Doları (USD) Kasası
+          </h3>
+          <div className="grid gap-3 grid-cols-2">
+            {[
+              ["Faturalanan", aggregates.usd.sales, "text-slate-900", "USD"],
+              ["Tahsil Edilen", aggregates.usd.collected, "text-emerald-700", "USD"],
+              ["Kalan Alacak", aggregates.usd.receivable, "text-rose-700", "USD"],
+              ["Toplam Maliyet", aggregates.usd.cost, "text-amber-700", "USD"],
+            ].map(([label, value, color, curr]) => (
+              <div key={String(label)} className="bg-amber-50/30 p-3.5 rounded-xl border border-amber-100/50">
+                <p className="text-[10px] font-black uppercase text-slate-400">{label}</p>
+                <p className={`mt-1 text-lg font-black ${color}`}>
+                  {formatMoney(Number(value), String(curr))}
+                </p>
+              </div>
+            ))}
+          </div>
+        </div>
       </div>
 
       {/* Notifications */}
@@ -145,7 +207,7 @@ export function AccountingClient({ orders: initialOrders, customers }: Props) {
               <tr>
                 <th className="p-4">İş Emri</th>
                 <th className="p-4">Müşteri</th>
-                <th className="p-4">İşlem (TL)</th>
+                <th className="p-4">İşlem Tutarı</th>
                 <th className="p-4">Tahsilat</th>
                 <th className="p-4">Kalan</th>
                 <th className="p-4">Kâr</th>
@@ -175,18 +237,18 @@ export function AccountingClient({ orders: initialOrders, customers }: Props) {
                         {row.customer?.name || "-"}
                       </Link>
                     </td>
-                    <td className="p-4 font-bold">{moneyTRY(Number(row.grand_total || 0))}</td>
+                    <td className="p-4 font-bold">{formatMoney(Number(row.grand_total || 0), row.labor_price_currency)}</td>
                     <td className="p-4">
-                      <span className="text-emerald-700 font-bold block">{moneyTRY(Number(row.paid_amount || 0))}</span>
-                      {row.payment_currency && row.payment_currency !== "TRY" && (
+                      <span className="text-emerald-700 font-bold block">{formatMoney(Number(row.paid_amount || 0), row.labor_price_currency)}</span>
+                      {row.labor_price_currency === "USD" && (
                         <span className="text-[10px] font-bold text-amber-600 flex items-center gap-0.5 mt-0.5">
-                          <DollarSign className="h-3 w-3" /> USD
+                          <DollarSign className="h-3 w-3" /> USD İşlem
                         </span>
                       )}
                     </td>
                     <td className="p-4">
                       <span className={`font-bold ${remaining > 0 ? "text-rose-700" : "text-emerald-600"}`}>
-                        {moneyTRY(remaining)}
+                        {formatMoney(remaining, row.labor_price_currency)}
                       </span>
                       {isFullyPaid && (
                         <span className="block text-[9px] font-extrabold uppercase px-1 py-0.5 rounded mt-0.5 w-max bg-emerald-50 text-emerald-700 border border-emerald-200">
@@ -194,7 +256,7 @@ export function AccountingClient({ orders: initialOrders, customers }: Props) {
                         </span>
                       )}
                     </td>
-                    <td className="p-4 font-bold">{moneyTRY(Number(row.net_profit || 0))}</td>
+                    <td className="p-4 font-bold">{formatMoney(Number(row.net_profit || 0), row.labor_price_currency)}</td>
                     <td className="p-4">
                       <span className={`inline-flex px-2 py-0.5 rounded-full text-[10px] font-bold ${
                         row.status === "Tamamlandı"

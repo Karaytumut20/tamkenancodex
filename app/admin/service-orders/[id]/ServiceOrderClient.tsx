@@ -73,6 +73,7 @@ export function ServiceOrderClient({
   const [laborHours, setLaborHours] = useState(Number(order.labor_hours || 0));
   const [laborCost, setLaborCost] = useState(Number(order.labor_cost || 0));
   const [laborPrice, setLaborPrice] = useState(Number(order.labor_price || 0));
+  const [laborPriceCurrency, setLaborPriceCurrency] = useState<'TRY' | 'USD'>(order.labor_price_currency || 'TRY');
   const [transportationCost, setTransportationCost] = useState(Number(order.transportation_cost || 0));
   const [employeeCost, setEmployeeCost] = useState(Number(order.employee_cost || 0));
   const [otherCosts, setOtherCosts] = useState(Number(order.other_costs || 0));
@@ -102,7 +103,7 @@ export function ServiceOrderClient({
   const [payTxNum, setPayTxNum] = useState("");
   const [payEmployeeId, setPayEmployeeId] = useState("");
   const [payDesc, setPayDesc] = useState("");
-  const [payCurrency, setPayCurrency] = useState<'TRY' | 'USD'>('TRY');
+  const [payCurrency, setPayCurrency] = useState<'TRY' | 'USD'>(order.labor_price_currency || 'TRY');
 
   // Form states - File Upload
   const [fileType, setFileType] = useState<any>("before_photo");
@@ -154,6 +155,7 @@ export function ServiceOrderClient({
       labor_hours: laborHours,
       labor_cost: laborCost,
       labor_price: laborPrice,
+      labor_price_currency: laborPriceCurrency,
       transportation_cost: transportationCost,
       employee_cost: employeeCost,
       other_costs: otherCosts,
@@ -256,7 +258,7 @@ export function ServiceOrderClient({
       setPayAmount(0);
       setPayTxNum("");
       setPayDesc("");
-      setPayCurrency('TRY');
+      setPayCurrency(order.labor_price_currency || 'TRY');
       router.refresh();
     } else {
       setErrorMessage(res.error || "Ödeme eklenemedi.");
@@ -438,35 +440,43 @@ export function ServiceOrderClient({
       )}
 
       {/* Financial Summary Block (Hidden for service_staff role) */}
-      {!isServiceStaff && (
-        <div className="grid gap-4 sm:grid-cols-2 md:grid-cols-4 bg-white border-2 border-slate-200 rounded-3xl p-6 shadow-sm">
-          <div className="text-center sm:text-left border-b sm:border-b-0 sm:border-r border-slate-100 pb-4 sm:pb-0 sm:pr-4">
-            <p className="text-[10px] font-black text-slate-400 uppercase tracking-wider">Toplam Maliyet</p>
-            <p className="text-xl font-black text-slate-700 mt-1">
-              {totalCost.toLocaleString("tr-TR", { style: "currency", currency: "TRY" })}
-            </p>
+      {!isServiceStaff && (() => {
+        const orderCurrency = order.labor_price_currency || 'TRY';
+        const formatOrderMoney = (value: number) => {
+          return orderCurrency === 'USD'
+            ? value.toLocaleString("en-US", { style: "currency", currency: "USD" })
+            : value.toLocaleString("tr-TR", { style: "currency", currency: "TRY" });
+        };
+        return (
+          <div className="grid gap-4 sm:grid-cols-2 md:grid-cols-4 bg-white border-2 border-slate-200 rounded-3xl p-6 shadow-sm">
+            <div className="text-center sm:text-left border-b sm:border-b-0 sm:border-r border-slate-100 pb-4 sm:pb-0 sm:pr-4">
+              <p className="text-[10px] font-black text-slate-400 uppercase tracking-wider">Toplam Maliyet (TL)</p>
+              <p className="text-xl font-black text-slate-700 mt-1">
+                {totalCost.toLocaleString("tr-TR", { style: "currency", currency: "TRY" })}
+              </p>
+            </div>
+            <div className="text-center sm:text-left border-b sm:border-b-0 sm:border-r border-slate-100 py-4 sm:py-0 sm:px-4">
+              <p className="text-[10px] font-black text-slate-400 uppercase tracking-wider">Müşteri Toplamı</p>
+              <p className="text-xl font-black text-slate-800 mt-1">
+                {formatOrderMoney(totalBilled)}
+              </p>
+            </div>
+            <div className="text-center sm:text-left border-b sm:border-b-0 sm:border-r border-slate-100 py-4 sm:py-0 sm:px-4">
+              <p className="text-[10px] font-black text-slate-400 uppercase tracking-wider">Kalan Bakiye</p>
+              <p className={`text-xl font-black mt-1 ${remainingBalance > 0 ? "text-rose-600" : "text-emerald-600"}`}>
+                {formatOrderMoney(remainingBalance)}
+              </p>
+            </div>
+            <div className="text-center sm:text-left py-4 sm:py-0 sm:pl-4">
+              <p className="text-[10px] font-black text-slate-400 uppercase tracking-wider">Net Kâr (Oran)</p>
+              <p className={`text-xl font-black mt-1 ${netProfit >= 0 ? "text-emerald-600" : "text-red-600"}`}>
+                {formatOrderMoney(netProfit)}
+                <span className="text-xs font-bold block sm:inline sm:ml-1">({profitMargin.toFixed(1)}%)</span>
+              </p>
+            </div>
           </div>
-          <div className="text-center sm:text-left border-b sm:border-b-0 sm:border-r border-slate-100 py-4 sm:py-0 sm:px-4">
-            <p className="text-[10px] font-black text-slate-400 uppercase tracking-wider">Müşteri Toplamı</p>
-            <p className="text-xl font-black text-slate-800 mt-1">
-              {totalBilled.toLocaleString("tr-TR", { style: "currency", currency: "TRY" })}
-            </p>
-          </div>
-          <div className="text-center sm:text-left border-b sm:border-b-0 sm:border-r border-slate-100 py-4 sm:py-0 sm:px-4">
-            <p className="text-[10px] font-black text-slate-400 uppercase tracking-wider">Kalan Bakiye</p>
-            <p className={`text-xl font-black mt-1 ${remainingBalance > 0 ? "text-rose-600" : "text-emerald-600"}`}>
-              {remainingBalance.toLocaleString("tr-TR", { style: "currency", currency: "TRY" })}
-            </p>
-          </div>
-          <div className="text-center sm:text-left py-4 sm:py-0 sm:pl-4">
-            <p className="text-[10px] font-black text-slate-400 uppercase tracking-wider">Net Kâr (Oran)</p>
-            <p className={`text-xl font-black mt-1 ${netProfit >= 0 ? "text-emerald-600" : "text-red-600"}`}>
-              {netProfit.toLocaleString("tr-TR", { style: "currency", currency: "TRY" })}
-              <span className="text-xs font-bold block sm:inline sm:ml-1">({profitMargin.toFixed(1)}%)</span>
-            </p>
-          </div>
-        </div>
-      )}
+        );
+      })()}
 
       {/* Main Grid: Navigation & Content */}
       <div className="grid gap-6 lg:grid-cols-12 items-start">
@@ -543,13 +553,42 @@ export function ServiceOrderClient({
                     </div>
 
                     <div className="space-y-1.5">
-                      <label className="text-xs font-black text-slate-500 uppercase">Müşteriye İşçilik Ücreti (Satış)</label>
+                      <div className="flex items-center justify-between">
+                        <label className="text-xs font-black text-slate-500 uppercase">Müşteriye İşçilik Ücreti (Satış)</label>
+                        <div className="flex gap-1">
+                          <button
+                            type="button"
+                            onClick={() => setLaborPriceCurrency('TRY')}
+                            className={`h-7 px-2.5 rounded-lg text-xs font-black border-2 transition-all ${
+                              laborPriceCurrency === 'TRY'
+                                ? 'bg-cyan-600 border-cyan-700 text-white'
+                                : 'border-slate-200 bg-white text-slate-600 hover:bg-slate-50'
+                            }`}
+                          >
+                            ₺ TL
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => setLaborPriceCurrency('USD')}
+                            className={`h-7 px-2.5 rounded-lg text-xs font-black border-2 transition-all ${
+                              laborPriceCurrency === 'USD'
+                                ? 'bg-amber-500 border-amber-600 text-white'
+                                : 'border-slate-200 bg-white text-slate-600 hover:bg-slate-50'
+                            }`}
+                          >
+                            $ USD
+                          </button>
+                        </div>
+                      </div>
                       <input
                         type="number"
                         value={laborPrice}
                         onChange={(e) => setLaborPrice(Number(e.target.value))}
                         className="h-11 w-full px-4 rounded-xl border-2 border-slate-200 bg-white text-sm font-semibold outline-none focus:border-cyan-500 transition-colors"
                       />
+                      {laborPriceCurrency === 'USD' && (
+                        <p className="mt-1 text-[10px] font-bold text-amber-600">$ USD cinsinden işçilik ücreti.</p>
+                      )}
                     </div>
 
                     <div className="space-y-1.5">

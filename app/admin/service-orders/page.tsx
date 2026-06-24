@@ -20,7 +20,7 @@ export default async function ServiceOrdersPage({ searchParams }: { searchParams
   let query = supabase
     .from("service_orders")
     .select(`
-      id, order_number, created_at, total_cost, grand_total, paid_amount, status,
+      id, order_number, created_at, total_cost, grand_total, paid_amount, status, labor_price_currency,
       customer:customer_id (id, name, phone, type),
       appointment:appointment_id (appointment_date, start_time, service_type)
     `)
@@ -66,7 +66,11 @@ export default async function ServiceOrdersPage({ searchParams }: { searchParams
   // Statistics counters
   const pendingCount = orders.filter(o => o.status !== "Tamamlandı" && o.status !== "İptal Edildi").length;
   const completedCount = orders.filter(o => o.status === "Tamamlandı").length;
-  const totalUncollected = orders.reduce((sum, o) => sum + Math.max(0, Number(o.grand_total) - Number(o.paid_amount)), 0);
+  const totalUncollected = orders.reduce((sum, o) => {
+    const remaining = Math.max(0, Number(o.grand_total) - Number(o.paid_amount));
+    const currency = o.labor_price_currency || 'TRY';
+    return sum + (currency === 'USD' ? remaining * 34 : remaining);
+  }, 0);
 
   return (
     <ProtectedAdminPage>

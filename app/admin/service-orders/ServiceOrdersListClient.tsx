@@ -17,8 +17,15 @@ type Order = {
   grand_total: number;
   paid_amount: number;
   status: string;
+  labor_price_currency?: 'TRY' | 'USD';
   customer?: { id: string; name: string; phone: string; type: string } | null;
   appointment?: { appointment_date: string; start_time: string; service_type: string } | null;
+};
+
+const formatMoney = (value: number, currency: string = "TRY") => {
+  return currency === "USD"
+    ? value.toLocaleString("en-US", { style: "currency", currency: "USD" })
+    : value.toLocaleString("tr-TR", { style: "currency", currency: "TRY" });
 };
 
 export function ServiceOrdersListClient({ orders: initialOrders }: { orders: Order[] }) {
@@ -113,11 +120,11 @@ export function ServiceOrdersListClient({ orders: initialOrders }: { orders: Ord
                       {Number(o.total_cost || 0).toLocaleString("tr-TR", { style: "currency", currency: "TRY" })}
                     </td>
                     <td className="p-4 font-black text-slate-800">
-                      {Number(o.grand_total || 0).toLocaleString("tr-TR", { style: "currency", currency: "TRY" })}
+                      {formatMoney(Number(o.grand_total || 0), o.labor_price_currency)}
                     </td>
                     <td className="p-4">
                       <span className={`font-black ${remaining > 0 ? (isOverdue ? 'text-red-600' : 'text-slate-700') : 'text-emerald-600'}`}>
-                        {remaining.toLocaleString("tr-TR", { style: "currency", currency: "TRY" })}
+                        {formatMoney(remaining, o.labor_price_currency)}
                       </span>
                       {remaining > 0 && (
                         <span className={`block text-[9px] font-extrabold uppercase px-1 py-0.5 rounded mt-0.5 w-max ${
