@@ -102,6 +102,7 @@ export function ServiceOrderClient({
   const [payTxNum, setPayTxNum] = useState("");
   const [payEmployeeId, setPayEmployeeId] = useState("");
   const [payDesc, setPayDesc] = useState("");
+  const [payCurrency, setPayCurrency] = useState<'TRY' | 'USD'>('TRY');
 
   // Form states - File Upload
   const [fileType, setFileType] = useState<any>("before_photo");
@@ -243,6 +244,7 @@ export function ServiceOrderClient({
       service_order_id: order.id,
       payment_date: payDate,
       amount: payAmount,
+      currency: payCurrency,
       method: payMethod,
       transaction_number: payTxNum,
       received_by_employee_id: payEmployeeId || null,
@@ -254,6 +256,7 @@ export function ServiceOrderClient({
       setPayAmount(0);
       setPayTxNum("");
       setPayDesc("");
+      setPayCurrency('TRY');
       router.refresh();
     } else {
       setErrorMessage(res.error || "Ödeme eklenemedi.");
@@ -889,10 +892,18 @@ export function ServiceOrderClient({
                     </thead>
                     <tbody className="divide-y divide-slate-100 font-medium">
                       {payments.map((p) => (
-                        <tr key={p.id}>
+                      <tr key={p.id}>
                           <td className="p-3 text-slate-600">{p.payment_date}</td>
                           <td className="p-3 font-black text-emerald-600">
-                            {Number(p.amount || 0).toLocaleString("tr-TR", { style: "currency", currency: "TRY" })}
+                            {p.currency === 'USD'
+                              ? Number(p.amount || 0).toLocaleString("en-US", { style: "currency", currency: "USD" })
+                              : Number(p.amount || 0).toLocaleString("tr-TR", { style: "currency", currency: "TRY" })
+                            }
+                            {p.currency && p.currency !== 'TRY' && (
+                              <span className="ml-1 text-[9px] font-extrabold uppercase bg-amber-50 text-amber-700 border border-amber-200 px-1 py-0.5 rounded">
+                                {p.currency}
+                              </span>
+                            )}
                           </td>
                           <td className="p-3 font-bold text-slate-700">{p.method}</td>
                           <td className="p-3 text-slate-500">{p.employee?.full_name || "-"}</td>
@@ -941,6 +952,34 @@ export function ServiceOrderClient({
                           onChange={(e) => setPayAmount(Number(e.target.value))}
                           className="h-11 w-full px-4 rounded-xl border-2 border-slate-200 bg-white text-sm font-semibold outline-none focus:border-cyan-500 transition-colors"
                         />
+                      </div>
+
+                      <div className="space-y-1.5">
+                        <label className="text-xs font-black text-slate-500 uppercase">Para Birimi *</label>
+                        <div className="flex gap-2">
+                          <button
+                            type="button"
+                            onClick={() => setPayCurrency('TRY')}
+                            className={`flex-1 h-11 rounded-xl border-2 text-sm font-black transition-all ${
+                              payCurrency === 'TRY'
+                                ? 'bg-cyan-600 border-cyan-700 text-white'
+                                : 'border-slate-200 bg-white text-slate-600 hover:bg-slate-50'
+                            }`}
+                          >
+                            ₺ TL
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => setPayCurrency('USD')}
+                            className={`flex-1 h-11 rounded-xl border-2 text-sm font-black transition-all ${
+                              payCurrency === 'USD'
+                                ? 'bg-amber-500 border-amber-600 text-white'
+                                : 'border-slate-200 bg-white text-slate-600 hover:bg-slate-50'
+                            }`}
+                          >
+                            $ USD
+                          </button>
+                        </div>
                       </div>
 
                       <div className="space-y-1.5">
