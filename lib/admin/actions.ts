@@ -310,6 +310,14 @@ export async function saveResource(resourceKey: string, id: string | null, formD
     revalidatePath("/urunler");
     if (typeof payload.slug === "string") revalidatePath(`/urunler/${payload.slug}`);
   }
+  if (resourceKey === "services") {
+    revalidatePath("/");
+    revalidatePath("/kendi-sistemini-tasarla");
+    if (typeof payload.slug === "string") {
+      revalidatePath(`/${payload.slug}`);
+      revalidatePath(`/hizmetler/${payload.slug}`);
+    }
+  }
   if (resourceKey === "blog") {
     revalidatePath("/blog");
     revalidatePath("/");
@@ -329,7 +337,7 @@ export async function deleteResource(resourceKey: string, id: string) {
 
   const supabase = await createSupabaseServerClient();
   let deletedSlug: string | null = null;
-  if (resourceKey === "blog") {
+  if (resourceKey === "blog" || resourceKey === "services") {
     const { data } = await supabase
       .from(resource.table)
       .select("slug")
@@ -343,6 +351,14 @@ export async function deleteResource(resourceKey: string, id: string) {
     throw new Error(error.message);
   }
   revalidatePath(resource.path);
+  if (resourceKey === "services") {
+    revalidatePath("/");
+    revalidatePath("/kendi-sistemini-tasarla");
+    if (deletedSlug) {
+      revalidatePath(`/${deletedSlug}`);
+      revalidatePath(`/hizmetler/${deletedSlug}`);
+    }
+  }
   if (resourceKey === "blog") {
     revalidatePath("/blog");
     revalidatePath("/");
