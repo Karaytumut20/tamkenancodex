@@ -37,6 +37,12 @@ type Props = {
   files: any[];
 };
 
+const formatMoney = (value: number, currency: string = "TRY") => {
+  return currency === "USD"
+    ? value.toLocaleString("en-US", { style: "currency", currency: "USD" })
+    : value.toLocaleString("tr-TR", { style: "currency", currency: "TRY" });
+};
+
 export function CustomerProfileClient({
   customer,
   appointments,
@@ -56,12 +62,23 @@ export function CustomerProfileClient({
   const completedOrders = serviceOrders.filter(o => o.status === 'Tamamlandı');
   const draftOrders = serviceOrders.filter(o => o.status === 'Taslak'); // Acts as Quotes/Teklifler
 
-  const totalBilled = serviceOrders
-    .filter(o => o.status !== 'İptal Edildi')
+  // TRY calculations
+  const tryBilled = serviceOrders
+    .filter(o => o.status !== 'İptal Edildi' && (o.labor_price_currency || 'TRY') === 'TRY')
     .reduce((sum, o) => sum + Number(o.grand_total || 0), 0);
+  const tryPaid = payments
+    .filter(p => (p.currency || 'TRY') === 'TRY')
+    .reduce((sum, p) => sum + Number(p.amount || 0), 0);
+  const tryBalance = tryBilled - tryPaid;
 
-  const totalPaid = payments.reduce((sum, p) => sum + Number(p.amount || 0), 0);
-  const balance = totalBilled - totalPaid;
+  // USD calculations
+  const usdBilled = serviceOrders
+    .filter(o => o.status !== 'İptal Edildi' && o.labor_price_currency === 'USD')
+    .reduce((sum, o) => sum + Number(o.grand_total || 0), 0);
+  const usdPaid = payments
+    .filter(p => p.currency === 'USD')
+    .reduce((sum, p) => sum + Number(p.amount || 0), 0);
+  const usdBalance = usdBilled - usdPaid;
 
   const handleAddNote = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -244,10 +261,10 @@ export function CustomerProfileClient({
                         <td className="p-3 font-extrabold text-slate-800">{o.order_number}</td>
                         <td className="p-3 text-slate-600">{o.appointment?.appointment_date || o.created_at.split('T')[0]}</td>
                         <td className="p-3 font-bold text-slate-700">
-                          {Number(o.grand_total || 0).toLocaleString("tr-TR", { style: "currency", currency: "TRY" })}
+                          {formatMoney(Number(o.grand_total || 0), o.labor_price_currency)}
                         </td>
                         <td className="p-3 font-bold text-rose-600">
-                          {Number(o.grand_total - o.paid_amount).toLocaleString("tr-TR", { style: "currency", currency: "TRY" })}
+                          {formatMoney(Number(o.grand_total - o.paid_amount), o.labor_price_currency)}
                         </td>
                         <td className="p-3">
                           <span className={`inline-flex px-2 py-0.5 rounded-full text-xs font-bold ${
@@ -330,7 +347,7 @@ export function CustomerProfileClient({
                         <td className="p-3 font-extrabold text-slate-800">{o.order_number}</td>
                         <td className="p-3 text-slate-600">{o.created_at.split('T')[0]}</td>
                         <td className="p-3 font-bold text-slate-700">
-                          {Number(o.grand_total || 0).toLocaleString("tr-TR", { style: "currency", currency: "TRY" })}
+                          {formatMoney(Number(o.grand_total || 0), o.labor_price_currency)}
                         </td>
                         <td className="p-3">
                           <Link href={`/admin/service-orders/${o.id}`} className="text-xs font-black text-cyan-600 hover:text-cyan-700">Düzenle / Detay →</Link>
@@ -369,7 +386,7 @@ export function CustomerProfileClient({
                       <tr key={p.id}>
                         <td className="p-3 text-slate-600">{p.payment_date}</td>
                         <td className="p-3 font-black text-emerald-600">
-                          {Number(p.amount || 0).toLocaleString("tr-TR", { style: "currency", currency: "TRY" })}
+                          {formatMoney(Number(p.amount || 0), p.currency)}
                         </td>
                         <td className="p-3 font-bold text-slate-700">{p.method}</td>
                         <td className="p-3 text-slate-500">{p.description || "-"}</td>
@@ -389,46 +406,71 @@ export function CustomerProfileClient({
           <div className="space-y-6">
             <h3 className="text-xl font-black text-slate-800 border-b border-slate-100 pb-3">Borç & Alacak Özeti</h3>
 
-            <div className="grid gap-4 sm:grid-cols-3">
-              <div className="rounded-2xl border-2 border-slate-200 bg-white p-5 shadow-sm text-center">
-                <p className="text-xs font-black text-slate-400 uppercase">Toplam Faturalandırılan</p>
-                <p className="text-2xl font-black text-slate-800 mt-2">
-                  {totalBilled.toLocaleString("tr-TR", { style: "currency", currency: "TRY" })}
-                </p>
+            <div className="grid gap-6 md:grid-cols-2">
+              {/* TRY Balance Block */}
+              <div className="rounded-3xl border-2 border-slate-200 bg-white p-5 shadow-sm space-y-4">
+                <h4 className="text-sm font-black text-slate-800 uppercase tracking-wider flex items-center gap-2 pb-2 border-b border-slate-100">
+                  <span className="text-base">🇹🇷</span> Türk Lirası (TL) Hesabı
+                </h4>
+                <div className="grid gap-3 grid-cols-3">
+                  <div className="bg-slate-50/50 p-3 rounded-xl text-center">
+                    <p className="text-[9px] font-black uppercase text-slate-400">Faturalanan</p>
+                    <p className="text-sm font-black text-slate-800 mt-1">{formatMoney(tryBilled, "TRY")}</p>
+                  </div>
+                  <div className="bg-slate-50/50 p-3 rounded-xl text-center">
+                    <p className="text-[9px] font-black uppercase text-slate-400">Tahsil Edilen</p>
+                    <p className="text-sm font-black text-emerald-600 mt-1">{formatMoney(tryPaid, "TRY")}</p>
+                  </div>
+                  <div className="bg-slate-50/50 p-3 rounded-xl text-center">
+                    <p className="text-[9px] font-black uppercase text-slate-400">Kalan Bakiye</p>
+                    <p className={`text-sm font-black mt-1 ${tryBalance > 0 ? 'text-red-600' : 'text-emerald-600'}`}>{formatMoney(tryBalance, "TRY")}</p>
+                  </div>
+                </div>
+                {tryBalance > 0 ? (
+                  <div className="flex items-center gap-2 text-xs font-bold text-red-600 bg-red-50 p-3 rounded-xl border border-red-100">
+                    <AlertTriangle className="h-4 w-4 text-red-600 shrink-0 animate-pulse" />
+                    <span>Müşterinin {formatMoney(tryBalance, "TRY")} açık borcu bulunmaktadır.</span>
+                  </div>
+                ) : (
+                  <div className="flex items-center gap-2 text-xs font-bold text-emerald-600 bg-emerald-50 p-3 rounded-xl border border-emerald-100">
+                    <CheckCircle className="h-4 w-4 text-emerald-600 shrink-0" />
+                    <span>TL hesabı dengede. Açık borç bulunmamaktadır.</span>
+                  </div>
+                )}
               </div>
-              <div className="rounded-2xl border-2 border-slate-200 bg-white p-5 shadow-sm text-center">
-                <p className="text-xs font-black text-slate-400 uppercase">Toplam Tahsil Edilen</p>
-                <p className="text-2xl font-black text-emerald-600 mt-2">
-                  {totalPaid.toLocaleString("tr-TR", { style: "currency", currency: "TRY" })}
-                </p>
-              </div>
-              <div className="rounded-2xl border-2 border-slate-200 bg-white p-5 shadow-sm text-center">
-                <p className="text-xs font-black text-slate-400 uppercase">Kalan Borç / Bakiye</p>
-                <p className={`text-2xl font-black mt-2 ${balance > 0 ? 'text-red-600' : 'text-emerald-600'}`}>
-                  {balance.toLocaleString("tr-TR", { style: "currency", currency: "TRY" })}
-                </p>
+
+              {/* USD Balance Block */}
+              <div className="rounded-3xl border-2 border-amber-200 bg-amber-50/10 p-5 shadow-sm space-y-4">
+                <h4 className="text-sm font-black text-amber-800 uppercase tracking-wider flex items-center gap-2 pb-2 border-b border-amber-100">
+                  <span className="text-base">🇺🇸</span> Amerikan Doları (USD) Hesabı
+                </h4>
+                <div className="grid gap-3 grid-cols-3">
+                  <div className="bg-amber-50/20 p-3 rounded-xl text-center">
+                    <p className="text-[9px] font-black uppercase text-slate-400">Faturalanan</p>
+                    <p className="text-sm font-black text-slate-800 mt-1">{formatMoney(usdBilled, "USD")}</p>
+                  </div>
+                  <div className="bg-amber-50/20 p-3 rounded-xl text-center">
+                    <p className="text-[9px] font-black uppercase text-slate-400">Tahsil Edilen</p>
+                    <p className="text-sm font-black text-emerald-600 mt-1">{formatMoney(usdPaid, "USD")}</p>
+                  </div>
+                  <div className="bg-amber-50/20 p-3 rounded-xl text-center">
+                    <p className="text-[9px] font-black uppercase text-slate-400">Kalan Bakiye</p>
+                    <p className={`text-sm font-black mt-1 ${usdBalance > 0 ? 'text-red-600' : 'text-emerald-600'}`}>{formatMoney(usdBalance, "USD")}</p>
+                  </div>
+                </div>
+                {usdBalance > 0 ? (
+                  <div className="flex items-center gap-2 text-xs font-bold text-red-600 bg-red-50 p-3 rounded-xl border border-red-100">
+                    <AlertTriangle className="h-4 w-4 text-red-600 shrink-0 animate-pulse" />
+                    <span>Müşterinin {formatMoney(usdBalance, "USD")} açık borcu bulunmaktadır.</span>
+                  </div>
+                ) : (
+                  <div className="flex items-center gap-2 text-xs font-bold text-emerald-600 bg-emerald-50 p-3 rounded-xl border border-emerald-100">
+                    <CheckCircle className="h-4 w-4 text-emerald-600 shrink-0" />
+                    <span>USD hesabı dengede. Açık borç bulunmamaktadır.</span>
+                  </div>
+                )}
               </div>
             </div>
-
-            {balance > 0 ? (
-              <div className="flex items-center gap-3 rounded-xl border border-red-200 bg-red-50 p-4 text-red-800">
-                <AlertTriangle className="h-6 w-6 text-red-600 shrink-0 animate-pulse" />
-                <div>
-                  <p className="font-extrabold text-sm sm:text-base">Müşterinin Açık Borcu Bulunuyor</p>
-                  <p className="text-xs font-medium mt-0.5">
-                    Bu müşteri adına tamamlanmış veya aktif işlerden kalan toplam borç tutarı <span className="font-black">{balance.toLocaleString("tr-TR", { style: "currency", currency: "TRY" })}</span>'dir.
-                  </p>
-                </div>
-              </div>
-            ) : (
-              <div className="flex items-center gap-3 rounded-xl border border-emerald-200 bg-emerald-50 p-4 text-emerald-800">
-                <CheckCircle className="h-6 w-6 text-emerald-600 shrink-0" />
-                <div>
-                  <p className="font-extrabold text-sm sm:text-base">Hesap Dengede</p>
-                  <p className="text-xs font-medium mt-0.5">Müşterinin vadesi geçmiş veya açıkta kalan herhangi bir borç kaydı bulunmamaktadır.</p>
-                </div>
-              </div>
-            )}
           </div>
         )}
 

@@ -16,6 +16,7 @@ export type ServiceOrderInput = {
   labor_hours?: number;
   labor_cost?: number;
   labor_price?: number;
+  labor_price_currency?: 'TRY' | 'USD';
   transportation_cost?: number;
   employee_cost?: number;
   other_costs?: number;
@@ -60,13 +61,25 @@ export async function recalculateOrderTotals(orderId: string, supabaseClient?: a
   // 3. Sum payments
   const { data: payments, error: payErr } = await supabase
     .from('payments')
-    .select('amount')
+    .select('amount, currency')
     .eq('service_order_id', orderId);
 
   let totalPaid = 0;
   if (!payErr && payments) {
     payments.forEach((p: any) => {
-      totalPaid += Number(p.amount || 0);
+      const payCurr = p.currency || 'TRY';
+      const orderCurr = order.labor_price_currency || 'TRY';
+      if (payCurr === orderCurr) {
+        totalPaid += Number(p.amount || 0);
+      } else if (payCurr === 'USD' && orderCurr === 'TRY') {
+        // Convert USD payment to TRY for TRY order using a rate of 34
+        totalPaid += Number(p.amount || 0) * 34;
+      } else if (payCurr === 'TRY' && orderCurr === 'USD') {
+        // Convert TRY payment to USD for USD order using a rate of 34
+        totalPaid += Number(p.amount || 0) / 34;
+      } else {
+        totalPaid += Number(p.amount || 0);
+      }
     });
   }
 
@@ -130,6 +143,7 @@ export async function saveServiceOrder(input: ServiceOrderInput) {
           labor_hours: input.labor_hours || 0,
           labor_cost: input.labor_cost || 0,
           labor_price: input.labor_price || 0,
+          labor_price_currency: input.labor_price_currency || 'TRY',
           transportation_cost: input.transportation_cost || 0,
           employee_cost: input.employee_cost || 0,
           other_costs: input.other_costs || 0,
@@ -173,6 +187,7 @@ export async function saveServiceOrder(input: ServiceOrderInput) {
           labor_hours: input.labor_hours || 0,
           labor_cost: input.labor_cost || 0,
           labor_price: input.labor_price || 0,
+          labor_price_currency: input.labor_price_currency || 'TRY',
           transportation_cost: input.transportation_cost || 0,
           employee_cost: input.employee_cost || 0,
           other_costs: input.other_costs || 0,
@@ -580,6 +595,7 @@ export async function createDirectServiceOrder(input: {
   customer_id: string;
   service_name: string;
   service_price: number;
+  labor_price_currency?: 'TRY' | 'USD';
   appointment_date?: string;
   start_time?: string;
   material_id?: string;
@@ -640,6 +656,7 @@ export async function createDirectServiceOrder(input: {
         appointment_id: appointmentId,
         customer_id: input.customer_id,
         labor_price: input.service_price, // Hizmet satış fiyatı (ya da malzeme toplamı)
+        labor_price_currency: input.labor_price_currency || 'TRY',
         status: initialStatus,
         started_at: initialStatus === 'Tamamlandı' ? new Date().toISOString() : null,
         finished_at: initialStatus === 'Tamamlandı' ? new Date().toISOString() : null,
@@ -682,6 +699,7 @@ export async function createDirectServiceOrder(input: {
         service_order_id: orderData.id,
         payment_date: toTurkeyDateKey(),
         amount: paymentAmount,
+        currency: input.labor_price_currency || 'TRY',
         method: (input.payment_method as any) || 'Nakit',
         description: "Peşin Tahsilat (Hızlı İşlem)",
       });
