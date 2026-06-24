@@ -716,11 +716,17 @@ export function ServiceOrderClient({
                             </td>
                           )}
                           <td className="p-3 font-bold text-slate-700">
-                            {Number(m.selling_price || 0).toLocaleString("tr-TR", { style: "currency", currency: "TRY" })}
+                            {order.labor_price_currency === 'USD'
+                              ? (Number(m.selling_price || 0) / 34).toLocaleString("en-US", { style: "currency", currency: "USD" })
+                              : Number(m.selling_price || 0).toLocaleString("tr-TR", { style: "currency", currency: "TRY" })
+                            }
                           </td>
                           {!isServiceStaff && (
                             <td className="p-3 text-emerald-600 font-bold">
-                              {Number(m.profit || 0).toLocaleString("tr-TR", { style: "currency", currency: "TRY" })}
+                              {order.labor_price_currency === 'USD'
+                                ? (Number(m.profit || 0) / 34).toLocaleString("en-US", { style: "currency", currency: "USD" })
+                                : Number(m.profit || 0).toLocaleString("tr-TR", { style: "currency", currency: "TRY" })
+                              }
                             </td>
                           )}
                           <td className="p-3 text-slate-500">{m.warranty_months ? `${m.warranty_months} Ay` : "Yok"}</td>
@@ -845,7 +851,7 @@ export function ServiceOrderClient({
                     {!isServiceStaff ? (
                       <>
                         <div className="space-y-1.5">
-                          <label className="text-xs font-black text-slate-500 uppercase">Birim Alış Maliyeti</label>
+                          <label className="text-xs font-black text-slate-500 uppercase">Birim Alış Maliyeti (TL)</label>
                           <input
                             type="number"
                             value={matBuying}
@@ -854,7 +860,9 @@ export function ServiceOrderClient({
                           />
                         </div>
                         <div className="space-y-1.5">
-                          <label className="text-xs font-black text-slate-500 uppercase">Müşteriye Birim Satış</label>
+                          <label className="text-xs font-black text-slate-500 uppercase">
+                            Müşteriye Birim Satış (TL) {order.labor_price_currency === 'USD' && <span className="text-[10px] text-amber-600 font-bold block">(USD'ye çevrilir)</span>}
+                          </label>
                           <input
                             type="number"
                             value={matSelling}
@@ -865,7 +873,9 @@ export function ServiceOrderClient({
                       </>
                     ) : (
                       <div className="space-y-1.5 col-span-2">
-                        <label className="text-xs font-black text-slate-500 uppercase">Müşteriye Birim Satış</label>
+                        <label className="text-xs font-black text-slate-500 uppercase">
+                          Müşteriye Birim Satış (TL) {order.labor_price_currency === 'USD' && <span className="text-[10px] text-amber-600 font-bold block">(USD'ye çevrilir)</span>}
+                        </label>
                         <input
                           type="number"
                           value={matSelling}

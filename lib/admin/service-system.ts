@@ -289,7 +289,7 @@ export async function getServiceDashboardStatsSequential() {
   // Financial aggregates for this month
   const { data: monthOrders } = await supabase
     .from('service_orders')
-    .select('grand_total, total_cost, net_profit')
+    .select('grand_total, total_cost, net_profit, labor_price_currency')
     .eq('status', 'Tamamlandı')
     .gte('finished_at', startOfMonth.toISOString());
 
@@ -299,9 +299,14 @@ export async function getServiceDashboardStatsSequential() {
 
   if (monthOrders) {
     monthOrders.forEach((o) => {
-      monthlyCiro += Number(o.grand_total || 0);
-      monthlyCost += Number(o.total_cost || 0);
-      monthlyProfit += Number(o.net_profit || 0);
+      const currency = o.labor_price_currency || 'TRY';
+      const ciro = Number(o.grand_total || 0);
+      const cost = Number(o.total_cost || 0);
+      const profit = Number(o.net_profit || 0);
+
+      monthlyCiro += currency === 'USD' ? ciro * 34 : ciro;
+      monthlyCost += cost;
+      monthlyProfit += currency === 'USD' ? profit * 34 : profit;
     });
   }
 
@@ -340,20 +345,27 @@ export async function getServiceDashboardStats() {
     await Promise.all([
       supabase.from('appointments').select('id', { count: 'exact', head: true }).eq('appointment_date', todayStr),
       supabase.from('appointments').select('id', { count: 'exact', head: true }).eq('appointment_date', toTurkeyDateKey(tomorrow)),
-      supabase.from('service_orders').select('id', { count: 'exact', head: true }).eq('status', 'Tamamland\u0131').gte('finished_at', startOfWeek.toISOString()),
-      supabase.from('service_orders').select('id', { count: 'exact', head: true }).in('status', ['Taslak', '\u0130\u015flem Ba\u015flad\u0131', 'Malzeme Bekleniyor']),
+      supabase.from('service_orders').select('id', { count: 'exact', head: true }).eq('status', 'Tamamlandı').gte('finished_at', startOfWeek.toISOString()),
+      supabase.from('service_orders').select('id', { count: 'exact', head: true }).in('status', ['Taslak', 'İşlem Başladı', 'Malzeme Bekleniyor']),
       supabase.from('appointments').select('id', { count: 'exact', head: true }).eq('status', 'Tahsilat Bekleniyor'),
       supabase.from('customers').select('id', { count: 'exact', head: true }).eq('is_active', true),
-      supabase.from('service_orders').select('grand_total, total_cost, net_profit').eq('status', 'Tamamland\u0131').gte('finished_at', startOfMonth.toISOString()),
+      supabase.from('service_orders').select('grand_total, total_cost, net_profit, labor_price_currency').eq('status', 'Tamamlandı').gte('finished_at', startOfMonth.toISOString()),
       supabase.from('materials').select('stock_quantity, min_stock_level').eq('is_active', true),
     ]);
 
   const totals = (monthRes.data ?? []).reduce(
-    (sum, row) => ({
-      ciro: sum.ciro + Number(row.grand_total || 0),
-      cost: sum.cost + Number(row.total_cost || 0),
-      profit: sum.profit + Number(row.net_profit || 0),
-    }),
+    (sum, row) => {
+      const currency = row.labor_price_currency || 'TRY';
+      const ciro = Number(row.grand_total || 0);
+      const cost = Number(row.total_cost || 0);
+      const profit = Number(row.net_profit || 0);
+
+      return {
+        ciro: sum.ciro + (currency === 'USD' ? ciro * 34 : ciro),
+        cost: sum.cost + cost,
+        profit: sum.profit + (currency === 'USD' ? profit * 34 : profit),
+      };
+    },
     { ciro: 0, cost: 0, profit: 0 },
   );
 

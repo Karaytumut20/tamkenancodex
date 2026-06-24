@@ -50,7 +50,7 @@ export function AccountingClient({ orders: initialOrders, customers }: Props) {
       if (currency === "USD") {
         usdSales += grandTotal;
         usdCollected += paidAmount;
-        usdCost += totalCost;
+        usdCost += totalCost / 34; // Convert TRY cost to USD
       } else {
         trySales += grandTotal;
         tryCollected += paidAmount;

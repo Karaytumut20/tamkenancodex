@@ -268,7 +268,11 @@ export function NewOrderClient({ customers, materials: initialMaterials }: { cus
             )}
             {selectedMaterial && (
               <p className="mt-2 text-xs font-bold text-slate-500">
-                Malzeme tutarı ayrıca eklenecek: {(Number(selectedMaterial.selling_price || 0) * materialQty).toLocaleString("tr-TR", { style: "currency", currency: "TRY" })}
+                Malzeme tutarı ayrıca eklenecek:{" "}
+                {servicePriceCurrency === "USD"
+                  ? ((Number(selectedMaterial.selling_price || 0) * materialQty) / 34).toLocaleString("en-US", { style: "currency", currency: "USD" })
+                  : (Number(selectedMaterial.selling_price || 0) * materialQty).toLocaleString("tr-TR", { style: "currency", currency: "TRY" })
+                }
               </p>
             )}
           </div>
@@ -394,7 +398,7 @@ export function NewOrderClient({ customers, materials: initialMaterials }: { cus
                   <input type="number" min="0" step="0.01" value={newMaterialStock} onChange={(e) => setNewMaterialStock(Number(e.target.value))} className="mt-1 h-11 w-full rounded-xl border-2 border-slate-200 px-4 text-sm font-semibold outline-none focus:border-cyan-500" />
                 </div>
                 <div>
-                  <label className="text-xs font-black uppercase text-slate-500">Satış fiyatı</label>
+                  <label className="text-xs font-black uppercase text-slate-500">Satış fiyatı (TL)</label>
                   <input type="number" min="0" step="0.01" value={newMaterialPrice} onChange={(e) => setNewMaterialPrice(Number(e.target.value))} className="mt-1 h-11 w-full rounded-xl border-2 border-slate-200 px-4 text-sm font-semibold outline-none focus:border-cyan-500" />
                 </div>
               </div>

@@ -17,6 +17,12 @@ import {
 } from "lucide-react";
 import { dateKeyToLocalDate, toCalendarDateKey } from "@/lib/admin/calendar-date";
 
+const formatMoney = (value: number, currency: string = "TRY") => {
+  return currency === "USD"
+    ? value.toLocaleString("en-US", { style: "currency", currency: "USD" })
+    : value.toLocaleString("tr-TR", { style: "currency", currency: "TRY" });
+};
+
 type Props = {
   customers: any[];
   appointments: any[];
@@ -71,19 +77,26 @@ export function ReportsClient({
   // -----------------------------------------------------------------
   const filteredOrders = serviceOrders.filter((o) => o.created_at && inRange(o.created_at));
   
-  let totalCiro = 0;
-  let totalCost = 0;
-  let totalNetProfit = 0;
-  let totalPaidAmount = 0;
+  let tryCiro = 0, tryCost = 0, tryNetProfit = 0, tryPaidAmount = 0;
+  let usdCiro = 0, usdCost = 0, usdNetProfit = 0, usdPaidAmount = 0;
 
   filteredOrders.forEach((o) => {
-    totalCiro += Number(o.grand_total || 0);
-    totalCost += Number(o.total_cost || 0);
-    totalNetProfit += Number(o.net_profit || 0);
-    totalPaidAmount += Number(o.paid_amount || 0);
+    const currency = o.labor_price_currency || 'TRY';
+    if (currency === 'USD') {
+      usdCiro += Number(o.grand_total || 0);
+      usdCost += Number(o.total_cost || 0) / 34; // Convert TRY cost to USD
+      usdNetProfit += Number(o.net_profit || 0);
+      usdPaidAmount += Number(o.paid_amount || 0);
+    } else {
+      tryCiro += Number(o.grand_total || 0);
+      tryCost += Number(o.total_cost || 0);
+      tryNetProfit += Number(o.net_profit || 0);
+      tryPaidAmount += Number(o.paid_amount || 0);
+    }
   });
 
-  const remainingReceivable = totalCiro - totalPaidAmount;
+  const tryRemainingReceivable = tryCiro - tryPaidAmount;
+  const usdRemainingReceivable = usdCiro - usdPaidAmount;
 
   // -----------------------------------------------------------------
   // 2. Randevu & İş Raporu
@@ -98,9 +111,21 @@ export function ReportsClient({
   // -----------------------------------------------------------------
   const customerReportData = customers.map((c) => {
     const cOrders = serviceOrders.filter((o) => o.customer_id === c.id && o.created_at && inRange(o.created_at));
-    const totalBilled = cOrders.reduce((sum, o) => sum + Number(o.grand_total || 0), 0);
-    const totalPaid = payments
-      .filter((p) => p.customer_id === c.id && inRange(p.payment_date))
+    
+    // TRY
+    const tryBilled = cOrders
+      .filter((o) => (o.labor_price_currency || 'TRY') === 'TRY')
+      .reduce((sum, o) => sum + Number(o.grand_total || 0), 0);
+    const tryPaid = payments
+      .filter((p) => p.customer_id === c.id && (p.currency || 'TRY') === 'TRY' && inRange(p.payment_date))
+      .reduce((sum, p) => sum + Number(p.amount || 0), 0);
+      
+    // USD
+    const usdBilled = cOrders
+      .filter((o) => o.labor_price_currency === 'USD')
+      .reduce((sum, o) => sum + Number(o.grand_total || 0), 0);
+    const usdPaid = payments
+      .filter((p) => p.customer_id === c.id && p.currency === 'USD' && inRange(p.payment_date))
       .reduce((sum, p) => sum + Number(p.amount || 0), 0);
 
     return {
@@ -108,11 +133,14 @@ export function ReportsClient({
       phone: c.phone,
       type: c.type,
       totalServices: cOrders.length,
-      totalBilled,
-      totalPaid,
-      balance: totalBilled - totalPaid,
+      tryBilled,
+      tryPaid,
+      tryBalance: tryBilled - tryPaid,
+      usdBilled,
+      usdPaid,
+      usdBalance: usdBilled - usdPaid,
     };
-  }).filter((c) => c.totalServices > 0 || c.totalBilled > 0 || c.totalPaid > 0);
+  }).filter((c) => c.totalServices > 0 || c.tryBilled > 0 || c.tryPaid > 0 || c.usdBilled > 0 || c.usdPaid > 0);
 
   // -----------------------------------------------------------------
   // 4. Borçlu Müşteriler Raporu
@@ -120,20 +148,36 @@ export function ReportsClient({
   const debtorReportData = customers.map((c) => {
     // Check all time balance for debtor report
     const cOrders = serviceOrders.filter((o) => o.customer_id === c.id && o.status !== "İptal Edildi");
-    const totalBilled = cOrders.reduce((sum, o) => sum + Number(o.grand_total || 0), 0);
-    const totalPaid = payments.filter((p) => p.customer_id === c.id).reduce((sum, p) => sum + Number(p.amount || 0), 0);
-    const balance = totalBilled - totalPaid;
+    
+    // TRY
+    const tryBilled = cOrders
+      .filter((o) => (o.labor_price_currency || 'TRY') === 'TRY')
+      .reduce((sum, o) => sum + Number(o.grand_total || 0), 0);
+    const tryPaid = payments
+      .filter((p) => p.customer_id === c.id && (p.currency || 'TRY') === 'TRY')
+      .reduce((sum, p) => sum + Number(p.amount || 0), 0);
+      
+    // USD
+    const usdBilled = cOrders
+      .filter((o) => o.labor_price_currency === 'USD')
+      .reduce((sum, o) => sum + Number(o.grand_total || 0), 0);
+    const usdPaid = payments
+      .filter((p) => p.customer_id === c.id && p.currency === 'USD')
+      .reduce((sum, p) => sum + Number(p.amount || 0), 0);
 
     return {
       name: c.name,
       phone: c.phone,
       type: c.type,
-      totalBilled,
-      totalPaid,
-      balance,
+      tryBilled,
+      tryPaid,
+      tryBalance: tryBilled - tryPaid,
+      usdBilled,
+      usdPaid,
+      usdBalance: usdBilled - usdPaid,
     };
-  }).filter((c) => c.balance > 0.01)
-    .sort((a, b) => b.balance - a.balance);
+  }).filter((c) => c.tryBalance > 0.01 || c.usdBalance > 0.01)
+    .sort((a, b) => (b.tryBalance + b.usdBalance * 34) - (a.tryBalance + a.usdBalance * 34));
 
   // -----------------------------------------------------------------
   // 5. Personel Performans Raporu
@@ -153,12 +197,18 @@ export function ReportsClient({
     const completedJobs = completed.length;
     const cancelledJobs = cancelled.length;
     let workHours = 0;
-    let ciro = 0;
+    let tryCiro = 0;
+    let usdCiro = 0;
     let cost = 0;
 
     completed.forEach((o) => {
       workHours += Number(o.labor_hours || 0);
-      ciro += Number(o.grand_total || 0);
+      const currency = o.labor_price_currency || 'TRY';
+      if (currency === 'USD') {
+        usdCiro += Number(o.grand_total || 0);
+      } else {
+        tryCiro += Number(o.grand_total || 0);
+      }
       cost += Number(o.labor_cost || 0) + Number(o.employee_cost || 0);
     });
 
@@ -168,7 +218,8 @@ export function ReportsClient({
       completedJobs,
       cancelledJobs,
       workHours,
-      ciro,
+      tryCiro,
+      usdCiro,
       cost,
     };
   });
@@ -216,13 +267,13 @@ export function ReportsClient({
     const fileName = `rapor-${reportType}.csv`;
 
     if (reportType === "gelir_gider") {
-      headers = ["Finansal Kalem", "Tutar (TL)"];
+      headers = ["Finansal Kalem", "Tutar (TL)", "Tutar (USD)"];
       rows = [
-        ["Toplam Hasılat (Ciro)", totalCiro.toString()],
-        ["Toplam Alış & Hizmet Gideri (Maliyet)", totalCost.toString()],
-        ["Net Kâr", totalNetProfit.toString()],
-        ["Tahsil Edilen Toplam Tutar", totalPaidAmount.toString()],
-        ["Kalan Alacak / Borç", remainingReceivable.toString()],
+        ["Toplam Hasılat (Ciro)", tryCiro.toFixed(2), usdCiro.toFixed(2)],
+        ["Toplam Alış & Hizmet Gideri (Maliyet)", tryCost.toFixed(2), usdCost.toFixed(2)],
+        ["Net Kâr", tryNetProfit.toFixed(2), usdNetProfit.toFixed(2)],
+        ["Tahsil Edilen Toplam Tutar", tryPaidAmount.toFixed(2), usdPaidAmount.toFixed(2)],
+        ["Kalan Alacak / Borç", tryRemainingReceivable.toFixed(2), usdRemainingReceivable.toFixed(2)],
       ];
     } else if (reportType === "randevu_is") {
       headers = ["Tarih", "Müşteri Adı", "Hizmet Türü", "İş Emri No", "Servis Durumu"];
@@ -237,45 +288,72 @@ export function ReportsClient({
         ];
       });
     } else if (reportType === "musteri_hizmet") {
-      headers = ["Müşteri Adı", "Müşteri Tipi", "Hizmet Sayısı", "Faturalandırılan", "Ödenen", "Bakiye"];
+      headers = [
+        "Müşteri Adı", 
+        "Müşteri Tipi", 
+        "Hizmet Sayısı", 
+        "Faturalandırılan (TL)", 
+        "Ödenen (TL)", 
+        "Bakiye (TL)", 
+        "Faturalandırılan (USD)", 
+        "Ödenen (USD)", 
+        "Bakiye (USD)"
+      ];
       rows = customerReportData.map((c) => [
         c.name,
         c.type,
         c.totalServices.toString(),
-        c.totalBilled.toString(),
-        c.totalPaid.toString(),
-        c.balance.toString(),
+        c.tryBilled.toFixed(2),
+        c.tryPaid.toFixed(2),
+        c.tryBalance.toFixed(2),
+        c.usdBilled.toFixed(2),
+        c.usdPaid.toFixed(2),
+        c.usdBalance.toFixed(2),
       ]);
     } else if (reportType === "borclu_musteriler") {
-      headers = ["Müşteri Adı", "Telefon", "Müşteri Tipi", "Toplam Fatura", "Toplam Ödenen", "Kalan Borç"];
+      headers = [
+        "Müşteri Adı", 
+        "Telefon", 
+        "Müşteri Tipi", 
+        "Toplam Fatura (TL)", 
+        "Toplam Ödenen (TL)", 
+        "Kalan Borç (TL)", 
+        "Toplam Fatura (USD)", 
+        "Toplam Ödenen (USD)", 
+        "Kalan Borç (USD)"
+      ];
       rows = debtorReportData.map((c) => [
         c.name,
         c.phone,
         c.type,
-        c.totalBilled.toString(),
-        c.totalPaid.toString(),
-        c.balance.toString(),
+        c.tryBilled.toFixed(2),
+        c.tryPaid.toFixed(2),
+        c.tryBalance.toFixed(2),
+        c.usdBilled.toFixed(2),
+        c.usdPaid.toFixed(2),
+        c.usdBalance.toFixed(2),
       ]);
     } else if (reportType === "personel_performans") {
-      headers = ["Personel Adı", "Görevi", "Tamamlanan İş", "İptal Edilen", "Çalışma Süresi (Saat)", "Ciro", "Maliyet"];
+      headers = ["Personel Adı", "Görevi", "Tamamlanan İş", "İptal Edilen", "Çalışma Süresi (Saat)", "Ciro (TL)", "Ciro (USD)", "Maliyet (TL)"];
       rows = employeeReportData.map((e) => [
         e.name,
         e.role,
         e.completedJobs.toString(),
         e.cancelledJobs.toString(),
         e.workHours.toString(),
-        e.ciro.toString(),
-        e.cost.toString(),
+        e.tryCiro.toFixed(2),
+        e.usdCiro.toFixed(2),
+        e.cost.toFixed(2),
       ]);
     } else if (reportType === "malzeme_kullanim") {
-      headers = ["Malzeme Adı", "Marka/Model", "Kullanılan Miktar", "Toplam Alış", "Toplam Satış", "Kâr"];
+      headers = ["Malzeme Adı", "Marka/Model", "Kullanılan Miktar", "Toplam Alış (TL)", "Toplam Satış (TL)", "Kâr (TL)"];
       rows = materialReportData.map((m) => [
         m.name,
         `${m.brand} ${m.model}`,
         `${m.quantity} ${m.unit}`,
-        m.buying.toString(),
-        m.selling.toString(),
-        (m.selling - m.buying).toString(),
+        m.buying.toFixed(2),
+        m.selling.toFixed(2),
+        (m.selling - m.buying).toFixed(2),
       ]);
     } else if (reportType === "stok_hareket") {
       headers = ["Tarih", "Malzeme Adı", "İşlem Türü", "Miktar", "Açıklama"];
@@ -389,46 +467,69 @@ export function ReportsClient({
           
           {/* CATEGORY 1: FINANS / GELIR-GIDER */}
           {reportType === "gelir_gider" && (
-            <div className="space-y-6">
+            <div className="space-y-8">
               <h3 className="text-xl font-black text-slate-800 border-b border-slate-100 pb-3">Gelir, Gider ve Net Kâr Raporu</h3>
 
-              <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-                <div className="p-5 rounded-2xl border-2 border-slate-150 bg-slate-50/50">
-                  <p className="text-[10px] font-black text-slate-400 uppercase tracking-wider">Hasılat (Ciro)</p>
-                  <p className="text-2xl font-black text-slate-800 mt-1 flex items-center gap-1">
-                    <TrendingUp className="h-5 w-5 text-emerald-500 shrink-0" />
-                    {totalCiro.toLocaleString("tr-TR", { style: "currency", currency: "TRY" })}
-                  </p>
-                </div>
-                <div className="p-5 rounded-2xl border-2 border-slate-150 bg-slate-50/50">
-                  <p className="text-[10px] font-black text-slate-400 uppercase tracking-wider">Maliyetler & Giderler</p>
-                  <p className="text-2xl font-black text-slate-800 mt-1 flex items-center gap-1">
-                    <TrendingDown className="h-5 w-5 text-red-500 shrink-0" />
-                    {totalCost.toLocaleString("tr-TR", { style: "currency", currency: "TRY" })}
-                  </p>
-                </div>
-                <div className="p-5 rounded-2xl border-2 border-slate-150 bg-slate-50/50 sm:col-span-2 lg:col-span-1">
-                  <p className="text-[10px] font-black text-slate-400 uppercase tracking-wider">Net Kâr</p>
-                  <p className={`text-2xl font-black mt-1 ${totalNetProfit >= 0 ? "text-emerald-600" : "text-rose-600"}`}>
-                    {totalNetProfit.toLocaleString("tr-TR", { style: "currency", currency: "TRY" })}
-                  </p>
-                </div>
-              </div>
-
-              <div className="border-t border-slate-100 pt-6">
-                <h4 className="text-base font-black text-slate-800 mb-4">Tahsilat & Alacak Tablosu</h4>
-                <div className="grid gap-4 sm:grid-cols-2">
-                  <div className="p-4 rounded-xl border border-slate-200">
-                    <p className="text-xs font-bold text-slate-400 uppercase">Tahsil Edilen Toplam</p>
-                    <p className="text-xl font-black text-emerald-600 mt-1">
-                      {totalPaidAmount.toLocaleString("tr-TR", { style: "currency", currency: "TRY" })}
-                    </p>
+              <div className="grid gap-6 md:grid-cols-2">
+                {/* TL Financials */}
+                <div className="rounded-3xl border-2 border-slate-200 bg-white p-5 shadow-sm space-y-4">
+                  <h4 className="text-sm font-black text-slate-800 uppercase tracking-wider flex items-center gap-2 pb-2 border-b border-slate-100">
+                    <span className="text-base">🇹🇷</span> Türk Lirası (TL) Raporu
+                  </h4>
+                  <div className="space-y-3">
+                    <div className="flex justify-between items-center bg-slate-50/50 p-3 rounded-xl border border-slate-100">
+                      <span className="text-xs font-black text-slate-400 uppercase">Hasılat (Ciro)</span>
+                      <span className="text-base font-black text-slate-800">{formatMoney(tryCiro, "TRY")}</span>
+                    </div>
+                    <div className="flex justify-between items-center bg-slate-50/50 p-3 rounded-xl border border-slate-100">
+                      <span className="text-xs font-black text-slate-400 uppercase">Maliyet & Giderler</span>
+                      <span className="text-base font-black text-slate-800">{formatMoney(tryCost, "TRY")}</span>
+                    </div>
+                    <div className="flex justify-between items-center bg-slate-50/50 p-3 rounded-xl border border-slate-100">
+                      <span className="text-xs font-black text-slate-400 uppercase">Net Kâr</span>
+                      <span className={`text-base font-black ${tryNetProfit >= 0 ? "text-emerald-600" : "text-rose-600"}`}>{formatMoney(tryNetProfit, "TRY")}</span>
+                    </div>
+                    <div className="grid grid-cols-2 gap-2 pt-2 border-t border-slate-100">
+                      <div className="p-3 rounded-xl border border-slate-150 text-center">
+                        <p className="text-[10px] font-black text-slate-400 uppercase">Tahsil Edilen</p>
+                        <p className="text-xs font-black text-emerald-600 mt-1">{formatMoney(tryPaidAmount, "TRY")}</p>
+                      </div>
+                      <div className="p-3 rounded-xl border border-slate-150 text-center">
+                        <p className="text-[10px] font-black text-slate-400 uppercase">Kalan Alacak</p>
+                        <p className="text-xs font-black text-rose-600 mt-1">{formatMoney(tryRemainingReceivable, "TRY")}</p>
+                      </div>
+                    </div>
                   </div>
-                  <div className="p-4 rounded-xl border border-slate-200">
-                    <p className="text-xs font-bold text-slate-400 uppercase">Kalan Toplam Alacak</p>
-                    <p className="text-xl font-black text-rose-600 mt-1">
-                      {remainingReceivable.toLocaleString("tr-TR", { style: "currency", currency: "TRY" })}
-                    </p>
+                </div>
+
+                {/* USD Financials */}
+                <div className="rounded-3xl border-2 border-amber-200 bg-amber-50/10 p-5 shadow-sm space-y-4">
+                  <h4 className="text-sm font-black text-amber-800 uppercase tracking-wider flex items-center gap-2 pb-2 border-b border-amber-100">
+                    <span className="text-base">🇺🇸</span> Amerikan Doları (USD) Raporu
+                  </h4>
+                  <div className="space-y-3">
+                    <div className="flex justify-between items-center bg-amber-50/20 p-3 rounded-xl border border-amber-100/50">
+                      <span className="text-xs font-black text-slate-400 uppercase">Hasılat (Ciro)</span>
+                      <span className="text-base font-black text-slate-800">{formatMoney(usdCiro, "USD")}</span>
+                    </div>
+                    <div className="flex justify-between items-center bg-amber-50/20 p-3 rounded-xl border border-amber-100/50">
+                      <span className="text-xs font-black text-slate-400 uppercase">Maliyet & Giderler</span>
+                      <span className="text-base font-black text-slate-800">{formatMoney(usdCost, "USD")}</span>
+                    </div>
+                    <div className="flex justify-between items-center bg-amber-50/20 p-3 rounded-xl border border-amber-100/50">
+                      <span className="text-xs font-black text-slate-400 uppercase">Net Kâr</span>
+                      <span className={`text-base font-black ${usdNetProfit >= 0 ? "text-emerald-600" : "text-rose-600"}`}>{formatMoney(usdNetProfit, "USD")}</span>
+                    </div>
+                    <div className="grid grid-cols-2 gap-2 pt-2 border-t border-amber-100/50">
+                      <div className="p-3 rounded-xl border border-amber-150/50 text-center">
+                        <p className="text-[10px] font-black text-slate-400 uppercase">Tahsil Edilen</p>
+                        <p className="text-xs font-black text-emerald-600 mt-1">{formatMoney(usdPaidAmount, "USD")}</p>
+                      </div>
+                      <div className="p-3 rounded-xl border border-amber-150/50 text-center">
+                        <p className="text-[10px] font-black text-slate-400 uppercase">Kalan Alacak</p>
+                        <p className="text-xs font-black text-rose-600 mt-1">{formatMoney(usdRemainingReceivable, "USD")}</p>
+                      </div>
+                    </div>
                   </div>
                 </div>
               </div>
@@ -510,13 +611,16 @@ export function ReportsClient({
                         <td className="p-3 text-slate-500 capitalize">{c.type}</td>
                         <td className="p-3 text-slate-700 font-bold">{c.totalServices} İş</td>
                         <td className="p-3 font-semibold text-slate-800">
-                          {c.totalBilled.toLocaleString("tr-TR", { style: "currency", currency: "TRY" })}
+                          <div className="block">{formatMoney(c.tryBilled, "TRY")}</div>
+                          {c.usdBilled > 0 && <div className="block text-amber-600 font-bold">{formatMoney(c.usdBilled, "USD")}</div>}
                         </td>
                         <td className="p-3 font-semibold text-emerald-600">
-                          {c.totalPaid.toLocaleString("tr-TR", { style: "currency", currency: "TRY" })}
+                          <div className="block">{formatMoney(c.tryPaid, "TRY")}</div>
+                          {c.usdPaid > 0 && <div className="block text-amber-600 font-bold">{formatMoney(c.usdPaid, "USD")}</div>}
                         </td>
-                        <td className={`p-3 font-black ${c.balance > 0.01 ? "text-rose-600" : "text-slate-800"}`}>
-                          {c.balance.toLocaleString("tr-TR", { style: "currency", currency: "TRY" })}
+                        <td className={`p-3 font-black`}>
+                          <div className={c.tryBalance > 0.01 ? "text-rose-600" : "text-slate-800"}>{formatMoney(c.tryBalance, "TRY")}</div>
+                          {c.usdBalance > 0.01 && <div className="text-rose-600 font-bold">{formatMoney(c.usdBalance, "USD")}</div>}
                         </td>
                       </tr>
                     ))}
@@ -548,13 +652,16 @@ export function ReportsClient({
                         <td className="p-3 font-extrabold text-slate-800">{c.name}</td>
                         <td className="p-3 text-slate-600">{c.phone}</td>
                         <td className="p-3 text-slate-700">
-                          {c.totalBilled.toLocaleString("tr-TR", { style: "currency", currency: "TRY" })}
+                          <div className="block">{formatMoney(c.tryBilled, "TRY")}</div>
+                          {c.usdBilled > 0 && <div className="block text-amber-600 font-bold">{formatMoney(c.usdBilled, "USD")}</div>}
                         </td>
                         <td className="p-3 text-emerald-600">
-                          {c.totalPaid.toLocaleString("tr-TR", { style: "currency", currency: "TRY" })}
+                          <div className="block">{formatMoney(c.tryPaid, "TRY")}</div>
+                          {c.usdPaid > 0 && <div className="block text-amber-600 font-bold">{formatMoney(c.usdPaid, "USD")}</div>}
                         </td>
                         <td className="p-3 font-black text-rose-600">
-                          {c.balance.toLocaleString("tr-TR", { style: "currency", currency: "TRY" })}
+                          <div className="block">{formatMoney(c.tryBalance, "TRY")}</div>
+                          {c.usdBalance > 0.01 && <div className="block text-rose-600 font-bold">{formatMoney(c.usdBalance, "USD")}</div>}
                         </td>
                       </tr>
                     ))}
@@ -589,7 +696,8 @@ export function ReportsClient({
                         <td className="p-3 font-bold text-slate-700">{e.completedJobs} İş</td>
                         <td className="p-3 text-slate-600">{e.workHours} Saat</td>
                         <td className="p-3 font-black text-emerald-600">
-                          {e.ciro.toLocaleString("tr-TR", { style: "currency", currency: "TRY", minimumFractionDigits: 0 })}
+                          <div className="block">{formatMoney(e.tryCiro, "TRY")}</div>
+                          {e.usdCiro > 0 && <div className="block text-amber-600 font-bold">{formatMoney(e.usdCiro, "USD")}</div>}
                         </td>
                         <td className="p-3 font-bold text-slate-500">
                           {e.cost.toLocaleString("tr-TR", { style: "currency", currency: "TRY", minimumFractionDigits: 0 })}
