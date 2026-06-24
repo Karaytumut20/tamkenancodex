@@ -92,17 +92,23 @@ export async function recalculateOrderTotals(orderId: string, supabaseClient?: a
 
   const totalCost = totalMaterialCost + laborCost + transportationCost + employeeCost + otherCosts;
 
+  const orderCurr = order.labor_price_currency || 'TRY';
+
   // Genel toplam = Malzeme satış fiyatı + müşteriye yansıtılan işçilik + vergi - indirim
-  const laborPrice = Number(order.labor_price || 0);
-  const discount = Number(order.discount || 0);
+  const laborPrice = Number(order.labor_price || 0); // In order's currency (USD or TRY)
+  const discount = Number(order.discount || 0); // In order's currency
   const taxRate = Number(order.tax_rate || 0);
 
-  const taxableAmount = Math.max(0, totalMaterialSelling + laborPrice - discount);
+  // If order currency is USD, materials selling price (stored in TRY) must be converted to USD for invoicing
+  const materialSellingInOrderCurrency = orderCurr === 'USD' ? (totalMaterialSelling / 34) : totalMaterialSelling;
+
+  const taxableAmount = Math.max(0, materialSellingInOrderCurrency + laborPrice - discount);
   const taxAmount = taxableAmount * (taxRate / 100);
   const grandTotal = taxableAmount + taxAmount;
 
   // Net kâr = Genel toplam - toplam maliyet
-  const netProfit = grandTotal - totalCost;
+  // If order currency is USD, total cost (stored in TRY) must be converted to USD to calculate net profit correctly
+  const netProfit = orderCurr === 'USD' ? (grandTotal - (totalCost / 34)) : (grandTotal - totalCost);
 
   // Update order with computed values
   const { data: updatedOrder, error: updateErr } = await supabase
@@ -434,7 +440,7 @@ export async function approveServiceOrderPayment(serviceOrderId: string, custome
   try {
     const { data: order } = await supabase
       .from('service_orders')
-      .select('grand_total, paid_amount')
+      .select('grand_total, paid_amount, labor_price_currency')
       .eq('id', serviceOrderId)
       .maybeSingle();
 
@@ -448,7 +454,7 @@ export async function approveServiceOrderPayment(serviceOrderId: string, custome
       service_order_id: serviceOrderId,
       payment_date: toTurkeyDateKey(),
       amount: remaining,
-      currency: 'TRY',
+      currency: (order.labor_price_currency as any) || 'TRY',
       method: 'Nakit',
       description: 'Toplu Tahsilat Onayı (Admin Paneli)',
     });

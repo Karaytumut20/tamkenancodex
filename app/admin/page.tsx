@@ -97,16 +97,19 @@ export default async function AdminDashboardPage() {
     // 4. Get collection pending customers
     const { data: unpaidOrders } = await supabase
       .from("service_orders")
-      .select("id, order_number, grand_total, paid_amount, customer:customer_id(id, name, phone)")
+      .select("id, order_number, grand_total, paid_amount, labor_price_currency, customer:customer_id(id, name, phone)")
       .is("deleted_at", null)
       .order("created_at", { ascending: false });
     
     if (unpaidOrders) {
-      // Aggregate unpaid by customer to get top debtor customers
+      // Aggregate unpaid by customer to get top debtor customers (Consolidated in TRY)
       const debtorsMap: { [key: string]: any } = {};
       unpaidOrders.forEach((o) => {
         const remaining = Number(o.grand_total) - Number(o.paid_amount);
-        if (remaining > 0.01 && o.customer) {
+        const currency = o.labor_price_currency || 'TRY';
+        const remainingTRY = currency === 'USD' ? remaining * 34 : remaining;
+
+        if (remainingTRY > 0.01 && o.customer) {
           const cust = (Array.isArray(o.customer) ? o.customer[0] : o.customer) as any;
           if (cust && cust.id) {
             const cid = cust.id;
@@ -117,7 +120,7 @@ export default async function AdminDashboardPage() {
                 remaining: 0,
               };
             }
-            debtorsMap[cid].remaining += remaining;
+            debtorsMap[cid].remaining += remainingTRY;
           }
         }
       });

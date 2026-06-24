@@ -64,13 +64,21 @@ export default async function ServiceOrdersPage({ searchParams }: { searchParams
   }
 
   // Statistics counters
-  const pendingCount = orders.filter(o => o.status !== "Tamamlandı" && o.status !== "İptal Edildi").length;
-  const completedCount = orders.filter(o => o.status === "Tamamlandı").length;
-  const totalUncollected = orders.reduce((sum, o) => {
-    const remaining = Math.max(0, Number(o.grand_total) - Number(o.paid_amount));
+  const pendingCount = orders.filter((o: any) => o.status !== "Tamamlandı" && o.status !== "İptal Edildi").length;
+  const completedCount = orders.filter((o: any) => o.status === "Tamamlandı").length;
+  
+  let tryUncollected = 0;
+  let usdUncollected = 0;
+
+  orders.forEach((o: any) => {
+    const remaining = Math.max(0, Number(o.grand_total || 0) - Number(o.paid_amount || 0));
     const currency = o.labor_price_currency || 'TRY';
-    return sum + (currency === 'USD' ? remaining * 34 : remaining);
-  }, 0);
+    if (currency === 'USD') {
+      usdUncollected += remaining;
+    } else {
+      tryUncollected += remaining;
+    }
+  });
 
   return (
     <ProtectedAdminPage>
@@ -110,13 +118,18 @@ export default async function ServiceOrdersPage({ searchParams }: { searchParams
         </div>
 
         <div className="bg-white border-2 border-slate-200 rounded-2xl p-5 shadow-sm flex items-center gap-4">
-          <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-rose-50 text-rose-600 border border-rose-100">
-            <AlertTriangle className="h-6 w-6 animate-pulse" />
+          <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-rose-50 text-rose-600 border border-rose-100 animate-pulse">
+            <AlertTriangle className="h-6 w-6" />
           </div>
           <div>
             <p className="text-xs font-black text-slate-400 uppercase">Toplam Kalan Alacak</p>
-            <p className="text-2xl font-black text-rose-600 mt-0.5">
-              {totalUncollected.toLocaleString("tr-TR", { style: "currency", currency: "TRY" })}
+            <p className="text-xl font-black text-rose-600 mt-0.5 leading-tight">
+              {tryUncollected.toLocaleString("tr-TR", { style: "currency", currency: "TRY" })}
+              {usdUncollected > 0 && (
+                <span className="block text-sm font-bold text-amber-600 mt-0.5">
+                  + {usdUncollected.toLocaleString("en-US", { style: "currency", currency: "USD" })}
+                </span>
+              )}
             </p>
           </div>
         </div>
