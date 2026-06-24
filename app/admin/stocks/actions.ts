@@ -186,3 +186,22 @@ export async function deleteMaterial(id: string) {
     return { success: false, error: err instanceof Error ? err.message : "Malzeme silinemedi." };
   }
 }
+
+// Soft delete ALL materials (bulk clear)
+export async function deleteAllMaterials() {
+  const supabase = await createSupabaseServerClient();
+  try {
+    const { error } = await supabase
+      .from('materials')
+      .update({ deleted_at: new Date().toISOString(), is_active: false })
+      .is('deleted_at', null);
+
+    if (error) throw new Error(error.message);
+
+    revalidatePath("/admin/stocks");
+    revalidatePath("/admin/service-orders");
+    return { success: true };
+  } catch (err) {
+    return { success: false, error: err instanceof Error ? err.message : "Stoklar temizlenemedi." };
+  }
+}

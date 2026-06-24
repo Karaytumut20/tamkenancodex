@@ -2,18 +2,30 @@
 
 import React, { useState, useMemo } from "react";
 import Link from "next/link";
-import { Search, User } from "lucide-react";
+import { useRouter } from "next/navigation";
+import { Search, User, Trash2, CheckCircle2, AlertTriangle, ExternalLink, DollarSign } from "lucide-react";
+import { deleteServiceOrder, approveServiceOrderPayment } from "../service-orders/actions";
 
 type Props = {
   orders: any[];
   customers: any[];
 };
 
-const money = (value: number) => value.toLocaleString("tr-TR", { style: "currency", currency: "TRY" });
+const moneyTRY = (value: number) => value.toLocaleString("tr-TR", { style: "currency", currency: "TRY" });
+const moneyUSD = (value: number) => value.toLocaleString("en-US", { style: "currency", currency: "USD" });
 
-export function AccountingClient({ orders, customers }: Props) {
+function formatMoney(value: number, currency: string = "TRY") {
+  return currency === "USD" ? moneyUSD(value) : moneyTRY(value);
+}
+
+export function AccountingClient({ orders: initialOrders, customers }: Props) {
+  const router = useRouter();
+  const [orders, setOrders] = useState(initialOrders);
   const [q, setQ] = useState("");
   const [customerId, setCustomerId] = useState("");
+  const [actionLoading, setActionLoading] = useState<string | null>(null);
+  const [errorMsg, setErrorMsg] = useState("");
+  const [successMsg, setSuccessMsg] = useState("");
 
   const filtered = useMemo(() => orders.filter((o) => {
     const query = q.toLowerCase();
@@ -32,22 +44,69 @@ export function AccountingClient({ orders, customers }: Props) {
     return { totalSales: s, totalCollected: col, totalCost: cost, receivable: Math.max(0, s - col) };
   }, [filtered]);
 
+  const handleDelete = async (id: string, orderNumber: string) => {
+    if (!confirm(`"${orderNumber}" numaralı iş emrini muhasebe kayıtlarından silmek istiyor musunuz?`)) return;
+    setActionLoading(id);
+    setErrorMsg("");
+    const res = await deleteServiceOrder(id);
+    if (res.success) {
+      setOrders((prev) => prev.filter((o) => o.id !== id));
+      setSuccessMsg("İş emri başarıyla silindi.");
+      setTimeout(() => setSuccessMsg(""), 3000);
+      router.refresh();
+    } else {
+      setErrorMsg(res.error || "Silme işlemi başarısız.");
+    }
+    setActionLoading(null);
+  };
+
+  const handleApprove = async (id: string, customerId: string, orderNumber: string) => {
+    if (!confirm(`"${orderNumber}" numaralı iş emrinin kalan tutarını tahsil edildi olarak onaylamak istiyor musunuz?`)) return;
+    setActionLoading(id);
+    setErrorMsg("");
+    const res = await approveServiceOrderPayment(id, customerId);
+    if (res.success) {
+      setSuccessMsg("Tahsilat onaylandı ve kaydedildi.");
+      setTimeout(() => setSuccessMsg(""), 3000);
+      router.refresh();
+    } else {
+      setErrorMsg(res.error || "Onaylama işlemi başarısız.");
+    }
+    setActionLoading(null);
+  };
+
   return (
     <div className="space-y-6">
+      {/* Summary Cards */}
       <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4 mb-6">
         {[
           ["Faturalanan / İşlem Tutarı", totalSales, "text-slate-900"],
           ["Tahsil Edilen", totalCollected, "text-emerald-700"],
-          ["Kalan Alacak", receivable, "text-rose-700"],
+          ["Kalan Alacak (TL)", receivable, "text-rose-700"],
           ["Toplam Maliyet", totalCost, "text-amber-700"],
         ].map(([label, value, color]) => (
           <div key={String(label)} className="rounded-2xl border-2 border-slate-200 bg-white p-5 shadow-sm">
             <p className="text-xs font-black uppercase text-slate-400">{label}</p>
-            <p className={`mt-2 text-2xl font-black ${color}`}>{money(Number(value))}</p>
+            <p className={`mt-2 text-2xl font-black ${color}`}>{moneyTRY(Number(value))}</p>
           </div>
         ))}
       </div>
 
+      {/* Notifications */}
+      {errorMsg && (
+        <div className="flex items-center gap-3 rounded-xl border border-red-200 bg-red-50 p-4 text-red-800 text-sm font-semibold">
+          <AlertTriangle className="h-5 w-5 shrink-0" />
+          <span>{errorMsg}</span>
+        </div>
+      )}
+      {successMsg && (
+        <div className="flex items-center gap-3 rounded-xl border border-emerald-200 bg-emerald-50 p-4 text-emerald-800 text-sm font-semibold">
+          <CheckCircle2 className="h-5 w-5 shrink-0" />
+          <span>{successMsg}</span>
+        </div>
+      )}
+
+      {/* Filters */}
       <div className="bg-white border-2 border-slate-200 rounded-2xl p-4 shadow-sm flex flex-col sm:flex-row gap-4 items-center justify-between">
         <div className="relative flex-1 max-w-md w-full">
           <input
@@ -74,33 +133,111 @@ export function AccountingClient({ orders, customers }: Props) {
         </div>
       </div>
 
+      {/* Table */}
       <div className="rounded-2xl border-2 border-slate-200 bg-white shadow-sm overflow-hidden">
-        <div className="border-b border-slate-200 p-5"><h2 className="font-black text-slate-800">İş Emri Finans Durumu</h2></div>
+        <div className="border-b border-slate-200 p-5 flex items-center justify-between">
+          <h2 className="font-black text-slate-800">İş Emri Finans Durumu</h2>
+          <span className="text-xs font-bold text-slate-400">{filtered.length} kayıt</span>
+        </div>
         <div className="overflow-x-auto">
           <table className="w-full text-left text-sm">
             <thead className="bg-slate-50 text-xs font-black uppercase text-slate-500">
-              <tr><th className="p-4">İş Emri</th><th className="p-4">Müşteri</th><th className="p-4">İşlem</th><th className="p-4">Tahsilat</th><th className="p-4">Kalan</th><th className="p-4">Kâr</th></tr>
+              <tr>
+                <th className="p-4">İş Emri</th>
+                <th className="p-4">Müşteri</th>
+                <th className="p-4">İşlem (TL)</th>
+                <th className="p-4">Tahsilat</th>
+                <th className="p-4">Kalan</th>
+                <th className="p-4">Kâr</th>
+                <th className="p-4">Durum</th>
+                <th className="p-4 text-right">İşlemler</th>
+              </tr>
             </thead>
             <tbody className="divide-y divide-slate-100">
               {filtered.length === 0 && (
                 <tr>
-                  <td colSpan={6} className="p-8 text-center text-slate-400 font-medium">Kayıt bulunamadı.</td>
+                  <td colSpan={8} className="p-8 text-center text-slate-400 font-medium">Kayıt bulunamadı.</td>
                 </tr>
               )}
               {filtered.slice(0, 100).map((row: any) => {
                 const remaining = Math.max(0, Number(row.grand_total || 0) - Number(row.paid_amount || 0));
+                const isFullyPaid = remaining <= 0 && Number(row.grand_total || 0) > 0;
+                const isLoading = actionLoading === row.id;
                 return (
-                  <tr key={row.id} className="hover:bg-slate-50">
-                    <td className="p-4"><Link className="font-black text-cyan-700 hover:underline" href={`/admin/service-orders/${row.id}`}>{row.order_number}</Link></td>
+                  <tr key={row.id} className={`hover:bg-slate-50 transition-colors ${isLoading ? "opacity-50" : ""}`}>
+                    <td className="p-4">
+                      <Link className="font-black text-cyan-700 hover:underline" href={`/admin/service-orders/${row.id}`}>
+                        {row.order_number}
+                      </Link>
+                    </td>
                     <td className="p-4 font-semibold">
                       <Link href={`/admin/customers/${row.customer?.id}`} className="hover:text-cyan-600 transition-colors">
                         {row.customer?.name || "-"}
                       </Link>
                     </td>
-                    <td className="p-4 font-bold">{money(Number(row.grand_total || 0))}</td>
-                    <td className="p-4 text-emerald-700 font-bold">{money(Number(row.paid_amount || 0))}</td>
-                    <td className="p-4 text-rose-700 font-bold">{money(remaining)}</td>
-                    <td className="p-4 font-bold">{money(Number(row.net_profit || 0))}</td>
+                    <td className="p-4 font-bold">{moneyTRY(Number(row.grand_total || 0))}</td>
+                    <td className="p-4">
+                      <span className="text-emerald-700 font-bold block">{moneyTRY(Number(row.paid_amount || 0))}</span>
+                      {row.payment_currency && row.payment_currency !== "TRY" && (
+                        <span className="text-[10px] font-bold text-amber-600 flex items-center gap-0.5 mt-0.5">
+                          <DollarSign className="h-3 w-3" /> USD
+                        </span>
+                      )}
+                    </td>
+                    <td className="p-4">
+                      <span className={`font-bold ${remaining > 0 ? "text-rose-700" : "text-emerald-600"}`}>
+                        {moneyTRY(remaining)}
+                      </span>
+                      {isFullyPaid && (
+                        <span className="block text-[9px] font-extrabold uppercase px-1 py-0.5 rounded mt-0.5 w-max bg-emerald-50 text-emerald-700 border border-emerald-200">
+                          Ödendi
+                        </span>
+                      )}
+                    </td>
+                    <td className="p-4 font-bold">{moneyTRY(Number(row.net_profit || 0))}</td>
+                    <td className="p-4">
+                      <span className={`inline-flex px-2 py-0.5 rounded-full text-[10px] font-bold ${
+                        row.status === "Tamamlandı"
+                          ? "bg-emerald-50 text-emerald-700 border border-emerald-200"
+                          : row.status === "İptal Edildi"
+                          ? "bg-rose-50 text-rose-700 border border-rose-200"
+                          : "bg-cyan-50 text-cyan-700 border border-cyan-200"
+                      }`}>
+                        {row.status || "—"}
+                      </span>
+                    </td>
+                    <td className="p-4 text-right">
+                      <div className="inline-flex items-center gap-1">
+                        {/* Detay */}
+                        <Link
+                          href={`/admin/service-orders/${row.id}`}
+                          className="inline-flex h-8 w-8 items-center justify-center rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-600 transition-colors"
+                          title="Düzenle / Detay"
+                        >
+                          <ExternalLink className="h-3.5 w-3.5" />
+                        </Link>
+                        {/* Onayla (tahsilat tamamla) */}
+                        {!isFullyPaid && remaining > 0 && (
+                          <button
+                            onClick={() => handleApprove(row.id, row.customer?.id, row.order_number)}
+                            disabled={isLoading}
+                            className="inline-flex h-8 w-8 items-center justify-center rounded-lg bg-emerald-50 hover:bg-emerald-100 text-emerald-600 border border-emerald-200 transition-colors disabled:opacity-50"
+                            title="Tahsilatı Onayla (Tamamını Ödenmiş Yap)"
+                          >
+                            <CheckCircle2 className="h-3.5 w-3.5" />
+                          </button>
+                        )}
+                        {/* Sil */}
+                        <button
+                          onClick={() => handleDelete(row.id, row.order_number)}
+                          disabled={isLoading}
+                          className="inline-flex h-8 w-8 items-center justify-center rounded-lg bg-red-50 hover:bg-red-100 text-red-600 border border-red-100 transition-colors disabled:opacity-50"
+                          title="Sil"
+                        >
+                          <Trash2 className="h-3.5 w-3.5" />
+                        </button>
+                      </div>
+                    </td>
                   </tr>
                 );
               })}

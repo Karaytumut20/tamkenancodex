@@ -328,6 +328,7 @@ export async function addPayment(input: {
   service_order_id?: string | null;
   payment_date: string;
   amount: number;
+  currency?: 'TRY' | 'USD';
   method: 'Nakit' | 'Kredi Kartı' | 'Banka Havalesi' | 'EFT' | 'Çek' | 'Diğer';
   transaction_number?: string;
   received_by_employee_id?: string | null;
@@ -342,6 +343,7 @@ export async function addPayment(input: {
         service_order_id: input.service_order_id || null,
         payment_date: input.payment_date,
         amount: input.amount,
+        currency: input.currency || 'TRY',
         method: input.method,
         transaction_number: input.transaction_number || null,
         received_by_employee_id: input.received_by_employee_id || null,
@@ -360,9 +362,85 @@ export async function addPayment(input: {
     await logActivity('INSERT', 'payments', data.id, null, data);
     
     revalidatePath(`/admin/customers/${input.customer_id}`);
+    revalidatePath('/admin/accounting');
     return { success: true };
   } catch (err) {
     return { success: false, error: err instanceof Error ? err.message : "Ödeme kaydedilemedi." };
+  }
+}
+
+// Update Payment
+export async function updatePayment(id: string, input: {
+  payment_date: string;
+  amount: number;
+  currency?: 'TRY' | 'USD';
+  method: string;
+  transaction_number?: string;
+  description?: string;
+}) {
+  const supabase = await createSupabaseServerClient();
+  try {
+    const { data: oldData } = await supabase.from('payments').select('*').eq('id', id).maybeSingle();
+    if (!oldData) return { success: false, error: "Ödeme kaydı bulunamadı." };
+
+    const { data, error } = await supabase
+      .from('payments')
+      .update({
+        payment_date: input.payment_date,
+        amount: input.amount,
+        currency: input.currency || 'TRY',
+        method: input.method,
+        transaction_number: input.transaction_number || null,
+        description: input.description || null,
+      })
+      .eq('id', id)
+      .select()
+      .single();
+
+    if (error) throw new Error(error.message);
+
+    if (oldData.service_order_id) {
+      await recalculateOrderTotals(oldData.service_order_id, supabase);
+      revalidatePath(`/admin/service-orders/${oldData.service_order_id}`);
+    }
+
+    await logActivity('UPDATE', 'payments', id, oldData, data);
+    revalidatePath(`/admin/customers/${oldData.customer_id}`);
+    revalidatePath('/admin/accounting');
+    return { success: true };
+  } catch (err) {
+    return { success: false, error: err instanceof Error ? err.message : "Ödeme güncellenemedi." };
+  }
+}
+
+// Approve / Fully pay a service order
+export async function approveServiceOrderPayment(serviceOrderId: string, customerId: string) {
+  const supabase = await createSupabaseServerClient();
+  try {
+    const { data: order } = await supabase
+      .from('service_orders')
+      .select('grand_total, paid_amount')
+      .eq('id', serviceOrderId)
+      .maybeSingle();
+
+    if (!order) return { success: false, error: "İş emri bulunamadı." };
+
+    const remaining = Number(order.grand_total || 0) - Number(order.paid_amount || 0);
+    if (remaining <= 0) return { success: true }; // Already fully paid
+
+    const res = await addPayment({
+      customer_id: customerId,
+      service_order_id: serviceOrderId,
+      payment_date: toTurkeyDateKey(),
+      amount: remaining,
+      currency: 'TRY',
+      method: 'Nakit',
+      description: 'Toplu Tahsilat Onayı (Admin Paneli)',
+    });
+
+    return res;
+  } catch (err) {
+    return { success: false, error: err instanceof Error ? err.message : "Tahsilat onaylanamadı." };
   }
 }
 
@@ -388,9 +466,35 @@ export async function deletePayment(id: string, serviceOrderId?: string | null, 
     await logActivity('DELETE', 'payments', id, oldData, null);
 
     if (customerId) revalidatePath(`/admin/customers/${customerId}`);
+    revalidatePath('/admin/accounting');
     return { success: true };
   } catch (err) {
     return { success: false, error: err instanceof Error ? err.message : "Ödeme silinemedi." };
+  }
+}
+
+// Soft Delete Service Order
+export async function deleteServiceOrder(id: string) {
+  const supabase = await createSupabaseServerClient();
+  try {
+    const { data: oldData } = await supabase.from('service_orders').select('*').eq('id', id).maybeSingle();
+    if (!oldData) return { success: false, error: "İş emri bulunamadı." };
+
+    const { error } = await supabase
+      .from('service_orders')
+      .update({ deleted_at: new Date().toISOString(), updated_at: new Date().toISOString() })
+      .eq('id', id);
+
+    if (error) throw new Error(error.message);
+
+    await logActivity('DELETE', 'service_orders', id, oldData, null);
+
+    revalidatePath('/admin/service-orders');
+    revalidatePath('/admin/accounting');
+    if (oldData.customer_id) revalidatePath(`/admin/customers/${oldData.customer_id}`);
+    return { success: true };
+  } catch (err) {
+    return { success: false, error: err instanceof Error ? err.message : "İş emri silinemedi." };
   }
 }
 

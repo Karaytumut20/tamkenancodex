@@ -12,7 +12,7 @@ import {
   CheckCircle,
   X
 } from "lucide-react";
-import { saveMaterial, deleteMaterial } from "./actions";
+import { saveMaterial, deleteMaterial, deleteAllMaterials } from "./actions";
 import { useRouter } from "next/navigation";
 import { isCriticalStock } from "@/lib/admin/stock";
 
@@ -109,6 +109,20 @@ export function StocksClient({ materials }: Props) {
     setLoading(false);
   };
 
+  const handleClearAll = async () => {
+    if (!confirm("TÜM stok kayıtlarını silmek istediğinizden emin misiniz? Bu işlem geri alınamaz ve tüm malzemeleri kaldırır.")) return;
+    if (!confirm("Son onay: Tüm stok kartları silinecek. Emin misiniz?")) return;
+    setLoading(true);
+    const res = await deleteAllMaterials();
+    if (res.success) {
+      setSuccessMessage("Tüm stok kayıtları başarıyla temizlendi.");
+      router.refresh();
+    } else {
+      setErrorMessage(res.error || "Stoklar temizlenemedi.");
+    }
+    setLoading(false);
+  };
+
   return (
     <div className="space-y-6">
       {/* Top Banner / Metrics */}
@@ -145,37 +159,56 @@ export function StocksClient({ materials }: Props) {
       </div>
 
       {/* Toolbar / Search Filters */}
-      <div className="bg-white border-2 border-slate-200 rounded-2xl p-4 shadow-sm flex flex-col sm:flex-row gap-4 items-center justify-between">
-        <div className="relative flex-1 max-w-md w-full">
-          <input
-            type="text"
-            value={q}
-            onChange={(e) => setQ(e.target.value)}
-            placeholder="Malzeme adı arayın..."
-            className="h-11 w-full pl-10 pr-4 rounded-xl border-2 border-slate-200 bg-white text-sm font-semibold outline-none focus:border-cyan-500 transition-colors"
-          />
-          <Search className="absolute left-3.5 top-3.5 h-4.5 w-4.5 text-slate-400" />
-        </div>
+      <div className="bg-white border-2 border-slate-200 rounded-2xl p-4 shadow-sm space-y-3">
+        <div className="flex flex-col sm:flex-row gap-4 items-center justify-between">
+          <div className="space-y-1 w-full sm:max-w-md">
+            <label className="text-xs font-black text-slate-500 uppercase">Stok Filtrele / Ara</label>
+            <div className="relative">
+              <input
+                type="text"
+                value={q}
+                onChange={(e) => setQ(e.target.value)}
+                placeholder="Malzeme adı ile filtreleyin..."
+                className="h-11 w-full pl-10 pr-4 rounded-xl border-2 border-slate-200 bg-white text-sm font-semibold outline-none focus:border-cyan-500 transition-colors"
+              />
+              <Search className="absolute left-3.5 top-3.5 h-4.5 w-4.5 text-slate-400" />
+            </div>
+          </div>
 
-        <div className="flex flex-wrap gap-2 w-full sm:w-auto items-center">
-          <button
-            onClick={() => setLowStockOnly(!lowStockOnly)}
-            className={`h-11 px-4 rounded-xl text-xs font-black border-2 transition-all flex items-center gap-1.5 ${
-              lowStockOnly 
-                ? "bg-rose-50 border-rose-200 text-rose-600 shadow-sm" 
-                : "bg-white border-slate-200 text-slate-600 hover:bg-slate-50"
-            }`}
-          >
-            <TrendingDown className="h-4 w-4" /> Kritik Stok (&lt; 3)
-          </button>
+          <div className="flex flex-wrap gap-2 w-full sm:w-auto items-center shrink-0">
+            <button
+              onClick={() => setLowStockOnly(!lowStockOnly)}
+              className={`h-11 px-4 rounded-xl text-xs font-black border-2 transition-all flex items-center gap-1.5 ${
+                lowStockOnly 
+                  ? "bg-rose-50 border-rose-200 text-rose-600 shadow-sm" 
+                  : "bg-white border-slate-200 text-slate-600 hover:bg-slate-50"
+              }`}
+            >
+              <TrendingDown className="h-4 w-4" /> Kritik Stok (&lt; 3)
+            </button>
 
-          <button
-            onClick={handleOpenAdd}
-            className="h-11 px-4 rounded-xl bg-cyan-600 hover:bg-cyan-700 text-white text-xs font-black flex items-center gap-1.5 transition-colors shrink-0"
-          >
-            <Plus className="h-4 w-4" /> Yeni Stok Ekle
-          </button>
+            <button
+              onClick={handleOpenAdd}
+              className="h-11 px-4 rounded-xl bg-cyan-600 hover:bg-cyan-700 text-white text-xs font-black flex items-center gap-1.5 transition-colors shrink-0"
+            >
+              <Plus className="h-4 w-4" /> Yeni Stok Ekle
+            </button>
+
+            <button
+              onClick={handleClearAll}
+              disabled={loading || materials.length === 0}
+              className="h-11 px-4 rounded-xl bg-red-50 hover:bg-red-100 text-red-600 border-2 border-red-200 text-xs font-black flex items-center gap-1.5 transition-colors shrink-0 disabled:opacity-50"
+              title="Tüm stok kartlarını sil"
+            >
+              <Trash2 className="h-4 w-4" /> Tümünü Temizle
+            </button>
+          </div>
         </div>
+        {q && (
+          <p className="text-xs font-semibold text-slate-400">
+            <span className="font-black text-cyan-600">{filtered.length}</span> / {materials.length} ürün gösteriliyor
+          </p>
+        )}
       </div>
 
       {!isOpen && (errorMessage || successMessage) && (

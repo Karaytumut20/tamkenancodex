@@ -35,6 +35,7 @@ export function NewOrderClient({ customers, materials: initialMaterials }: { cus
   // Payment Status
   const [isPaid, setIsPaid] = useState(false);
   const [paymentMethod, setPaymentMethod] = useState("Nakit");
+  const [servicePriceCurrency, setServicePriceCurrency] = useState<'TRY' | 'USD'>('TRY');
 
   // Calendar
   const [hasAppointment, setHasAppointment] = useState(false);
@@ -221,7 +222,33 @@ export function NewOrderClient({ customers, materials: initialMaterials }: { cus
           </div>
 
           <div className="space-y-1.5">
-            <label className="text-xs font-black text-slate-500 uppercase">Hizmet / İşçilik Fiyatı (TL) *</label>
+            <div className="flex items-center justify-between">
+              <label className="text-xs font-black text-slate-500 uppercase">Hizmet / İşçilik Fiyatı *</label>
+              <div className="flex gap-1">
+                <button
+                  type="button"
+                  onClick={() => setServicePriceCurrency('TRY')}
+                  className={`h-7 px-3 rounded-lg text-xs font-black border-2 transition-all ${
+                    servicePriceCurrency === 'TRY'
+                      ? 'bg-cyan-600 border-cyan-700 text-white'
+                      : 'border-slate-200 bg-white text-slate-600 hover:bg-slate-50'
+                  }`}
+                >
+                  ₺ TL
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setServicePriceCurrency('USD')}
+                  className={`h-7 px-3 rounded-lg text-xs font-black border-2 transition-all ${
+                    servicePriceCurrency === 'USD'
+                      ? 'bg-amber-500 border-amber-600 text-white'
+                      : 'border-slate-200 bg-white text-slate-600 hover:bg-slate-50'
+                  }`}
+                >
+                  $ USD
+                </button>
+              </div>
+            </div>
             <div className="relative">
               <input
                 required
@@ -235,6 +262,9 @@ export function NewOrderClient({ customers, materials: initialMaterials }: { cus
               />
               <Tag className="absolute left-3.5 top-3.5 h-5 w-5 text-slate-400" />
             </div>
+            {servicePriceCurrency === 'USD' && (
+              <p className="mt-1 text-xs font-bold text-amber-600">$ USD cinsinden fiyat girildi. Muhasebede dolar olarak görünecektir.</p>
+            )}
             {selectedMaterial && (
               <p className="mt-2 text-xs font-bold text-slate-500">
                 Malzeme tutarı ayrıca eklenecek: {(Number(selectedMaterial.selling_price || 0) * materialQty).toLocaleString("tr-TR", { style: "currency", currency: "TRY" })}
