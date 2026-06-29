@@ -35,13 +35,26 @@ const nextConfig = {
           { key: "Referrer-Policy", value: "strict-origin-when-cross-origin" },
           { key: "X-Frame-Options", value: "SAMEORIGIN" },
           { key: "Permissions-Policy", value: "camera=(), microphone=(), geolocation=()" },
-          { key: "Strict-Transport-Security", value: "max-age=31536000; includeSubDomains" },
+          { key: "Strict-Transport-Security", value: "max-age=31536000; includeSubDomains; preload" },
         ],
       },
     ];
   },
   async redirects() {
     return [
+      // non-www → www yönlendirmesi (301 kalıcı)
+      {
+        source: '/:path*',
+        has: [
+          {
+            type: 'host',
+            value: 'primesecteknoloji.com',
+          },
+        ],
+        destination: 'https://www.primesecteknoloji.com/:path*',
+        permanent: true,
+      },
+      // Kurumsal sayfası yönlendirmeleri
       {
         source: '/kurumsal',
         destination: '/iletisim',
