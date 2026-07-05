@@ -26,39 +26,43 @@ function parseHumanStructuredField(field: AdminField, value: string) {
     return [];
   }
 
-  if (trimmed.startsWith("[") || trimmed.startsWith("{")) {
-    try {
-      return JSON.parse(trimmed);
-    } catch {
-      const lineObjects: any[] = [];
-      const lines = trimmed.split(/\r?\n/).map((l) => l.trim()).filter(Boolean);
-      let allLinesParsed = true;
-      for (const line of lines) {
-        if (line.startsWith("{") && line.endsWith("}")) {
-          try {
-            lineObjects.push(JSON.parse(line));
-          } catch {
-            allLinesParsed = false;
-            break;
-          }
-        } else {
-          allLinesParsed = false;
-          break;
-        }
-      }
-      if (allLinesParsed && lineObjects.length > 0) {
-        return lineObjects;
-      }
-    }
+  // 1. Try standard JSON parse first
+  try {
+    return JSON.parse(trimmed);
+  } catch {
+    // Ignore standard JSON parse error and try line-by-line parsing below
   }
 
-  if (field.name === "value") return { value: trimmed };
-  if (field.name === "metadata" || field.name === "json_ld") return { text: trimmed };
-
+  // 2. Split lines (filtering out empty lines)
   const lines = trimmed
     .split(/\r?\n/)
     .map((line) => line.trim())
     .filter(Boolean);
+
+  // 3. Try parsing as NDJSON (lines of JSON objects)
+  const lineObjects: any[] = [];
+  let isNdJson = true;
+  for (const line of lines) {
+    if ((line.startsWith("{") && line.endsWith("}")) || (line.startsWith("[") && line.endsWith("]"))) {
+      try {
+        lineObjects.push(JSON.parse(line));
+      } catch {
+        isNdJson = false;
+        break;
+      }
+    } else {
+      isNdJson = false;
+      break;
+    }
+  }
+
+  if (isNdJson && lineObjects.length > 0) {
+    return lineObjects;
+  }
+
+  // 4. Field-specific parsers
+  if (field.name === "value") return { value: trimmed };
+  if (field.name === "metadata" || field.name === "json_ld") return { text: trimmed };
 
   if (field.name === "faqs") {
     return lines
@@ -74,6 +78,18 @@ function parseHumanStructuredField(field: AdminField, value: string) {
 
   if (field.name === "gallery") {
     return lines.map((line) => ({ url: line, alt: "" }));
+  }
+
+  // 5. Safe structured array fallback for advantages, features, usage_areas, process_steps, etc.
+  if (["advantages", "features", "benefits", "usage_areas", "process_steps", "custom_attributes", "side_attributes", "technical_attributes"].includes(field.name)) {
+    return lines.map((line) => {
+      if (line.startsWith("{") && line.endsWith("}")) {
+        try {
+          return JSON.parse(line);
+        } catch {}
+      }
+      return { title: line, description: "", active: true };
+    });
   }
 
   return lines.length > 0 ? lines : trimmed.split(",").map((item) => item.trim()).filter(Boolean);

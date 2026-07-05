@@ -276,7 +276,20 @@ function FeaturesBuilder({
           .filter((f) => f.title.trim() !== "" || f.description.trim() !== "");
       }
     } catch {
-      initialFeatures = defaultValue.split("\n").map((s) => s.trim()).filter(Boolean).map((s) => ({ title: s, description: "", active: true }));
+      const lines = defaultValue.split("\n").map((s) => s.trim()).filter(Boolean);
+      initialFeatures = lines.map((line) => {
+        if (line.startsWith("{") && line.endsWith("}")) {
+          try {
+            const obj = JSON.parse(line);
+            return {
+              title: String(obj.title ?? ""),
+              description: String(obj.description ?? ""),
+              active: obj.active !== false
+            };
+          } catch {}
+        }
+        return { title: line, description: "", active: true };
+      });
     }
   }
 
