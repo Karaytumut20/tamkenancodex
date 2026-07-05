@@ -7,28 +7,6 @@ import { hasSupabasePublicEnv, requireSupabasePublicEnv } from "@/lib/supabase/e
 export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
-  // ── 1. HTTPS & www Yönlendirmesi ──────────────────────────────────────────
-  // Sadece production'da çalışsın (localhost'u etkilemesin)
-  const host = request.headers.get("host") ?? "";
-  const proto = request.headers.get("x-forwarded-proto") ?? "https";
-  const isLocalhost = host.includes("localhost") || host.includes("127.0.0.1");
-
-  if (!isLocalhost) {
-    const isHttps = proto === "https";
-    const isWww = host.startsWith("www.");
-    const canonicalHost = isWww ? host : `www.${host}`;
-
-    // HTTP → HTTPS veya non-www → www ise yönlendir (sadece primesecteknoloji.com)
-    const isPrimesec = host === "primesecteknoloji.com" || host === "www.primesecteknoloji.com";
-    if (isPrimesec && (!isHttps || !isWww)) {
-      const redirectUrl = new URL(request.url);
-      redirectUrl.protocol = "https:";
-      redirectUrl.host = canonicalHost;
-      return NextResponse.redirect(redirectUrl, { status: 301 });
-    }
-  }
-  // ──────────────────────────────────────────────────────────────────────────
-
   const requestHeaders = new Headers(request.headers);
   requestHeaders.delete("x-primesec-authenticated");
   requestHeaders.delete("x-primesec-admin");
@@ -119,13 +97,6 @@ export async function middleware(request: NextRequest) {
 }
 
 export const config = {
-  matcher: [
-    /*
-     * Aşağıdakiler HARİÇ tüm path'lerde çalış:
-     * - _next/static  (statik dosyalar)
-     * - _next/image   (resim optimizasyonu)
-     * - favicon.ico, robots.txt, sitemap.xml vb.
-     */
-    "/((?!_next/static|_next/image|favicon\\.ico|robots\\.txt|sitemap\\.xml).*)",
-  ],
+  matcher: ["/admin/:path*", "/api/admin/:path*"],
 };
+

@@ -34,7 +34,7 @@ const getCachedSiteSettings = unstable_cache(getSiteSettings, ["site-settings-v1
 });
 
 const getCachedPublicChrome = unstable_cache(async () => {
-  const settings = await getCachedSiteSettings();
+  const settings = await getSiteSettings();
   const headerNavigation = await getMenuItems("header");
   const knownMegaMenuKeys = headerNavigation
     .map((item) => item.menuKey)

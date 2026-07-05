@@ -27,7 +27,29 @@ function parseHumanStructuredField(field: AdminField, value: string) {
   }
 
   if (trimmed.startsWith("[") || trimmed.startsWith("{")) {
-    return JSON.parse(trimmed);
+    try {
+      return JSON.parse(trimmed);
+    } catch {
+      const lineObjects: any[] = [];
+      const lines = trimmed.split(/\r?\n/).map((l) => l.trim()).filter(Boolean);
+      let allLinesParsed = true;
+      for (const line of lines) {
+        if (line.startsWith("{") && line.endsWith("}")) {
+          try {
+            lineObjects.push(JSON.parse(line));
+          } catch {
+            allLinesParsed = false;
+            break;
+          }
+        } else {
+          allLinesParsed = false;
+          break;
+        }
+      }
+      if (allLinesParsed && lineObjects.length > 0) {
+        return lineObjects;
+      }
+    }
   }
 
   if (field.name === "value") return { value: trimmed };
