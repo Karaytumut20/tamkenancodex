@@ -290,17 +290,20 @@ Bu hizmet için detaylı bilgi ve teklif alabilir miyim?`);
             {/* Connecting line — starts at center of circle 1, ends at center of circle 4 */}
             <div className="absolute top-[24px] left-[12.5%] right-[12.5%] h-[2px] bg-border hidden md:block" />
 
-            {page.process.map((step, index) => (
-              <div key={step} className="relative z-10 flex flex-col items-center text-center group">
-                <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl primesec-navy-action text-white font-black group-hover:scale-110 transition-transform duration-300">
-                  {index + 1}
+            {page.process.map((step, index) => {
+              const stepTitle = typeof step === "string" ? step : (step as any)?.title || "";
+              return (
+                <div key={stepTitle + index} className="relative z-10 flex flex-col items-center text-center group">
+                  <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl primesec-navy-action text-white font-black group-hover:scale-110 transition-transform duration-300">
+                    {index + 1}
+                  </div>
+                  <h3 className="mt-6 text-xl font-extrabold text-ink">{stepTitle}</h3>
+                  <p className="mt-2 text-sm leading-6 text-ink-muted">
+                    PrimeSec bu aşamayı net kalite kriterleriyle yönetir ve teslimat raporunu sizinle paylaşır.
+                  </p>
                 </div>
-                <h3 className="mt-6 text-xl font-extrabold text-ink">{step}</h3>
-                <p className="mt-2 text-sm leading-6 text-ink-muted">
-                  PrimeSec bu aşamayı net kalite kriterleriyle yönetir ve teslimat raporunu sizinle paylaşır.
-                </p>
-              </div>
-            ))}
+              );
+            })}
           </div>
         </Container>
       </section>
@@ -400,7 +403,7 @@ Bu hizmet için detaylı bilgi ve teklif alabilir miyim?`);
 function buildServiceCopy(page: ServicePage, kind: "service" | "location" | "corporate") {
   const areaText = kind === "location" ? `${page.title.split(" ")[0]} bölgesinde` : "ev, iş yeri ve kurumsal alanlarda";
   const useCases = page.useCases.map(item => typeof item === "string" ? item : (item?.title || "")).join(", ");
-  const benefits = page.benefits.join(", ").toLowerCase();
+  const benefits = page.benefits.map(b => typeof b === "string" ? b : (b as any)?.title || "").join(", ").toLowerCase();
 
   return {
     overview: [
