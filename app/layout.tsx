@@ -9,7 +9,7 @@ import { AdminLayoutStyles } from "@/components/layout/AdminLayoutStyles";
 import { PwaRegister } from "@/components/seo/PwaRegister";
 import { JsonLd } from "@/components/seo/JsonLd";
 import { siteConfig } from "@/data/site";
-import { getMenuItems, getSiteSettings, getMegaMenuData } from "@/lib/db";
+import { getMenuItems, getSiteSettings, getMegaMenuData, type SiteSettings } from "@/lib/db";
 import { localBusinessSchema } from "@/data/schemas";
 import { Inter, Monoton } from "next/font/google";
 import { unstable_cache } from "next/cache";
@@ -34,23 +34,33 @@ const getCachedSiteSettings = unstable_cache(getSiteSettings, ["site-settings-v1
 });
 
 const getCachedPublicChrome = unstable_cache(async () => {
-  const settings = await getSiteSettings();
-  const headerNavigation = await getMenuItems("header");
-  const knownMegaMenuKeys = headerNavigation
-    .map((item) => item.menuKey)
-    .filter((key): key is string => Boolean(key));
-  const megaMenuResults = await Promise.all(knownMegaMenuKeys.map((key) => getMegaMenuData(key)));
-  const megaMenusData = Object.fromEntries(
-    knownMegaMenuKeys.map((key, index) => [key, megaMenuResults[index] ?? null]),
-  );
-
-  return { settings, headerNavigation, megaMenusData };
+  try {
+    const settings = await getSiteSettings();
+    const headerNavigation = await getMenuItems("header");
+    const knownMegaMenuKeys = headerNavigation
+      .map((item) => item.menuKey)
+      .filter((key): key is string => Boolean(key));
+    const megaMenuResults = await Promise.all(knownMegaMenuKeys.map((key) => getMegaMenuData(key)));
+    const megaMenusData = Object.fromEntries(
+      knownMegaMenuKeys.map((key, index) => [key, megaMenuResults[index] ?? null]),
+    );
+    return { settings, headerNavigation, megaMenusData };
+  } catch (err) {
+    console.error("[Layout] getCachedPublicChrome failed, using static fallbacks:", err);
+    const { mainNavigation } = await import("@/data/navigation");
+    return { settings: siteConfig as SiteSettings, headerNavigation: mainNavigation, megaMenusData: {} };
+  }
 }, ["public-chrome-v1"], { revalidate: 3600, tags: ["site-navigation", "mega-menu"] });
 
 export const revalidate = 3600;
 
 export async function generateMetadata(): Promise<Metadata> {
-  const settings = await getCachedSiteSettings();
+  let settings: SiteSettings = siteConfig as SiteSettings;
+  try {
+    settings = await getCachedSiteSettings();
+  } catch (err) {
+    console.error("[Layout] generateMetadata failed, using siteConfig fallback:", err);
+  }
   return {
     metadataBase: new URL(settings.siteUrl || siteConfig.siteUrl),
     title: {

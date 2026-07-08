@@ -57,8 +57,13 @@ export default async function CatchAllPage({ params }: { params: Promise<{ slug:
   const page = allDbPages.find((item) => item.slug === slug);
   if (page) {
     // Fetch and combine local and Oksid products
-    const dbProducts = await getProducts();
-    const oksidProducts = await getOksidProducts();
+    let dbProducts: any[] = [];
+    let oksidProducts: any[] = [];
+    try {
+      [dbProducts, oksidProducts] = await Promise.all([getProducts(), getOksidProducts()]);
+    } catch (err) {
+      console.error("[CatchAllPage] related products fetch error:", err);
+    }
     const allProducts = [
       ...dbProducts.map((p) => ({
         ...p,

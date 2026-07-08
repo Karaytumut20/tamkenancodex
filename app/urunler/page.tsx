@@ -17,10 +17,16 @@ import { Suspense } from "react";
 
 export default async function ProductsPage() {
   // Her iki kaynaktan da ürünleri çek ve birleştir
-  const [dbProducts, oksidProducts] = await Promise.all([
-    getProducts(),
-    getOksidProducts(),
-  ]);
+  let dbProducts: any[] = [];
+  let oksidProducts: any[] = [];
+  try {
+    [dbProducts, oksidProducts] = await Promise.all([
+      getProducts(),
+      getOksidProducts(),
+    ]);
+  } catch (err) {
+    console.error("[ProductsPage] fetch error:", err);
+  }
 
   const allProducts = [...dbProducts, ...oksidProducts].filter(
     (p) => 

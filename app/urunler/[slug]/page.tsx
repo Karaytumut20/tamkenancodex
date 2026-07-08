@@ -68,14 +68,19 @@ const getCategoryVisuals = (category: string) => {
 export const revalidate = 3600;
 
 export async function generateStaticParams() {
-  const [dbProducts, oksidProducts] = await Promise.all([
-    getProducts(),
-    getOksidProducts(),
-  ]);
-  return [
-    ...dbProducts.map((product: any) => ({ slug: product.slug })),
-    ...oksidProducts.map((product) => ({ slug: product.slug })),
-  ];
+  try {
+    const [dbProducts, oksidProducts] = await Promise.all([
+      getProducts(),
+      getOksidProducts(),
+    ]);
+    return [
+      ...dbProducts.map((product: any) => ({ slug: product.slug })),
+      ...oksidProducts.map((product) => ({ slug: product.slug })),
+    ];
+  } catch (err) {
+    console.error("[generateStaticParams/urunler] error:", err);
+    return [];
+  }
 }
 
 export async function generateMetadata({
@@ -83,37 +88,39 @@ export async function generateMetadata({
 }: {
   params: Promise<{ slug: string }>;
 }) {
-  const { slug } = await params;
+  try {
+    const { slug } = await params;
 
-  // Önce normal DB, sonra Oksid kontrol
-  const product = await getProductBySlug(slug);
-  if (product) {
-    return buildMetadata({
-      title: product.metaTitle || `${product.name} | PrimeSec Teknoloji`,
-      description: product.metaDescription || product.description,
-      path: `/urunler/${product.slug}`,
-      image: product.image,
-      robotsIndex: product.robotsIndex,
-      robotsFollow: product.robotsFollow,
-      canonicalUrl: product.canonicalUrl,
-      ogTitle: product.ogTitle,
-      ogDescription: product.ogDescription,
-      twitterTitle: product.twitterTitle,
-      twitterDescription: product.twitterDescription,
-      twitterImage: product.twitterImage,
-    });
+    const product = await getProductBySlug(slug);
+    if (product) {
+      return buildMetadata({
+        title: product.metaTitle || `${product.name} | PrimeSec Teknoloji`,
+        description: product.metaDescription || product.description,
+        path: `/urunler/${product.slug}`,
+        image: product.image,
+        robotsIndex: product.robotsIndex,
+        robotsFollow: product.robotsFollow,
+        canonicalUrl: product.canonicalUrl,
+        ogTitle: product.ogTitle,
+        ogDescription: product.ogDescription,
+        twitterTitle: product.twitterTitle,
+        twitterDescription: product.twitterDescription,
+        twitterImage: product.twitterImage,
+      });
+    }
+
+    const oksidProduct = await getOksidProductBySlug(slug);
+    if (oksidProduct) {
+      return buildMetadata({
+        title: oksidProduct.metaTitle || `${oksidProduct.name} | PrimeSec Teknoloji`,
+        description: oksidProduct.metaDescription || oksidProduct.description,
+        path: `/urunler/${oksidProduct.slug}`,
+        image: oksidProduct.image,
+      });
+    }
+  } catch (err) {
+    console.error("[generateMetadata/urunler] error:", err);
   }
-
-  const oksidProduct = await getOksidProductBySlug(slug);
-  if (oksidProduct) {
-    return buildMetadata({
-      title: oksidProduct.metaTitle || `${oksidProduct.name} | PrimeSec Teknoloji`,
-      description: oksidProduct.metaDescription || oksidProduct.description,
-      path: `/urunler/${oksidProduct.slug}`,
-      image: oksidProduct.image,
-    });
-  }
-
   return {};
 }
 
@@ -123,15 +130,28 @@ export default async function ProductDetailPage({
   params: Promise<{ slug: string }>;
 }) {
   const { slug } = await params;
-  const settings = await getSiteSettings();
-  const representatives = settings.representatives || [];
-  const omer = representatives.find((representative) =>
+  
+  let settings;
+  try {
+    settings = await getSiteSettings();
+  } catch {
+    const { siteConfig } = await import("@/data/site");
+    settings = siteConfig;
+  }
+  const representatives = (settings as any).representatives || [];
+  const omer = representatives.find((representative: any) =>
     representative.name.toLocaleLowerCase("tr-TR").includes("ömer"),
   );
   const productWhatsApp = omer?.whatsapp || representatives[1]?.whatsapp || "905519542605";
 
-  const oksidProduct = await getOksidProductBySlug(slug);
-  const product: any = oksidProduct ?? await getProductBySlug(slug);
+  let oksidProduct: any = null;
+  let product: any = null;
+  try {
+    oksidProduct = await getOksidProductBySlug(slug);
+    product = oksidProduct ?? await getProductBySlug(slug);
+  } catch (err) {
+    console.error("[ProductDetailPage] fetch error:", err);
+  }
   if (!product) notFound();
 
   // Redirect Guard
@@ -571,7 +591,13 @@ function buildProductCopy(product: Product | any) {
 // Fiyat / döviz bilgisi HİÇBİR YERDE render edilmez.
 // ─────────────────────────────────────────────────────────────────────────────
 async function OksidProductPage({ product, productWhatsApp }: { product: OksidProduct | any; productWhatsApp: string }) {
-  const [manuelUrunler, tumOksidUrunler] = await Promise.all([getProducts(), getOksidProducts()]);
+  let manuelUrunler: any[] = [];
+  let tumOksidUrunler: any[] = [];
+  try {
+    [manuelUrunler, tumOksidUrunler] = await Promise.all([getProducts(), getOksidProducts()]);
+  } catch (err) {
+    console.error("[OksidProductPage] related products fetch error:", err);
+  }
   const tumUrunler = [...manuelUrunler, ...tumOksidUrunler];
   const ayniKategori = tumUrunler.filter((item: any) =>
     item.slug !== product.slug &&

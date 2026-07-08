@@ -35,16 +35,21 @@ export type NavigationItem = {
 // Singleton Supabase Client to reuse connection and reduce handshake latency
 let supabaseInstance: ReturnType<typeof createClient> | null = null;
 
-function getSupabase() {
+function getSupabase(): ReturnType<typeof createClient> | null {
   if (supabaseInstance) return supabaseInstance;
-  const env = requireSupabasePublicEnv();
-  supabaseInstance = createClient(env.url, env.anonKey, {
-    auth: {
-      persistSession: false,
-      autoRefreshToken: false,
-    },
-  });
-  return supabaseInstance;
+  try {
+    const env = requireSupabasePublicEnv();
+    supabaseInstance = createClient(env.url, env.anonKey, {
+      auth: {
+        persistSession: false,
+        autoRefreshToken: false,
+      },
+    });
+    return supabaseInstance;
+  } catch (err) {
+    console.error("[Supabase] Missing env variables — falling back to static data:", err);
+    return null;
+  }
 }
 
 function settingValue(value: unknown) {
@@ -59,6 +64,7 @@ export const getSiteSettings = cache(
   async function getSiteSettings(): Promise<SiteSettings> {
     try {
       const supabase = getSupabase();
+      if (!supabase) return siteConfig;
       const { data, error } = await supabase
         .from("site_settings")
         .select("key, value");
@@ -120,6 +126,7 @@ export const getMenuItems = cache(async function getMenuItems(
 ): Promise<NavigationItem[]> {
   try {
     const supabase = getSupabase();
+    if (!supabase) return menuKey === "header" ? staticMainNavigation : [];
     const { data, error } = await supabase
       .from("menu_items")
       .select("label, url, menu_key, mega_menu_key")
@@ -178,6 +185,7 @@ export const getCorporatePages = cache(
   async function getCorporatePages(): Promise<any[]> {
     try {
       const supabase = getSupabase();
+      if (!supabase) return staticCorporatePages;
       const { data: dbPages, error } = await supabase
         .from("pages")
         .select("*")
@@ -251,6 +259,7 @@ export type ReferenceCompany = {
 export const getReferences = cache(async function getReferences(): Promise<ReferenceCompany[]> {
   try {
     const supabase = getSupabase();
+    if (!supabase) return [];
     const { data, error } = await supabase
       .from("references")
       .select("id, company_name, logo_url")
@@ -273,6 +282,7 @@ export const getSiteContentBlock = cache(async function getSiteContentBlock(
 ): Promise<SiteContentBlock | null> {
   try {
     const supabase = getSupabase();
+    if (!supabase) return null;
     const { data, error } = await supabase
       .from("site_content")
       .select("*")
@@ -309,6 +319,7 @@ export const getSiteContentBlock = cache(async function getSiteContentBlock(
 export const getProducts = cache(async function getProducts(): Promise<any[]> {
   try {
     const supabase = getSupabase();
+    if (!supabase) return staticProducts;
 
     const { data: dbProducts, error } = await supabase
       .from("products")
@@ -425,6 +436,7 @@ export const getProductBySlug = cache(async function getProductBySlug(
 ): Promise<any | null> {
   try {
     const supabase = getSupabase();
+    if (!supabase) return staticProducts.find((item) => item.slug === slug) || null;
     const { data: p, error } = await supabase
       .from("products")
       .select("*, categories(name), brands(name)")
@@ -546,6 +558,7 @@ function serviceImage(slug: string, configuredImage?: string | null) {
 export const getServices = cache(async function getServices(): Promise<any[]> {
   try {
     const supabase = getSupabase();
+    if (!supabase) return staticServices;
     const { data: dbServices, error } = await supabase
       .from("services")
       .select("*, categories(name)")
@@ -614,6 +627,7 @@ export const getServiceBySlug = cache(async function getServiceBySlug(
 ): Promise<any | null> {
   try {
     const supabase = getSupabase();
+    if (!supabase) return staticServices.find((item) => item.slug === slug) || null;
     const { data: s, error } = await supabase
       .from("services")
       .select("*, categories(name)")
@@ -680,6 +694,7 @@ export const getBlogPosts = cache(async function getBlogPosts(): Promise<
 > {
   try {
     const supabase = getSupabase();
+    if (!supabase) return staticBlogPosts;
     const { data: dbPosts, error } = await supabase
       .from("blog_posts")
       .select("*, categories(name)")
@@ -748,6 +763,7 @@ export const getBlogPostBySlug = cache(async function getBlogPostBySlug(
 ): Promise<any | null> {
   try {
     const supabase = getSupabase();
+    if (!supabase) return staticBlogPosts.find((item) => item.slug === slug) || null;
     const { data: post, error } = await supabase
       .from("blog_posts")
       .select("*, categories(name)")
@@ -820,6 +836,7 @@ export const getServiceAreas = cache(async function getServiceAreas(): Promise<
 > {
   try {
     const supabase = getSupabase();
+    if (!supabase) return staticLocations;
     const { data: dbAreas, error } = await supabase
       .from("service_areas")
       .select("*")
@@ -912,6 +929,7 @@ export const getServiceAreaBySlug = cache(async function getServiceAreaBySlug(
 ): Promise<any | null> {
   try {
     const supabase = getSupabase();
+    if (!supabase) return staticLocations.find((item) => item.slug === slug) || null;
     const { data: area, error } = await supabase
       .from("service_areas")
       .select("*")
@@ -1000,6 +1018,7 @@ export const getServiceAreaBySlug = cache(async function getServiceAreaBySlug(
 export const getBuilderOptions = cache(async function getBuilderOptions() {
   try {
     const supabase = getSupabase();
+    if (!supabase) return null;
     const { data, error } = await supabase
       .from("builder_options")
       .select("*")
@@ -1032,6 +1051,7 @@ export type Brand = {
 export const getBrands = cache(async function getBrands(): Promise<Brand[]> {
   try {
     const supabase = getSupabase();
+    if (!supabase) return [];
     const { data, error } = await supabase
       .from("brands")
       .select("*")
@@ -1200,6 +1220,7 @@ export const getOksidProducts = cache(
   async function getOksidProducts(): Promise<OksidProduct[]> {
     try {
       const supabase = getSupabase();
+      if (!supabase) return [];
       const { data, error } = await supabase
         .from("oksid_urunler")
         .select("*")
@@ -1226,6 +1247,7 @@ export const getOksidProductBySlug = cache(
   ): Promise<OksidProduct | null> {
     try {
       const supabase = getSupabase();
+      if (!supabase) return null;
       const { data, error } = await supabase
         .from("oksid_urunler")
         .select("*")
@@ -1259,6 +1281,7 @@ export const getMegaMenuData = cache(
   async function getMegaMenuData(key: string): Promise<MegaMenuData | null> {
     try {
       const supabase = getSupabase() as any;
+      if (!supabase) return null;
       const { data: section, error: secError } = await supabase
         .from("mega_menu_sections")
         .select("*")
@@ -1310,6 +1333,7 @@ export const getAllMegaMenuSections = cache(
   async function getAllMegaMenuSections(): Promise<any[]> {
     try {
       const supabase = getSupabase() as any;
+      if (!supabase) return [];
       const { data, error } = await supabase
         .from("mega_menu_sections")
         .select("*")
@@ -1328,6 +1352,7 @@ export const getMegaMenuAdmin = cache(
   async function getMegaMenuAdmin(key: string): Promise<any | null> {
     try {
       const supabase = getSupabase() as any;
+      if (!supabase) return null;
       const { data: section, error: secError } = await supabase
         .from("mega_menu_sections")
         .select("*")
@@ -1416,6 +1441,7 @@ export type SystemBuilderService = {
 export const getSystemBuilderServices = cache(async function getSystemBuilderServices(): Promise<SystemBuilderService[]> {
   try {
     const supabase = getSupabase();
+    if (!supabase) return [];
     const { data, error } = await supabase
       .from("services")
       .select("id, title, hero_description, intro_content, image_url")
@@ -1437,6 +1463,7 @@ export const getSystemBuilderData = cache(
   async function getSystemBuilderData(): Promise<SystemBuilderGroup[]> {
     try {
       const supabase = getSupabase();
+      if (!supabase) return [];
       const { data: groups, error: groupErr } = await supabase
         .from("system_builder_groups")
         .select("*")
@@ -1501,6 +1528,7 @@ export const getHomepageFeaturedProducts = cache(
   async function getHomepageFeaturedProducts(): Promise<FeaturedProduct[]> {
     try {
       const supabase = getSupabase();
+      if (!supabase) return [];
       const { data, error } = await supabase
         .from("homepage_featured_products")
         .select("*")
@@ -1540,6 +1568,7 @@ export const getHomepageServicesData = cache(
   async function getHomepageServicesData(): Promise<{ tabs: ServiceTab[]; services: HomepageService[] }> {
     try {
       const supabase = getSupabase();
+      if (!supabase) return { tabs: [], services: [] };
       const [tabsRes, servicesRes] = await Promise.all([
         supabase
           .from("homepage_service_tabs")
@@ -1585,6 +1614,7 @@ export const getHomepageFaqs = cache(
   async function getHomepageFaqs(): Promise<HomepageFaq[]> {
     try {
       const supabase = getSupabase();
+      if (!supabase) return [];
       const { data, error } = await supabase
         .from("faqs")
         .select("*")

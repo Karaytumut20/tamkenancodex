@@ -278,12 +278,12 @@ function ServiceList({ services, selected, onToggle }: { services: SystemBuilder
         {services.map((item) => {
           const active = selected.some((service) => service.id === item.id);
           return (
-            <button type="button" key={item.id} onClick={() => onToggle(item)} aria-pressed={active} className={cn("relative flex min-h-[168px] flex-col items-center justify-between gap-3 rounded-xl border-2 bg-white p-4 text-left transition", active ? "border-primary-600 bg-cyan-50/40 shadow-md" : "border-border hover:border-primary-300")}>
+            <button type="button" key={item.id} onClick={() => onToggle(item)} aria-pressed={active} className={cn("relative flex min-h-[200px] flex-col items-center justify-between gap-3 rounded-xl border-2 bg-white p-4 text-left transition", active ? "border-primary-600 bg-cyan-50/40 shadow-md" : "border-border hover:border-primary-300")}>
               <span className={cn("absolute right-3 top-3 flex h-6 w-6 items-center justify-center rounded-full border", active ? "border-primary-600 primesec-navy-action text-white" : "border-border bg-white")}>
                 {active ? <Check className="h-4 w-4" /> : null}
               </span>
-              <div className="flex flex-1 items-center justify-center pt-2">
-                <span className="relative h-14 w-14 block">
+              <div className="flex flex-1 items-center justify-center pt-4">
+                <span className="relative h-24 w-24 block">
                   <Image src={item.image || "/images/alarm-sistemi.svg"} alt={`${item.title} görseli`} fill className="object-contain" unoptimized />
                 </span>
               </div>
