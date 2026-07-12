@@ -1,7 +1,12 @@
 import { createClient } from '@supabase/supabase-js';
+import { requireSupabaseAdminEnv } from '../scripts/supabase-admin-env.mjs';
 
-const supabaseUrl = 'https://jcyovjvpjopgerterjxq.supabase.co';
-const serviceRoleKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImpjeW92anZwam9wZ2VydGVyanhxIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc4MDQyMzE0NywiZXhwIjoyMDk1OTk5MTQ3fQ.5E8MSMtE7JV1KOalQWjai1e5mAMqdHd2ppP4Yppghws';
+const { supabaseUrl, serviceRoleKey } = requireSupabaseAdminEnv();
+const managementAccessToken = process.env.SUPABASE_ACCESS_TOKEN;
+
+if (!managementAccessToken) {
+  throw new Error('SUPABASE_ACCESS_TOKEN gerekli. Service role anahtarı Management API erişimi için kullanılamaz.');
+}
 
 const projectRef = 'jcyovjvpjopgerterjxq';
 
@@ -10,7 +15,7 @@ async function execSQL(sql) {
   const res = await fetch(`https://api.supabase.com/v1/projects/${projectRef}/database/query`, {
     method: 'POST',
     headers: {
-      'Authorization': `Bearer ${serviceRoleKey}`,
+      'Authorization': 'Bearer ' + managementAccessToken,
       'Content-Type': 'application/json',
     },
     body: JSON.stringify({ query: sql }),

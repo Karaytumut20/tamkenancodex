@@ -269,32 +269,25 @@ async function normalizePayload(resourceKey: string, table: string, id: string |
 
     if ("categories_list" in payload) {
       const selectedCats = Array.isArray(payload.categories_list) ? (payload.categories_list as string[]) : [];
-      
-      // 1. Ensure these categories are included in the tags array so they are saved
+      const supabase = createSupabaseServiceClient();
+      const { data: productCategories } = await supabase
+        .from("categories")
+        .select("id, name")
+        .eq("type", "product");
+
+      // Kategori seçimlerini etiketlerde de tut; böylece çoklu kategori yapısı
+      // mevcut ürün şemasıyla geriye dönük uyumlu kalır.
       const existingTags = Array.isArray(payload.tags) ? (payload.tags as string[]) : [];
-      const productCategories = ["Alarm Sistemleri", "Akıllı Ev Sistemleri", "Kamera Sistemleri", "Yangın İhbar Sistemleri", "Personel Takip PDKS", "Network Çözümleri"];
-      const otherTags = existingTags.filter((t) => !productCategories.includes(t));
+      const categoryNames = (productCategories ?? []).map((category) => String(category.name));
+      const otherTags = existingTags.filter((tag) => !categoryNames.includes(tag));
       payload.tags = Array.from(new Set([...otherTags, ...selectedCats]));
 
-      // 2. Resolve primary category id
+      // İlk seçimi products.category_id alanındaki ana kategori olarak sakla.
       if (selectedCats.length > 0) {
-        const primaryCatName = selectedCats[0];
-        const slugMap: Record<string, string> = {
-          "Alarm Sistemleri": "product-alarm-sistemleri",
-          "Akıllı Ev Sistemleri": "product-akilli-ev-sistemleri",
-          "Kamera Sistemleri": "product-kamera-sistemleri",
-          "Yangın İhbar Sistemleri": "product-yangin-ihbar-sistemleri",
-          "Personel Takip PDKS": "product-personel-takip-pdks",
-          "Network Çözümleri": "product-network-cozumleri"
-        };
-        const catSlug = slugMap[primaryCatName];
-        if (catSlug) {
-          const supabase = createSupabaseServiceClient();
-          const { data } = await supabase.from("categories").select("id").eq("slug", catSlug).maybeSingle();
-          if (data) {
-            payload.category_id = data.id;
-          }
-        }
+        const primaryCategory = (productCategories ?? []).find(
+          (category) => String(category.name) === selectedCats[0]
+        );
+        payload.category_id = primaryCategory?.id ?? null;
       } else {
         payload.category_id = null;
       }
@@ -364,6 +357,10 @@ export async function saveResource(resourceKey: string, id: string | null, formD
   if (resourceKey === "brands") {
     revalidatePath("/");
   }
+  if (resourceKey === "categories") {
+    revalidatePath("/admin/products");
+    revalidatePath("/urunler");
+  }
   if (resourceKey === "references") revalidatePath("/referanslarimiz");
   redirect(resource.path);
 }
@@ -403,6 +400,10 @@ export async function deleteResource(resourceKey: string, id: string) {
     if (deletedSlug) revalidatePath(`/blog/${deletedSlug}`);
   }
   if (resourceKey === "brands") revalidatePath("/");
+  if (resourceKey === "categories") {
+    revalidatePath("/admin/products");
+    revalidatePath("/urunler");
+  }
   if (resourceKey === "references") revalidatePath("/referanslarimiz");
 }
 

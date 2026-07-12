@@ -1,8 +1,9 @@
 // Supabase'deki mevcut servisleri kontrol et ve sıfırdan ekle
-// Çalıştır: node scripts/check-and-seed-services.mjs
+// Çalıştır: node --env-file=.env.local scripts/check-and-seed-services.mjs
 
-const SUPABASE_URL = "https://jcyovjvpjopgerterjxq.supabase.co";
-const SERVICE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImpjeW92anZwam9wZ2VydGVyanhxIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc4MDQyMzE0NywiZXhwIjoyMDk1OTk5MTQ3fQ.5E8MSMtE7JV1KOalQWjai1e5mAMqdHd2ppP4Yppghws";
+import { requireSupabaseAdminEnv } from './supabase-admin-env.mjs';
+
+const { supabaseUrl: SUPABASE_URL, serviceRoleKey: SERVICE_KEY } = requireSupabaseAdminEnv();
 
 const headers = {
   "apikey": SERVICE_KEY,

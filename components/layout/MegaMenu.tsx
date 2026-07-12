@@ -31,10 +31,10 @@ export function MegaMenu({ menuKey, onNavigate, menuData }: Props) {
                 href={item.href}
                 key={item.href + item.title}
                 onClick={onNavigate}
-                className="group grid grid-cols-[54px_1fr_auto] items-center gap-4 rounded-xl border border-transparent px-4 hover:border-border hover:bg-slate-50/70 hover:translate-x-1 transition-all duration-300 py-2.5"
+                className="group grid grid-cols-[64px_1fr_auto] items-center gap-4 rounded-xl px-4 hover:bg-slate-50/70 hover:translate-x-1 transition-all duration-300 py-2.5"
               >
-                <span className="relative h-11 w-11 overflow-hidden rounded-xl bg-white border border-border group-hover:border-cyan-500/30 group-hover:bg-white transition-colors duration-300">
-                  <Image src={item.image} alt={item.title} fill sizes="44px" className="object-contain p-2" />
+                <span className="relative h-14 w-14 overflow-hidden rounded-xl">
+                  <Image src={item.image} alt={item.title} fill sizes="56px" className="object-contain p-0.5 transition-transform duration-300 group-hover:scale-105" />
                 </span>
                 <span className="text-[15px] font-bold text-ink group-hover:text-cyan-600 transition-colors min-w-0 truncate">{item.title}</span>
                 <ChevronRight className="h-4 w-4 text-ink-muted group-hover:text-cyan-500 group-hover:translate-x-0.5 transition-all shrink-0" />

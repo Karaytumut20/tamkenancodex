@@ -4,6 +4,32 @@ import { createServerClient } from "@supabase/ssr";
 import type { ResponseCookie } from "next/dist/compiled/@edge-runtime/cookies";
 import { hasSupabasePublicEnv, requireSupabasePublicEnv } from "@/lib/supabase/env";
 
+function isSupabaseAuthCookie(name: string) {
+  return (
+    name.startsWith("sb-") &&
+    (name.includes("auth-token") || name.includes("access-token") || name.includes("refresh-token"))
+  );
+}
+
+function copyCookies(target: NextResponse, cookies: ResponseCookie[]) {
+  cookies.forEach((cookie) => target.cookies.set(cookie));
+  return target;
+}
+
+function clearInvalidAuthCookies(request: NextRequest, response: NextResponse) {
+  request.cookies
+    .getAll()
+    .filter((cookie) => isSupabaseAuthCookie(cookie.name))
+    .forEach((cookie) => {
+      response.cookies.set(cookie.name, "", {
+        path: "/",
+        expires: new Date(0),
+        maxAge: 0,
+      });
+    });
+  return response;
+}
+
 export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
@@ -53,7 +79,8 @@ export async function middleware(request: NextRequest) {
     const loginUrl = request.nextUrl.clone();
     loginUrl.pathname = "/admin/login";
     loginUrl.searchParams.set("next", pathname);
-    return NextResponse.redirect(loginUrl);
+    const loginResponse = copyCookies(NextResponse.redirect(loginUrl), refreshedCookies);
+    return clearInvalidAuthCookies(request, loginResponse);
   }
 
   const { data: profile } = await supabase
@@ -67,7 +94,10 @@ export async function middleware(request: NextRequest) {
     const loginUrl = request.nextUrl.clone();
     loginUrl.pathname = "/admin/login";
     loginUrl.searchParams.set("next", pathname);
-    return NextResponse.redirect(loginUrl);
+    return clearInvalidAuthCookies(
+      request,
+      copyCookies(NextResponse.redirect(loginUrl), refreshedCookies),
+    );
   }
 
   if ((pathname.startsWith("/admin/users") || pathname.startsWith("/admin/activity-logs")) && profile.role !== "super_admin") {
@@ -91,9 +121,7 @@ export async function middleware(request: NextRequest) {
   );
 
   const verifiedResponse = NextResponse.next({ request: { headers: requestHeaders } });
-  refreshedCookies.forEach((cookie) => verifiedResponse.cookies.set(cookie));
-
-  return verifiedResponse;
+  return copyCookies(verifiedResponse, refreshedCookies);
 }
 
 export const config = {

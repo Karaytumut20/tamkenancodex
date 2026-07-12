@@ -1,8 +1,15 @@
 import { NextResponse } from "next/server";
 import { createSupabaseServiceClient } from "@/lib/supabase/server";
 import { revalidatePath } from "next/cache";
+import { requireAdmin } from "@/lib/admin/auth";
 
 export async function POST(req: Request) {
+  try {
+    await requireAdmin(["super_admin", "editor"]);
+  } catch {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+
   try {
     const { featured } = await req.json();
     const supabase = createSupabaseServiceClient();

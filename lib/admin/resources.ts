@@ -11,8 +11,9 @@ export type AdminField = {
   required?: boolean;
   placeholder?: string;
   helpText?: string;
+  defaultValue?: string | number | boolean;
   options?: { label: string; value: string }[];
-  optionSource?: "menuParents" | "brands";
+  optionSource?: "menuParents" | "brands" | "productCategories";
 };
 
 export type AdminResource = {
@@ -571,14 +572,7 @@ export const adminResources: Record<string, AdminResource> = {
       { name: "slug", label: "Sayfa Linki", group: "seo", helpText: "Boş bırakırsanız otomatik oluşturulur." },
       { name: "sku", label: "Ürün Kodu", group: "content" },
       { name: "warranty_months", label: "Garanti Süresi (Ay)", type: "number", group: "content", placeholder: "Örn: 24", helpText: "Ürün detayında 24 Ay Garanti şeklinde gösterilir." },
-      { name: "categories_list", label: "Ürün Kategorileri (Birden Fazla Seçilebilir)", type: "checkboxes", group: "content", options: [
-        { label: "Alarm Sistemleri", value: "Alarm Sistemleri" },
-        { label: "Akıllı Ev Sistemleri", value: "Akıllı Ev Sistemleri" },
-        { label: "Kamera Sistemleri", value: "Kamera Sistemleri" },
-        { label: "Yangın İhbar Sistemleri", value: "Yangın İhbar Sistemleri" },
-        { label: "Personel Takip PDKS", value: "Personel Takip PDKS" },
-        { label: "Network Çözümleri", value: "Network Çözümleri" }
-      ]},
+      { name: "categories_list", label: "Ürün Kategorileri (Birden Fazla Seçilebilir)", type: "checkboxes", group: "content", optionSource: "productCategories", helpText: "Seçenekler Ürün Kategorileri ekranındaki aktif kayıtlardan gelir." },
       { name: "brand_id", label: "Marka", type: "select", group: "content", optionSource: "brands" },
       { name: "side_attributes", label: "Ürün Yanındaki Label'lar", type: "features_list", group: "content", helpText: "Ürün görselinin yanında gösterilecek etiket ve değerleri girin. Boş bırakırsanız bu alan yayınlanmaz." },
       { name: "technical_attributes", label: "Alt Teknik Özellik Label'ları", type: "features_list", group: "content", helpText: "Sayfanın altındaki Teknik Özellikler tablosunda gösterilecek etiket ve değerleri girin. Boş bırakırsanız bölüm yayınlanmaz." },
@@ -683,38 +677,39 @@ export const adminResources: Record<string, AdminResource> = {
   },
   categories: {
     key: "categories",
-    title: "Categories",
+    title: "Ürün Kategorileri",
     table: "categories",
     path: "/admin/categories",
-    description: "Technical taxonomy kept available outside the simplified main menu.",
+    description: "Ürün kategorilerini ekleyin, düzenleyin ve ürün formlarında kullanılmasını yönetin.",
     roles: contentRoles,
     canCreate: true,
     canEdit: true,
     canDelete: true,
     searchable: ["name", "slug", "description"],
     columns: [
-      { key: "name", label: "Category" },
-      { key: "type", label: "Type" },
-      { key: "is_active", label: "Active" },
+      { key: "name", label: "Kategori" },
+      { key: "type", label: "Tür" },
+      { key: "is_active", label: "Durum" },
     ],
     fields: [
-      { name: "name", label: "Name", required: true, group: "content" },
-      { name: "slug", label: "Slug", required: true, group: "seo" },
+      { name: "name", label: "Kategori Adı", required: true, group: "content", placeholder: "Örn: Kamera Sistemleri" },
+      { name: "slug", label: "Sayfa Linki", group: "seo", helpText: "Boş bırakırsanız kategori adından otomatik oluşturulur." },
       {
         name: "type",
-        label: "Type",
+        label: "Kategori Türü",
         type: "select",
         required: true,
         group: "settings",
+        defaultValue: "product",
         options: [
-          { label: "Product", value: "product" },
-          { label: "Service", value: "service" },
+          { label: "Ürün", value: "product" },
+          { label: "Hizmet", value: "service" },
           { label: "Blog", value: "blog" },
         ],
       },
-      { name: "description", label: "Description", type: "textarea", group: "content" },
-      { name: "sort_order", label: "Sort order", type: "number", group: "settings" },
-      { name: "is_active", label: "Active", type: "boolean", group: "publish" },
+      { name: "description", label: "Açıklama", type: "textarea", group: "content" },
+      { name: "sort_order", label: "Sıralama", type: "number", group: "settings" },
+      { name: "is_active", label: "Aktif", type: "boolean", group: "publish" },
     ],
   },
   brands: {

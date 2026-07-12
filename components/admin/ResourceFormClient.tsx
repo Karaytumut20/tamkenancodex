@@ -536,6 +536,7 @@ function isSimpleField(field: AdminField, resourceKey: string): boolean {
 function getValue(row: Record<string, unknown> | null, field: AdminField) {
   const value = row?.[field.name];
   if (value === null || value === undefined) {
+    if (!row && field.defaultValue !== undefined) return String(field.defaultValue);
     if (field.type === "json") return field.name === "json_ld" || field.name === "value" || field.name === "metadata" ? "{}" : "[]";
     return "";
   }
@@ -657,6 +658,7 @@ function Field({ field, row }: { field: AdminField; row: Record<string, unknown>
             );
           })}
         </div>
+        {field.helpText ? <p className="mt-2 text-sm text-slate-400">{field.helpText}</p> : null}
       </div>
     );
   }
@@ -726,11 +728,13 @@ export function ResourceFormClient({
   row,
   menuParentOptions,
   brandOptions = [],
+  productCategoryOptions = [],
 }: {
   resource: AdminResource;
   row: Record<string, unknown> | null;
   menuParentOptions: { label: string; value: string }[];
   brandOptions?: { label: string; value: string }[];
+  productCategoryOptions?: { label: string; value: string }[];
 }) {
   const [showAdvanced, setShowAdvanced] = useState(false);
 
@@ -766,6 +770,9 @@ export function ResourceFormClient({
     }
     if (field.optionSource === "brands") {
       return { ...field, options: brandOptions };
+    }
+    if (field.optionSource === "productCategories") {
+      return { ...field, options: productCategoryOptions };
     }
     return field;
   });

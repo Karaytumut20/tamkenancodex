@@ -41,6 +41,27 @@ async function getBrandOptions() {
   }
 }
 
+async function getProductCategoryOptions() {
+  try {
+    const supabase = await createSupabaseServerClient();
+    const { data, error } = await supabase
+      .from("categories")
+      .select("name")
+      .eq("type", "product")
+      .eq("is_active", true)
+      .order("sort_order", { ascending: true })
+      .order("name", { ascending: true });
+
+    if (error) return [];
+    return (data ?? []).map((item) => ({
+      label: String(item.name),
+      value: String(item.name),
+    }));
+  } catch {
+    return [];
+  }
+}
+
 export async function ResourceForm({
   resource,
   row,
@@ -50,6 +71,7 @@ export async function ResourceForm({
 }) {
   const menuParentOptions = resource.key === "menuItems" ? await getMenuParentOptions() : [];
   const brandOptions = resource.key === "products" ? await getBrandOptions() : [];
+  const productCategoryOptions = resource.key === "products" ? await getProductCategoryOptions() : [];
 
   return (
     <ResourceFormClient
@@ -57,6 +79,7 @@ export async function ResourceForm({
       row={row}
       menuParentOptions={menuParentOptions}
       brandOptions={brandOptions}
+      productCategoryOptions={productCategoryOptions}
     />
   );
 }

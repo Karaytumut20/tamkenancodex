@@ -40,6 +40,7 @@ const navItems = [
   { href: "/admin/accounting", label: "Muhasebe", icon: Receipt, desc: "Tahsilat & alacaklar", roles: ["super_admin", "support", "viewer"] },
   { href: "/admin/leads", label: "Gelen Mesajlar", icon: MessageCircle, desc: "Müşteri talepleri", roles: ["super_admin", "editor", "support", "viewer"] },
   { href: "/admin/products", label: "Ürünler", icon: Boxes, desc: "Ürün yönetimi", roles: ["super_admin", "editor", "viewer"] },
+  { href: "/admin/categories", label: "Ürün Kategorileri", icon: Tags, desc: "Kategori yönetimi", roles: ["super_admin", "editor"] },
   { href: "/admin/brands", label: "Markalar", icon: Tags, desc: "Marka yönetimi", roles: ["super_admin", "editor", "viewer"] },
   { href: "/admin/references", label: "Referanslarımız", icon: Building2, desc: "Firma ve logolar", roles: ["super_admin", "editor", "viewer"] },
   { href: "/admin/mega-menu", label: "Mega Menüler", icon: AppWindow, desc: "Navbar menüleri", roles: ["super_admin", "editor", "viewer"] },
