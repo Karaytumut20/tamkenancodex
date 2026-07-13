@@ -12,7 +12,7 @@ export type AdminField = {
   placeholder?: string;
   helpText?: string;
   defaultValue?: string | number | boolean;
-  options?: { label: string; value: string }[];
+  options?: { label: string; value: string; id?: string; description?: string }[];
   optionSource?: "menuParents" | "brands" | "productCategories";
 };
 

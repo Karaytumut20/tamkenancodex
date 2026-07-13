@@ -185,6 +185,273 @@ async function makeUniqueSlug({
   }
 }
 
+export type QuickProductCategoryResult =
+  | { success: true; category: { id: string; name: string; description: string } }
+  | { success: false; error: string };
+
+export type QuickProductCategoryMutationResult =
+  | { success: true; category?: { id: string; name: string; description: string } }
+  | { success: false; error: string };
+
+function revalidateProductCategoryPaths() {
+  revalidatePath("/admin/categories");
+  revalidatePath("/admin/products");
+  revalidatePath("/urunler");
+}
+
+function normalizeQuickCategoryInput(input: { name?: string; description?: string }) {
+  return {
+    name: typeof input?.name === "string" ? input.name.trim().replace(/\s+/g, " ") : "",
+    description: typeof input?.description === "string" ? input.description.trim() : "",
+  };
+}
+
+function validateQuickCategoryInput(name: string, description: string): string | null {
+  if (name.length < 2) return "Kategori adı en az 2 karakter olmalıdır.";
+  if (name.length > 120) return "Kategori adı en fazla 120 karakter olabilir.";
+  if (description.length > 1000) return "Açıklama en fazla 1000 karakter olabilir.";
+  return null;
+}
+
+export async function createQuickProductCategory(input: {
+  name: string;
+  description?: string;
+}): Promise<QuickProductCategoryResult> {
+  await requireAdmin(getResourceByKey("categories")?.roles);
+
+  const { name, description } = normalizeQuickCategoryInput(input);
+  const validationError = validateQuickCategoryInput(name, description);
+  if (validationError) return { success: false, error: validationError };
+
+  const supabase = await createSupabaseServerClient();
+  const { data: productCategories, error: lookupError } = await supabase
+    .from("categories")
+    .select("id, name, description, is_active")
+    .eq("type", "product");
+
+  if (lookupError) {
+    return { success: false, error: "Kategori kontrol edilemedi. Lütfen tekrar deneyin." };
+  }
+
+  const normalizedName = name.toLocaleLowerCase("tr-TR");
+  const existingCategory = productCategories?.find(
+    (category) => String(category.name).trim().toLocaleLowerCase("tr-TR") === normalizedName
+  );
+
+  if (existingCategory) {
+    if (!existingCategory.is_active) {
+      const { error: activateError } = await supabase
+        .from("categories")
+        .update({ is_active: true })
+        .eq("id", existingCategory.id);
+
+      if (activateError) {
+        return { success: false, error: "Mevcut kategori yeniden etkinleştirilemedi." };
+      }
+    }
+
+    revalidatePath("/admin/categories");
+    revalidatePath("/admin/products");
+    revalidatePath("/urunler");
+    return {
+      success: true,
+      category: {
+        id: String(existingCategory.id),
+        name: String(existingCategory.name),
+        description: typeof existingCategory.description === "string" ? existingCategory.description : "",
+      },
+    };
+  }
+
+  const { data: lastCategory } = await supabase
+    .from("categories")
+    .select("sort_order")
+    .eq("type", "product")
+    .order("sort_order", { ascending: false })
+    .limit(1)
+    .maybeSingle();
+
+  const slug = await makeUniqueSlug({
+    supabase,
+    table: "categories",
+    baseSlug: slugify(name),
+    id: null,
+  });
+  const nextSortOrder = Number(lastCategory?.sort_order ?? 0) + 10;
+  const { data: createdCategory, error: insertError } = await supabase
+    .from("categories")
+    .insert({
+      name,
+      slug,
+      type: "product",
+      description: description || null,
+      sort_order: nextSortOrder,
+      is_active: true,
+    })
+    .select("id, name, description")
+    .single();
+
+  if (insertError || !createdCategory) {
+    return {
+      success: false,
+      error: insertError?.message.includes("duplicate")
+        ? "Bu kategori zaten mevcut."
+        : "Kategori oluşturulamadı. Lütfen tekrar deneyin.",
+    };
+  }
+
+  revalidateProductCategoryPaths();
+
+  return {
+    success: true,
+    category: {
+      id: String(createdCategory.id),
+      name: String(createdCategory.name),
+      description: typeof createdCategory.description === "string" ? createdCategory.description : "",
+    },
+  };
+}
+
+export async function updateQuickProductCategory(input: {
+  id: string;
+  name: string;
+  description?: string;
+}): Promise<QuickProductCategoryMutationResult> {
+  await requireAdmin(getResourceByKey("categories")?.roles);
+
+  const id = typeof input?.id === "string" ? input.id.trim() : "";
+  if (!/^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(id)) {
+    return { success: false, error: "Geçersiz kategori kaydı." };
+  }
+
+  const { name, description } = normalizeQuickCategoryInput(input);
+  const validationError = validateQuickCategoryInput(name, description);
+  if (validationError) return { success: false, error: validationError };
+
+  const supabase = createSupabaseServiceClient();
+  const { data: categories, error: lookupError } = await supabase
+    .from("categories")
+    .select("id, name")
+    .eq("type", "product");
+
+  if (lookupError) {
+    return { success: false, error: "Kategori kontrol edilemedi. Lütfen tekrar deneyin." };
+  }
+
+  const currentCategory = categories?.find((category) => String(category.id) === id);
+  if (!currentCategory) {
+    return { success: false, error: "Düzenlenecek kategori bulunamadı." };
+  }
+
+  const normalizedName = name.toLocaleLowerCase("tr-TR");
+  const duplicateCategory = categories?.find(
+    (category) =>
+      String(category.id) !== id &&
+      String(category.name).trim().toLocaleLowerCase("tr-TR") === normalizedName
+  );
+  if (duplicateCategory) {
+    return { success: false, error: "Bu isimde başka bir ürün kategorisi zaten mevcut." };
+  }
+
+  const oldName = String(currentCategory.name);
+  const { data: updatedCategory, error: updateError } = await supabase
+    .from("categories")
+    .update({ name, description: description || null })
+    .eq("id", id)
+    .eq("type", "product")
+    .select("id, name, description")
+    .single();
+
+  if (updateError || !updatedCategory) {
+    return { success: false, error: "Kategori güncellenemedi. Lütfen tekrar deneyin." };
+  }
+
+  if (oldName !== name) {
+    const { data: taggedProducts } = await supabase
+      .from("products")
+      .select("id, tags")
+      .contains("tags", [oldName]);
+
+    await Promise.all(
+      (taggedProducts ?? []).map((product) => {
+        const tags = Array.isArray(product.tags)
+          ? Array.from(new Set(product.tags.map((tag) => String(tag) === oldName ? name : String(tag))))
+          : [];
+        return supabase.from("products").update({ tags }).eq("id", product.id);
+      })
+    );
+  }
+
+  revalidateProductCategoryPaths();
+  return {
+    success: true,
+    category: {
+      id: String(updatedCategory.id),
+      name: String(updatedCategory.name),
+      description: typeof updatedCategory.description === "string" ? updatedCategory.description : "",
+    },
+  };
+}
+
+export async function deleteQuickProductCategory(input: {
+  id: string;
+}): Promise<QuickProductCategoryMutationResult> {
+  await requireAdmin(getResourceByKey("categories")?.roles);
+
+  const id = typeof input?.id === "string" ? input.id.trim() : "";
+  if (!/^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(id)) {
+    return { success: false, error: "Geçersiz kategori kaydı." };
+  }
+
+  const supabase = createSupabaseServiceClient();
+  const { data: category, error: lookupError } = await supabase
+    .from("categories")
+    .select("id, name")
+    .eq("id", id)
+    .eq("type", "product")
+    .maybeSingle();
+
+  if (lookupError) {
+    return { success: false, error: "Kategori kontrol edilemedi. Lütfen tekrar deneyin." };
+  }
+  if (!category) {
+    return { success: false, error: "Silinecek kategori bulunamadı." };
+  }
+
+  const categoryName = String(category.name);
+  const { data: taggedProducts } = await supabase
+    .from("products")
+    .select("id, tags")
+    .contains("tags", [categoryName]);
+
+  const cleanupResults = await Promise.all([
+    supabase.from("products").update({ category_id: null }).eq("category_id", id),
+    ...(taggedProducts ?? []).map((product) => {
+      const tags = Array.isArray(product.tags)
+        ? product.tags.map(String).filter((tag) => tag !== categoryName)
+        : [];
+      return supabase.from("products").update({ tags }).eq("id", product.id);
+    }),
+  ]);
+
+  if (cleanupResults.some((result) => result.error)) {
+    return { success: false, error: "Kategori ürünlerden kaldırılamadı. Lütfen tekrar deneyin." };
+  }
+
+  const { error: deleteError } = await supabase
+    .from("categories")
+    .delete()
+    .eq("id", id)
+    .eq("type", "product");
+
+  if (deleteError) {
+    return { success: false, error: "Kategori silinemedi. Lütfen tekrar deneyin." };
+  }
+
+  revalidateProductCategoryPaths();
+  return { success: true };
+}
+
 async function normalizePayload(resourceKey: string, table: string, id: string | null, payload: Record<string, unknown>) {
   const hasSlug = "slug" in payload;
   const currentSlug = typeof payload.slug === "string" ? payload.slug.trim() : "";
@@ -277,7 +544,27 @@ async function normalizePayload(resourceKey: string, table: string, id: string |
 
       // Kategori seçimlerini etiketlerde de tut; böylece çoklu kategori yapısı
       // mevcut ürün şemasıyla geriye dönük uyumlu kalır.
-      const existingTags = Array.isArray(payload.tags) ? (payload.tags as string[]) : [];
+      const categoryTagReplacements =
+        typeof payload.__category_tag_replacements === "object" &&
+        payload.__category_tag_replacements !== null &&
+        !Array.isArray(payload.__category_tag_replacements)
+          ? payload.__category_tag_replacements as Record<string, unknown>
+          : {};
+      const existingTags = Array.isArray(payload.tags)
+        ? (payload.tags as string[]).flatMap((tag) => {
+            let currentTag: unknown = tag;
+            const visitedTags = new Set<string>();
+            while (
+              typeof currentTag === "string" &&
+              currentTag in categoryTagReplacements &&
+              !visitedTags.has(currentTag)
+            ) {
+              visitedTags.add(currentTag);
+              currentTag = categoryTagReplacements[currentTag];
+            }
+            return typeof currentTag === "string" && currentTag.trim() ? [currentTag.trim()] : [];
+          })
+        : [];
       const categoryNames = (productCategories ?? []).map((category) => String(category.name));
       const otherTags = existingTags.filter((tag) => !categoryNames.includes(tag));
       payload.tags = Array.from(new Set([...otherTags, ...selectedCats]));
@@ -293,6 +580,7 @@ async function normalizePayload(resourceKey: string, table: string, id: string |
       }
       
       delete payload.categories_list;
+      delete payload.__category_tag_replacements;
     }
   }
   if (resourceKey === "oksidProducts") {
@@ -323,7 +611,18 @@ export async function saveResource(resourceKey: string, id: string | null, formD
   await requireAdmin(resource.roles);
 
   const supabase = await createSupabaseServerClient();
-  const payload = await normalizePayload(resourceKey, resource.table, id, getPayload(resource.fields, formData));
+  const rawPayload = getPayload(resource.fields, formData);
+  if (resourceKey === "products") {
+    const rawCategoryTagReplacements = formData.get("__category_tag_replacements");
+    if (typeof rawCategoryTagReplacements === "string" && rawCategoryTagReplacements) {
+      try {
+        rawPayload.__category_tag_replacements = JSON.parse(rawCategoryTagReplacements);
+      } catch {
+        rawPayload.__category_tag_replacements = {};
+      }
+    }
+  }
+  const payload = await normalizePayload(resourceKey, resource.table, id, rawPayload);
   const query = id
     ? supabase.from(resource.table).update(payload).eq("id", id)
     : supabase.from(resource.table).insert(payload);

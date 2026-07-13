@@ -1,10 +1,15 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useEffect, useRef, useState, useTransition } from "react";
 import Link from "next/link";
-import { saveResource } from "@/lib/admin/actions";
+import {
+  createQuickProductCategory,
+  deleteQuickProductCategory,
+  saveResource,
+  updateQuickProductCategory,
+} from "@/lib/admin/actions";
 import type { AdminResource, AdminField, FieldGroup } from "@/lib/admin/resources";
-import { Eye, Plus, Trash2 } from "lucide-react";
+import { Eye, Loader2, Pencil, Plus, Trash2, X } from "lucide-react";
 
 function CustomListBuilder({
   defaultValue,
@@ -583,12 +588,486 @@ function getValue(row: Record<string, unknown> | null, field: AdminField) {
   return String(value);
 }
 
+type ProductCategoryOption = {
+  id?: string;
+  label: string;
+  value: string;
+  description?: string;
+};
+
+function ProductCategoriesField({
+  field,
+  row,
+}: {
+  field: AdminField;
+  row: Record<string, unknown> | null;
+}) {
+  const initialSelected = (() => {
+    const values = new Set<string>();
+    const rawValue = row?.[field.name];
+
+    if (Array.isArray(rawValue)) {
+      rawValue.forEach((value) => {
+        if (typeof value === "string") values.add(value);
+      });
+    } else if (typeof rawValue === "string") {
+      values.add(rawValue);
+    }
+
+    if (Array.isArray(row?.tags)) {
+      row.tags.forEach((tag) => {
+        if (typeof tag === "string" && field.options?.some((option) => option.value === tag)) {
+          values.add(tag);
+        }
+      });
+    }
+
+    return Array.from(values);
+  })();
+
+  const [options, setOptions] = useState<ProductCategoryOption[]>(field.options ?? []);
+  const [selectedValues, setSelectedValues] = useState(initialSelected);
+  const [isOpen, setIsOpen] = useState(false);
+  const [modalMode, setModalMode] = useState<"create" | "edit" | "delete">("create");
+  const [activeCategory, setActiveCategory] = useState<ProductCategoryOption | null>(null);
+  const [tagReplacements, setTagReplacements] = useState<Record<string, string | null>>({});
+  const [name, setName] = useState("");
+  const [description, setDescription] = useState("");
+  const [error, setError] = useState("");
+  const [isPending, startTransition] = useTransition();
+  const nameInputRef = useRef<HTMLInputElement>(null);
+  const dialogRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (!isOpen) return;
+
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    const focusTimer = window.setTimeout(() => {
+      if (modalMode === "delete") {
+        dialogRef.current?.querySelector<HTMLElement>("button")?.focus();
+      } else {
+        nameInputRef.current?.focus();
+      }
+    }, 0);
+    const handleDialogKeys = (event: KeyboardEvent) => {
+      if (event.key === "Escape" && !isPending) {
+        setIsOpen(false);
+        return;
+      }
+      if (event.key !== "Tab" || !dialogRef.current) return;
+
+      const focusableElements = Array.from(
+        dialogRef.current.querySelectorAll<HTMLElement>(
+          'button:not([disabled]), input:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])'
+        )
+      );
+      if (focusableElements.length === 0) return;
+
+      const firstElement = focusableElements[0];
+      const lastElement = focusableElements[focusableElements.length - 1];
+      if (event.shiftKey && document.activeElement === firstElement) {
+        event.preventDefault();
+        lastElement.focus();
+      } else if (!event.shiftKey && document.activeElement === lastElement) {
+        event.preventDefault();
+        firstElement.focus();
+      }
+    };
+    window.addEventListener("keydown", handleDialogKeys);
+
+    return () => {
+      window.clearTimeout(focusTimer);
+      window.removeEventListener("keydown", handleDialogKeys);
+      document.body.style.overflow = previousOverflow;
+    };
+  }, [isOpen, isPending, modalMode]);
+
+  const closeModal = () => {
+    if (isPending) return;
+    setIsOpen(false);
+    setError("");
+  };
+
+  const openCreateModal = () => {
+    setModalMode("create");
+    setActiveCategory(null);
+    setName("");
+    setDescription("");
+    setError("");
+    setIsOpen(true);
+  };
+
+  const openEditModal = (category: ProductCategoryOption) => {
+    if (!category.id) return;
+    setModalMode("edit");
+    setActiveCategory(category);
+    setName(category.label);
+    setDescription(category.description ?? "");
+    setError("");
+    setIsOpen(true);
+  };
+
+  const openDeleteModal = (category: ProductCategoryOption) => {
+    if (!category.id) return;
+    setModalMode("delete");
+    setActiveCategory(category);
+    setName(category.label);
+    setDescription(category.description ?? "");
+    setError("");
+    setIsOpen(true);
+  };
+
+  const saveCategory = () => {
+    const normalizedName = name.trim().replace(/\s+/g, " ");
+    if (normalizedName.length < 2) {
+      setError("Kategori adı en az 2 karakter olmalıdır.");
+      nameInputRef.current?.focus();
+      return;
+    }
+
+    setError("");
+    startTransition(async () => {
+      try {
+        const result = modalMode === "edit" && activeCategory?.id
+          ? await updateQuickProductCategory({
+              id: activeCategory.id,
+              name: normalizedName,
+              description,
+            })
+          : await createQuickProductCategory({ name: normalizedName, description });
+
+        if (!result.success) {
+          setError(result.error);
+          return;
+        }
+
+        if (modalMode === "edit" && activeCategory && result.category) {
+          const updatedOption: ProductCategoryOption = {
+            id: result.category.id,
+            label: result.category.name,
+            value: result.category.name,
+            description: "description" in result.category ? result.category.description : description.trim(),
+          };
+          setOptions((currentOptions) =>
+            currentOptions.map((option) => option.id === activeCategory.id ? updatedOption : option)
+          );
+          setSelectedValues((currentValues) =>
+            Array.from(new Set(
+              currentValues.map((value) => value === activeCategory.value ? updatedOption.value : value)
+            ))
+          );
+          if (activeCategory.value !== updatedOption.value) {
+            setTagReplacements((currentReplacements) => ({
+              ...currentReplacements,
+              [activeCategory.value]: updatedOption.value,
+            }));
+          }
+          setIsOpen(false);
+          return;
+        }
+
+        if (!result.category) {
+          setError("Kategori bilgisi alınamadı. Lütfen tekrar deneyin.");
+          return;
+        }
+
+        const newOption = {
+          id: result.category.id,
+          label: result.category.name,
+          value: result.category.name,
+          description: result.category.description,
+        };
+        setOptions((currentOptions) => {
+          if (currentOptions.some((option) => option.value === newOption.value)) return currentOptions;
+          return [...currentOptions, newOption];
+        });
+        setSelectedValues((currentValues) =>
+          currentValues.includes(newOption.value)
+            ? currentValues
+            : [...currentValues, newOption.value]
+        );
+        setName("");
+        setDescription("");
+        setIsOpen(false);
+      } catch {
+        setError("Kategori kaydedilirken bağlantı hatası oluştu. Lütfen tekrar deneyin.");
+      }
+    });
+  };
+
+  const deleteCategory = () => {
+    if (!activeCategory?.id) return;
+    setError("");
+    startTransition(async () => {
+      try {
+        const result = await deleteQuickProductCategory({ id: activeCategory.id! });
+        if (!result.success) {
+          setError(result.error);
+          return;
+        }
+
+        setOptions((currentOptions) =>
+          currentOptions.filter((option) => option.id !== activeCategory.id)
+        );
+        setSelectedValues((currentValues) =>
+          currentValues.filter((value) => value !== activeCategory.value)
+        );
+        setTagReplacements((currentReplacements) => ({
+          ...currentReplacements,
+          [activeCategory.value]: null,
+        }));
+        setIsOpen(false);
+      } catch {
+        setError("Kategori silinirken bağlantı hatası oluştu. Lütfen tekrar deneyin.");
+      }
+    });
+  };
+
+  const toggleCategory = (value: string, checked: boolean) => {
+    setSelectedValues((currentValues) =>
+      checked
+        ? currentValues.includes(value) ? currentValues : [...currentValues, value]
+        : currentValues.filter((currentValue) => currentValue !== value)
+    );
+  };
+
+  return (
+    <div className="block">
+      <input
+        type="hidden"
+        name="__category_tag_replacements"
+        value={JSON.stringify(tagReplacements)}
+      />
+      <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+        <span className="text-base font-black text-slate-700">{field.label}</span>
+        <button
+          type="button"
+          onClick={openCreateModal}
+          className="inline-flex h-10 w-full items-center justify-center gap-2 rounded-xl border-2 border-cyan-600 bg-cyan-50 px-4 text-sm font-black text-cyan-700 transition-colors hover:bg-cyan-100 sm:w-auto"
+        >
+          <Plus className="h-4 w-4" /> Kategori Ekle
+        </button>
+      </div>
+
+      {options.length > 0 ? (
+        <div className="mt-2 grid gap-3 sm:grid-cols-2">
+          {options.map((option) => {
+            const isChecked = selectedValues.includes(option.value);
+            return (
+              <div
+                key={option.value}
+                className={`flex items-center gap-2 rounded-xl border-2 bg-white p-2 text-sm font-bold transition-colors ${
+                  isChecked
+                    ? "border-cyan-500 bg-cyan-50/50 text-cyan-950"
+                    : "border-slate-200 hover:bg-slate-50"
+                }`}
+              >
+                <label className="flex min-w-0 flex-1 cursor-pointer items-center gap-3 p-1">
+                  <input
+                    type="checkbox"
+                    name={field.name}
+                    value={option.value}
+                    checked={isChecked}
+                    onChange={(event) => toggleCategory(option.value, event.target.checked)}
+                    className="h-5 w-5 shrink-0 accent-cyan-600"
+                  />
+                  <span className="min-w-0 break-words">{option.label}</span>
+                </label>
+                <div className="flex shrink-0 items-center gap-1 border-l border-slate-200 pl-2">
+                  <button
+                    type="button"
+                    onClick={() => openEditModal(option)}
+                    disabled={!option.id}
+                    aria-label={`${option.label} kategorisini düzenle`}
+                    title="Düzenle"
+                    className="rounded-lg p-2 text-slate-400 transition-colors hover:bg-cyan-100 hover:text-cyan-700 disabled:hidden"
+                  >
+                    <Pencil className="h-4 w-4" />
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => openDeleteModal(option)}
+                    disabled={!option.id}
+                    aria-label={`${option.label} kategorisini sil`}
+                    title="Sil"
+                    className="rounded-lg p-2 text-slate-400 transition-colors hover:bg-red-100 hover:text-red-600 disabled:hidden"
+                  >
+                    <Trash2 className="h-4 w-4" />
+                  </button>
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      ) : (
+        <div className="mt-3 rounded-xl border-2 border-dashed border-slate-200 bg-slate-50 p-5 text-center text-sm text-slate-500">
+          Henüz ürün kategorisi yok. İlk kategoriyi hemen oluşturabilirsiniz.
+        </div>
+      )}
+      {field.helpText ? <p className="mt-2 text-sm text-slate-400">{field.helpText}</p> : null}
+
+      {isOpen ? (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/55 p-4 backdrop-blur-sm"
+          role="presentation"
+          onMouseDown={(event) => {
+            if (event.target === event.currentTarget) closeModal();
+          }}
+        >
+          <div
+            ref={dialogRef}
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="quick-category-title"
+            className="w-full max-w-lg overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-2xl"
+            onMouseDown={(event) => event.stopPropagation()}
+          >
+            <div className="flex items-start justify-between border-b border-slate-200 px-5 py-4 sm:px-6">
+              <div>
+                <h2 id="quick-category-title" className="text-xl font-black text-slate-900">
+                  {modalMode === "create"
+                    ? "Yeni Ürün Kategorisi"
+                    : modalMode === "edit"
+                      ? "Ürün Kategorisini Düzenle"
+                      : "Ürün Kategorisini Sil"}
+                </h2>
+                <p className="mt-1 text-sm text-slate-500">
+                  {modalMode === "create"
+                    ? "Kategori kaydedilince ürüne otomatik olarak seçilir."
+                    : modalMode === "edit"
+                      ? "Değişiklikler bu kategoriyi kullanan ürünlere de uygulanır."
+                      : "Bu işlem geri alınamaz."}
+                </p>
+              </div>
+              <button
+                type="button"
+                onClick={closeModal}
+                disabled={isPending}
+                aria-label="Pencereyi kapat"
+                className="ml-4 rounded-lg p-2 text-slate-400 transition-colors hover:bg-slate-100 hover:text-slate-700 disabled:cursor-not-allowed disabled:opacity-50"
+              >
+                <X className="h-5 w-5" />
+              </button>
+            </div>
+
+            <div
+              className="space-y-4 px-5 py-5 sm:px-6"
+              onKeyDown={(event) => {
+                if (
+                  modalMode !== "delete" &&
+                  event.key === "Enter" &&
+                  !event.shiftKey &&
+                  event.target instanceof HTMLInputElement
+                ) {
+                  event.preventDefault();
+                  if (!isPending) saveCategory();
+                }
+              }}
+            >
+              {modalMode === "delete" ? (
+                <div className="rounded-xl border border-red-200 bg-red-50 p-4">
+                  <p className="font-black text-red-900">“{activeCategory?.label}” kategorisi silinecek.</p>
+                  <p className="mt-2 text-sm leading-6 text-red-700">
+                    Kategori bağlı ürünlerin kategori seçimlerinden ve etiketlerinden kaldırılır.
+                    Ürün kayıtları silinmez.
+                  </p>
+                </div>
+              ) : (
+                <>
+                  <label className="block">
+                    <span className="text-sm font-black text-slate-700">
+                      Kategori Adı <span className="text-red-500">*</span>
+                    </span>
+                    <input
+                      ref={nameInputRef}
+                      type="text"
+                      value={name}
+                      onChange={(event) => {
+                        setName(event.target.value);
+                        if (error) setError("");
+                      }}
+                      maxLength={120}
+                      disabled={isPending}
+                      placeholder="Örn: Kamera Sistemleri"
+                      className="mt-2 h-12 w-full rounded-xl border-2 border-slate-200 bg-white px-4 text-base outline-none transition-colors focus:border-cyan-500 focus:ring-2 focus:ring-cyan-100 disabled:bg-slate-50"
+                    />
+                  </label>
+
+                  <label className="block">
+                    <span className="text-sm font-black text-slate-700">Açıklama (İsteğe Bağlı)</span>
+                    <textarea
+                      value={description}
+                      onChange={(event) => setDescription(event.target.value)}
+                      maxLength={1000}
+                      disabled={isPending}
+                      rows={3}
+                      placeholder="Kategori hakkında kısa bir açıklama"
+                      className="mt-2 w-full resize-none rounded-xl border-2 border-slate-200 bg-white px-4 py-3 text-base outline-none transition-colors focus:border-cyan-500 focus:ring-2 focus:ring-cyan-100 disabled:bg-slate-50"
+                    />
+                  </label>
+                </>
+              )}
+
+              {error ? (
+                <p role="alert" className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm font-bold text-red-700">
+                  {error}
+                </p>
+              ) : null}
+            </div>
+
+            <div className="flex flex-col-reverse gap-3 border-t border-slate-200 bg-slate-50 px-5 py-4 sm:flex-row sm:justify-end sm:px-6">
+              <button
+                type="button"
+                onClick={closeModal}
+                disabled={isPending}
+                className="inline-flex h-11 items-center justify-center rounded-xl border-2 border-slate-200 bg-white px-5 text-sm font-bold text-slate-600 transition-colors hover:bg-slate-100 disabled:cursor-not-allowed disabled:opacity-50"
+              >
+                Vazgeç
+              </button>
+              <button
+                type="button"
+                onClick={modalMode === "delete" ? deleteCategory : saveCategory}
+                disabled={isPending || (modalMode !== "delete" && name.trim().length < 2)}
+                className={`inline-flex h-11 items-center justify-center gap-2 rounded-xl border-2 px-5 text-sm font-black text-white transition-colors disabled:cursor-not-allowed disabled:border-slate-300 disabled:bg-slate-300 ${
+                  modalMode === "delete"
+                    ? "border-red-700 bg-red-600 hover:bg-red-700"
+                    : "border-cyan-700 bg-cyan-600 hover:bg-cyan-700"
+                }`}
+              >
+                {isPending ? (
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                ) : modalMode === "delete" ? (
+                  <Trash2 className="h-4 w-4" />
+                ) : modalMode === "edit" ? (
+                  <Pencil className="h-4 w-4" />
+                ) : (
+                  <Plus className="h-4 w-4" />
+                )}
+                {isPending
+                  ? modalMode === "delete" ? "Siliniyor..." : "Kaydediliyor..."
+                  : modalMode === "delete" ? "Kategoriyi Sil"
+                    : modalMode === "edit" ? "Değişiklikleri Kaydet"
+                      : "Kategoriyi Ekle"}
+              </button>
+            </div>
+          </div>
+        </div>
+      ) : null}
+    </div>
+  );
+}
+
 function Field({ field, row }: { field: AdminField; row: Record<string, unknown> | null }) {
   const baseInputClass = "mt-2 w-full rounded-xl border-2 border-slate-200 bg-white px-4 text-base outline-none focus:border-cyan-500 transition-colors focus:ring-2 focus:ring-cyan-100";
   const requiredMark = field.required ? <span className="text-red-500 font-bold"> *</span> : null;
   const defaultChecked = row
     ? Boolean(row[field.name])
     : field.name === "is_active" || field.name === "sitemap_include" || field.name === "lazy_load";
+
+  if (field.name === "categories_list" && field.type === "checkboxes") {
+    return <ProductCategoriesField field={field} row={row} />;
+  }
 
   if (field.type === "custom_list") {
     return (
@@ -734,7 +1213,7 @@ export function ResourceFormClient({
   row: Record<string, unknown> | null;
   menuParentOptions: { label: string; value: string }[];
   brandOptions?: { label: string; value: string }[];
-  productCategoryOptions?: { label: string; value: string }[];
+  productCategoryOptions?: ProductCategoryOption[];
 }) {
   const [showAdvanced, setShowAdvanced] = useState(false);
 

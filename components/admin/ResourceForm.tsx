@@ -46,7 +46,7 @@ async function getProductCategoryOptions() {
     const supabase = await createSupabaseServerClient();
     const { data, error } = await supabase
       .from("categories")
-      .select("name")
+      .select("id, name, description")
       .eq("type", "product")
       .eq("is_active", true)
       .order("sort_order", { ascending: true })
@@ -54,8 +54,10 @@ async function getProductCategoryOptions() {
 
     if (error) return [];
     return (data ?? []).map((item) => ({
+      id: String(item.id),
       label: String(item.name),
       value: String(item.name),
+      description: typeof item.description === "string" ? item.description : "",
     }));
   } catch {
     return [];
