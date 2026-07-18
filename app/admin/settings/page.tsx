@@ -84,6 +84,11 @@ const settingLabels: Record<string, { label: string; placeholder: string; helpTe
     placeholder: "G-XXXXXXXXXX",
     helpText: "Sitenize Google Analytics entegre etmek için GA4 kimliğini girin (örn: G-12345678).",
   },
+  "seo.google_ads_id": {
+    label: "Google Ads Etiket Kimliği",
+    placeholder: "AW-XXXXXXXXXX",
+    helpText: "Google Ads panelindeki Google etiketi kimliğini girin. Etiket tüm halka açık sayfalarda ve sayfa geçişlerinde çalışır.",
+  },
   "seo.gtag_script": {
     label: "🖥️ Google GTag / Analytics İzleme Kodu (HTML)",
     placeholder: "<!-- Google tag (gtag.js) -->\n<script async src=\"https://www.googletagmanager.com/gtag/js?id=G-XXXXXX\"></script>\n...",
@@ -183,6 +188,7 @@ export default async function SettingsPage() {
     "contact.rep2.phone",
     "contact.rep2.whatsapp",
     "seo.ga_id",
+    "seo.google_ads_id",
     "seo.gtag_script",
     "seo.gsc_verification",
     "popup.active",

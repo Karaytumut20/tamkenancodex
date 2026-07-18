@@ -16,6 +16,31 @@ type SeoInput = {
   twitterImage?: string;
 };
 
+export function resolveCanonicalUrl(path: string, canonicalUrl?: string) {
+  const fallback = new URL(path, siteConfig.siteUrl);
+  if (!canonicalUrl || !/^(?:https?:\/\/|\/)/i.test(canonicalUrl.trim())) {
+    return fallback.toString();
+  }
+
+  try {
+    const canonical = new URL(canonicalUrl.trim(), siteConfig.siteUrl);
+    const site = new URL(siteConfig.siteUrl);
+    const canonicalHost = canonical.hostname.replace(/^www\./i, "");
+    const siteHost = site.hostname.replace(/^www\./i, "");
+
+    // The bare domain permanently redirects to www. Keep one canonical host
+    // even when an older CMS record still contains the bare-domain URL.
+    if (canonicalHost === siteHost) {
+      canonical.protocol = site.protocol;
+      canonical.host = site.host;
+    }
+
+    return canonical.toString();
+  } catch {
+    return fallback.toString();
+  }
+}
+
 export function buildMetadata({
   title,
   description,
@@ -30,7 +55,7 @@ export function buildMetadata({
   twitterDescription,
   twitterImage,
 }: SeoInput): Metadata {
-  const url = canonicalUrl || new URL(path, siteConfig.siteUrl).toString();
+  const url = resolveCanonicalUrl(path, canonicalUrl);
   const imageUrl = new URL(
     twitterImage || image,
     siteConfig.siteUrl,

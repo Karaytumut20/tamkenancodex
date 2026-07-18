@@ -14,6 +14,7 @@ import { siteConfig } from "@/data/site";
 
 export type SiteSettings = typeof siteConfig & {
   gaId?: string;
+  googleAdsId?: string;
   gscVerification?: string;
   gtagScript?: string;
   representatives?: { name: string; role: string; phone: string; whatsapp: string }[];
@@ -90,6 +91,7 @@ export const getSiteSettings = cache(
           settingValue(settings.get("contact.address")) ?? siteConfig.address,
         city: settingValue(settings.get("contact.city")) ?? siteConfig.city,
         gaId: settingValue(settings.get("seo.ga_id")),
+        googleAdsId: settingValue(settings.get("seo.google_ads_id")),
         gscVerification: settingValue(settings.get("seo.gsc_verification")),
         gtagScript: settingValue(settings.get("seo.gtag_script")),
         representatives: [

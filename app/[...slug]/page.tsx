@@ -1,4 +1,4 @@
-import { notFound } from "next/navigation";
+import { notFound, redirect } from "next/navigation";
 import { CorporateTemplate } from "@/components/templates/CorporateTemplate";
 import { ServiceTemplate } from "@/components/templates/ServiceTemplate";
 import { buildMetadata } from "@/lib/seo";
@@ -56,6 +56,8 @@ export default async function CatchAllPage({ params }: { params: Promise<{ slug:
   const allDbPages = await getAllPages();
   const page = allDbPages.find((item) => item.slug === slug);
   if (page) {
+    if (page.redirectTo) redirect(page.redirectTo);
+
     // Fetch and combine local and Oksid products
     let dbProducts: any[] = [];
     let oksidProducts: any[] = [];
@@ -123,7 +125,10 @@ export default async function CatchAllPage({ params }: { params: Promise<{ slug:
   
   const corporatePages = await getCorporatePages();
   const corporate = corporatePages.find((item) => item.slug === slug);
-  if (corporate) return <CorporateTemplate page={corporate} />;
+  if (corporate) {
+    if (corporate.redirectTo) redirect(corporate.redirectTo);
+    return <CorporateTemplate page={corporate} />;
+  }
   
   notFound();
 }

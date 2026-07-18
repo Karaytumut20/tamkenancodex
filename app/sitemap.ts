@@ -1,5 +1,6 @@
 import type { MetadataRoute } from "next";
 import { siteConfig } from "@/data/site";
+import { resolveCanonicalUrl } from "@/lib/seo";
 import {
   getProducts,
   getServices,
@@ -7,6 +8,38 @@ import {
   getServiceAreas,
   getCorporatePages,
 } from "@/lib/db";
+
+const ROUTE_REDIRECTS = new Set(["kurumsal"]);
+
+function isSameCanonicalPath(canonicalUrl: string | undefined, path: string) {
+  if (!canonicalUrl) return true;
+  if (!/^(?:https?:\/\/|\/)/i.test(canonicalUrl.trim())) return false;
+
+  try {
+    const canonical = new URL(resolveCanonicalUrl(`/${path}`, canonicalUrl));
+    const expected = new URL(`/${path}`, siteConfig.siteUrl);
+    const normalizePath = (value: string) => value.replace(/\/+$/, "") || "/";
+
+    return (
+      canonical.origin === expected.origin &&
+      normalizePath(canonical.pathname) === normalizePath(expected.pathname) &&
+      !canonical.search &&
+      !canonical.hash
+    );
+  } catch {
+    return false;
+  }
+}
+
+function isIndexableEntry(entry: any, path: string) {
+  return (
+    entry.sitemapInclude !== false &&
+    entry.robotsIndex !== "noindex" &&
+    !entry.redirectTo &&
+    !ROUTE_REDIRECTS.has(path) &&
+    isSameCanonicalPath(entry.canonicalUrl, path)
+  );
+}
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const [products, services, posts, locations, corporate] = await Promise.all([
@@ -31,7 +64,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     ];
 
     products
-      .filter((p: any) => p.sitemapInclude !== false)
+      .filter((p: any) => isIndexableEntry(p, `urunler/${p.slug}`))
       .forEach((p: any) =>
         paths.push({
           url: `urunler/${p.slug}`,
@@ -41,7 +74,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       );
 
     posts
-      .filter((p: any) => p.sitemapInclude !== false)
+      .filter((p: any) => isIndexableEntry(p, `blog/${p.slug}`))
       .forEach((p: any) =>
         paths.push({
           url: `blog/${p.slug}`,
@@ -51,19 +84,19 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       );
 
     services
-      .filter((p: any) => p.sitemapInclude !== false)
+      .filter((p: any) => isIndexableEntry(p, p.slug))
       .forEach((p: any) =>
         paths.push({ url: p.slug, priority: 0.8, changeFrequency: "weekly" }),
       );
 
     locations
-      .filter((p: any) => p.sitemapInclude !== false)
+      .filter((p: any) => isIndexableEntry(p, p.slug))
       .forEach((p: any) =>
         paths.push({ url: p.slug, priority: 0.7, changeFrequency: "weekly" }),
       );
 
     corporate
-      .filter((p: any) => p.sitemapInclude !== false)
+      .filter((p: any) => isIndexableEntry(p, p.slug))
       .forEach((p: any) =>
         paths.push({ url: p.slug, priority: 0.6, changeFrequency: "monthly" }),
       );

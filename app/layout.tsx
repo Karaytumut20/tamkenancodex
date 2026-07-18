@@ -1,6 +1,5 @@
 import type { Metadata } from "next";
 import type { ReactNode } from "react";
-import Script from "next/script";
 import "./globals.css";
 import { Footer } from "@/components/layout/Footer";
 import { Header } from "@/components/layout/Header";
@@ -8,6 +7,7 @@ import { FloatingContact } from "@/components/layout/FloatingContact";
 import { AdminLayoutStyles } from "@/components/layout/AdminLayoutStyles";
 import { PwaRegister } from "@/components/seo/PwaRegister";
 import { JsonLd } from "@/components/seo/JsonLd";
+import { GoogleTag } from "@/components/seo/GoogleTag";
 import { siteConfig } from "@/data/site";
 import { getMenuItems, getSiteSettings, getMegaMenuData, type SiteSettings } from "@/lib/db";
 import { localBusinessSchema } from "@/data/schemas";
@@ -110,6 +110,15 @@ export default async function RootLayout({
   children,
 }: Readonly<{ children: ReactNode }>) {
   const { settings, headerNavigation, megaMenusData } = await getCachedPublicChrome();
+  const googleTagConfig = [settings.gaId, settings.googleAdsId, settings.gtagScript]
+    .filter(Boolean)
+    .join("\n");
+  const googleTagIds = Array.from(
+    new Set(
+      (googleTagConfig.match(/\b(?:G-[A-Z0-9]{6,}|AW-\d{6,}|GT-[A-Z0-9]{6,})\b/gi) ?? [])
+        .map((id) => id.toUpperCase()),
+    ),
+  );
 
   return (
     <html lang="tr" className={`${googleSans.variable} ${monoton.variable}`}>
@@ -120,25 +129,7 @@ export default async function RootLayout({
         >
           Ana içeriğe geç
         </a>
-        {settings.gaId && (
-          <>
-            <Script
-              src={`https://www.googletagmanager.com/gtag/js?id=${settings.gaId}`}
-              strategy="afterInteractive"
-            />
-            <Script id="google-analytics" strategy="afterInteractive">
-              {`
-                  window.dataLayer = window.dataLayer || [];
-                  function gtag(){dataLayer.push(arguments);}
-                  gtag('js', new Date());
-                  gtag('config', '${settings.gaId}');
-              `}
-            </Script>
-          </>
-        )}
-        {settings.gtagScript && (
-          <div dangerouslySetInnerHTML={{ __html: settings.gtagScript }} />
-        )}
+        <GoogleTag ids={googleTagIds} />
         <AdminLayoutStyles />
         <PwaRegister />
         <JsonLd

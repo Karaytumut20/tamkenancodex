@@ -21,6 +21,7 @@ const knownKeys = [
   "contact.rep2.phone",
   "contact.rep2.whatsapp",
   "seo.ga_id",
+  "seo.google_ads_id",
   "seo.gsc_verification",
   "seo.gtag_script",
   "popup.active",

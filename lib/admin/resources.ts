@@ -98,6 +98,7 @@ const siteSettingOptions = [
   { label: "2. Temsilci Telefon", value: "contact.rep2.phone" },
   { label: "2. Temsilci WhatsApp", value: "contact.rep2.whatsapp" },
   { label: "Google Analytics G-XXXX", value: "seo.ga_id" },
+  { label: "Google Ads AW-XXXX", value: "seo.google_ads_id" },
   { label: "Google Search Console TXT", value: "seo.gsc_verification" },
   { label: "Google GTag Kodu (HTML)", value: "seo.gtag_script" }
 ];
