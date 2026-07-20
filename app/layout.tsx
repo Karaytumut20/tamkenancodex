@@ -14,6 +14,8 @@ import { localBusinessSchema } from "@/data/schemas";
 import { Inter, Monoton } from "next/font/google";
 import { unstable_cache } from "next/cache";
 
+const GOOGLE_ADS_ID = "AW-18335318483";
+
 const googleSans = Inter({
   subsets: ["latin"],
   weight: ["400", "500", "700", "800"],
@@ -110,7 +112,7 @@ export default async function RootLayout({
   children,
 }: Readonly<{ children: ReactNode }>) {
   const { settings, headerNavigation, megaMenusData } = await getCachedPublicChrome();
-  const googleTagConfig = [settings.gaId, settings.googleAdsId, settings.gtagScript]
+  const googleTagConfig = [GOOGLE_ADS_ID, settings.gaId, settings.googleAdsId, settings.gtagScript]
     .filter(Boolean)
     .join("\n");
   const googleTagIds = Array.from(
