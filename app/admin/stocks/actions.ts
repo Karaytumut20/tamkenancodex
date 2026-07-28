@@ -17,6 +17,9 @@ export type MaterialInput = {
   buying_price: number;
   selling_price: number;
   supplier?: string;
+  purchase_date?: string;
+  purchase_invoice_number?: string;
+  warranty_months?: number;
   location?: string;
   description?: string;
   is_active: boolean;
@@ -95,6 +98,9 @@ export async function saveMaterial(input: MaterialInput) {
           buying_price: input.buying_price,
           selling_price: input.selling_price,
           supplier: input.supplier || null,
+          purchase_date: input.purchase_date || null,
+          purchase_invoice_number: input.purchase_invoice_number || null,
+          warranty_months: Math.max(0, Math.trunc(Number(input.warranty_months || 0))),
           location: input.location || null,
           description: input.description || null,
           is_active: input.is_active,
@@ -134,6 +140,9 @@ export async function saveMaterial(input: MaterialInput) {
           buying_price: input.buying_price,
           selling_price: input.selling_price,
           supplier: input.supplier || null,
+          purchase_date: input.purchase_date || null,
+          purchase_invoice_number: input.purchase_invoice_number || null,
+          warranty_months: Math.max(0, Math.trunc(Number(input.warranty_months || 0))),
           location: input.location || null,
           description: input.description || null,
           is_active: input.is_active ?? true,
@@ -159,6 +168,7 @@ export async function saveMaterial(input: MaterialInput) {
 
     revalidatePath("/admin/stocks");
     revalidatePath("/admin/service-orders");
+    revalidatePath("/admin");
     return { success: true, id: savedMaterialId };
   } catch (err) {
     return { success: false, error: err instanceof Error ? err.message : "Malzeme kaydedilemedi." };
@@ -181,6 +191,7 @@ export async function deleteMaterial(id: string) {
     await logActivity('UPDATE', 'materials', id, oldData, data);
 
     revalidatePath("/admin/stocks");
+    revalidatePath("/admin");
     return { success: true };
   } catch (err) {
     return { success: false, error: err instanceof Error ? err.message : "Malzeme silinemedi." };
@@ -200,6 +211,7 @@ export async function deleteAllMaterials() {
 
     revalidatePath("/admin/stocks");
     revalidatePath("/admin/service-orders");
+    revalidatePath("/admin");
     return { success: true };
   } catch (err) {
     return { success: false, error: err instanceof Error ? err.message : "Stoklar temizlenemedi." };

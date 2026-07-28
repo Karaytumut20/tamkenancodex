@@ -32,7 +32,11 @@ export async function ResourceListPage({
           className="h-12 w-full rounded-lg border border-slate-200 bg-white px-4 text-sm outline-none focus:border-primary-400"
         />
       </form>
-      <AdminTable resource={resource} rows={rows} />
+      <AdminTable
+        resource={resource}
+        rows={rows}
+        createForm={resource.canCreate ? <ResourceForm resource={resource} row={null} /> : undefined}
+      />
     </ProtectedAdminPage>
   );
 }

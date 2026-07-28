@@ -17,6 +17,15 @@ export function AdminLayoutStyles() {
         padding-top: 0 !important;
         background-color: #f8fafc !important;
       }
+      input[type="number"] {
+        -moz-appearance: textfield;
+        appearance: textfield;
+      }
+      input[type="number"]::-webkit-inner-spin-button,
+      input[type="number"]::-webkit-outer-spin-button {
+        -webkit-appearance: none;
+        margin: 0;
+      }
     ` }} />
   );
 }

@@ -278,13 +278,20 @@ function ServiceList({ services, selected, onToggle }: { services: SystemBuilder
         {services.map((item) => {
           const active = selected.some((service) => service.id === item.id);
           return (
-            <button type="button" key={item.id} onClick={() => onToggle(item)} aria-pressed={active} className={cn("relative flex min-h-[200px] flex-col items-center justify-between gap-3 rounded-xl border-2 bg-white p-4 text-left transition", active ? "border-primary-600 bg-cyan-50/40 shadow-md" : "border-border hover:border-primary-300")}>
+            <button type="button" key={item.id} onClick={() => onToggle(item)} aria-pressed={active} className={cn("relative flex min-h-[240px] flex-col items-center justify-between gap-3 rounded-xl border-2 bg-white p-4 text-left transition", active ? "border-primary-600 bg-cyan-50/40 shadow-md" : "border-border hover:border-primary-300")}>
               <span className={cn("absolute right-3 top-3 flex h-6 w-6 items-center justify-center rounded-full border", active ? "border-primary-600 primesec-navy-action text-white" : "border-border bg-white")}>
                 {active ? <Check className="h-4 w-4" /> : null}
               </span>
-              <div className="flex flex-1 items-center justify-center pt-4">
-                <span className="relative h-24 w-24 block">
-                  <Image src={item.image || "/images/alarm-sistemi.svg"} alt={`${item.title} görseli`} fill className="object-contain" unoptimized />
+              <div className="flex w-full flex-1 items-center justify-center pt-4">
+                <span className="relative block h-32 w-full max-w-[190px] sm:h-36">
+                  <Image
+                    src={item.image || "/images/alarm-sistemi.svg"}
+                    alt={`${item.title} görseli`}
+                    fill
+                    sizes="(min-width: 1024px) 190px, (min-width: 768px) 30vw, 45vw"
+                    className="object-contain p-1 transition-transform duration-300 hover:scale-105"
+                    unoptimized
+                  />
                 </span>
               </div>
               <span className="text-center text-xs font-extrabold leading-4 text-ink line-clamp-3">{item.title}</span>

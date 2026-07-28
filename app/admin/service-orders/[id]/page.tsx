@@ -3,6 +3,7 @@ import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { ProtectedAdminPage } from "@/components/admin/ProtectedAdminPage";
 import { AdminPageHeader } from "@/components/admin/AdminShell";
 import { ServiceOrderClient } from "./ServiceOrderClient";
+import { getUsdTryRate } from "@/lib/admin/exchange-rate";
 
 export const dynamic = "force-dynamic";
 
@@ -45,6 +46,7 @@ export default async function ServiceOrderDetailPage({ params }: { params: Promi
     { data: payments },
     { data: files },
     { data: logs },
+    usdTryRate,
   ] = await Promise.all([
     supabase.from("materials").select("*").eq("is_active", true).is("deleted_at", null).order("name", { ascending: true }),
     supabase.from("employees").select("*").eq("is_active", true).is("deleted_at", null).order("full_name", { ascending: true }),
@@ -52,6 +54,7 @@ export default async function ServiceOrderDetailPage({ params }: { params: Promi
     supabase.from("payments").select("*, employee:received_by_employee_id(full_name)").eq("service_order_id", id).order("payment_date", { ascending: false }),
     supabase.from("service_files").select("*").eq("service_order_id", id).order("uploaded_at", { ascending: false }),
     supabase.from("activity_logs").select("*").eq("record_id", id).order("created_at", { ascending: false }),
+    getUsdTryRate(),
   ]);
 
   return (
@@ -70,6 +73,7 @@ export default async function ServiceOrderDetailPage({ params }: { params: Promi
         files={files || []}
         logs={logs || []}
         currentUserRole={currentUserRole}
+        usdTryRate={usdTryRate}
       />
     </ProtectedAdminPage>
   );

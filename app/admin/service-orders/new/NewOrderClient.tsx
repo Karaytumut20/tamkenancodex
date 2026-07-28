@@ -3,8 +3,9 @@
 import React, { useState } from "react";
 import { useRouter } from "next/navigation";
 import { createDirectServiceOrder } from "../actions";
-import { saveMaterial } from "../../stocks/actions";
-import { AlertTriangle, Calendar, User, Tag, CheckCircle, Package, CreditCard, Plus, X } from "lucide-react";
+import { AlertTriangle, Calendar, User, Tag, CheckCircle, Package, CreditCard, Plus, UserPlus } from "lucide-react";
+import { CustomerModal } from "@/components/admin/modals/CustomerModal";
+import { StockModal } from "@/components/admin/modals/StockModal";
 
 type MaterialOption = {
   id: string;
@@ -13,10 +14,21 @@ type MaterialOption = {
   selling_price: number;
 };
 
-export function NewOrderClient({ customers, materials: initialMaterials }: { customers: any[], materials: MaterialOption[] }) {
+export function NewOrderClient({
+  customers: initialCustomers,
+  materials: initialMaterials,
+  usdTryRate,
+  onCreated,
+}: {
+  customers: any[];
+  materials: MaterialOption[];
+  usdTryRate?: number | null;
+  onCreated?: (orderId: string) => void;
+}) {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const [customers, setCustomers] = useState(initialCustomers);
   const [materials, setMaterials] = useState(initialMaterials);
 
   const [customerId, setCustomerId] = useState("");
@@ -26,11 +38,8 @@ export function NewOrderClient({ customers, materials: initialMaterials }: { cus
   // Stock / Material Selection
   const [materialId, setMaterialId] = useState("");
   const [materialQty, setMaterialQty] = useState<number>(1);
+  const [isCustomerModalOpen, setIsCustomerModalOpen] = useState(false);
   const [isMaterialModalOpen, setIsMaterialModalOpen] = useState(false);
-  const [materialSaving, setMaterialSaving] = useState(false);
-  const [newMaterialName, setNewMaterialName] = useState("");
-  const [newMaterialStock, setNewMaterialStock] = useState(0);
-  const [newMaterialPrice, setNewMaterialPrice] = useState(0);
 
   // Payment Status
   const [isPaid, setIsPaid] = useState(false);
@@ -55,42 +64,38 @@ export function NewOrderClient({ customers, materials: initialMaterials }: { cus
     }
   };
 
-  const handleCreateMaterial = async (event: React.FormEvent) => {
-    event.preventDefault();
-    if (!newMaterialName.trim()) return;
-    setMaterialSaving(true);
-    setError("");
-
-    const result = await saveMaterial({
-      name: newMaterialName.trim(),
-      stock_quantity: newMaterialStock,
-      min_stock_level: 3,
-      buying_price: 0,
-      selling_price: newMaterialPrice,
-      is_active: true,
-    });
-
-    if (!result.success || !result.id) {
-      setError(result.error || "Yeni malzeme eklenemedi.");
-      setMaterialSaving(false);
+  const handleMaterialCreated = (savedMaterial?: any) => {
+    if (!savedMaterial?.id) {
+      router.refresh();
       return;
     }
 
-    const material = {
-      id: result.id,
-      name: newMaterialName.trim(),
-      stock_quantity: newMaterialStock,
-      selling_price: newMaterialPrice,
+    const material: MaterialOption = {
+      id: savedMaterial.id,
+      name: savedMaterial.name,
+      stock_quantity: Number(savedMaterial.stock_quantity || 0),
+      selling_price: Number(savedMaterial.selling_price || 0),
     };
-    setMaterials((current) => [...current, material].sort((a, b) => a.name.localeCompare(b.name, "tr")));
-    handleMaterialChange(result.id);
+    setMaterials((current) => (
+      [...current.filter((item) => item.id !== material.id), material]
+        .sort((a, b) => a.name.localeCompare(b.name, "tr"))
+    ));
+    handleMaterialChange(material.id);
     setServiceName(material.name);
     setServicePrice("0");
-    setIsMaterialModalOpen(false);
-    setNewMaterialName("");
-    setNewMaterialStock(0);
-    setNewMaterialPrice(0);
-    setMaterialSaving(false);
+  };
+
+  const handleCustomerCreated = (savedCustomer?: any) => {
+    if (!savedCustomer?.id) {
+      router.refresh();
+      return;
+    }
+
+    setCustomers((current) => (
+      [...current.filter((customer) => customer.id !== savedCustomer.id), savedCustomer]
+        .sort((a, b) => String(a.name).localeCompare(String(b.name), "tr"))
+    ));
+    setCustomerId(savedCustomer.id);
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -131,7 +136,11 @@ export function NewOrderClient({ customers, materials: initialMaterials }: { cus
     });
 
     if (res.success) {
-      router.push(`/admin/service-orders/${res.order_id}`);
+      if (onCreated && res.order_id) {
+        onCreated(res.order_id);
+      } else {
+        router.push(`/admin/service-orders/${res.order_id}`);
+      }
     } else {
       setError(res.error || "Beklenmeyen bir hata oluştu.");
       setLoading(false);
@@ -156,8 +165,9 @@ export function NewOrderClient({ customers, materials: initialMaterials }: { cus
           </h3>
           
           <div className="space-y-1.5">
-            <label className="text-xs font-black text-slate-500 uppercase">Müşteri Seçin *</label>
+            <label htmlFor="new-order-customer" className="text-xs font-black text-slate-500 uppercase">Müşteri Seçin *</label>
             <select
+              id="new-order-customer"
               required
               value={customerId}
               onChange={(e) => setCustomerId(e.target.value)}
@@ -170,6 +180,13 @@ export function NewOrderClient({ customers, materials: initialMaterials }: { cus
                 </option>
               ))}
             </select>
+            <button
+              type="button"
+              onClick={() => setIsCustomerModalOpen(true)}
+              className="mt-2 inline-flex items-center gap-1.5 text-xs font-black text-cyan-700 hover:text-cyan-800"
+            >
+              <UserPlus className="h-4 w-4" /> Müşteri listede yoksa buradan ekle
+            </button>
           </div>
 
           <div className="grid gap-5 sm:grid-cols-2">
@@ -270,7 +287,7 @@ export function NewOrderClient({ customers, materials: initialMaterials }: { cus
               <p className="mt-2 text-xs font-bold text-slate-500">
                 Malzeme tutarı ayrıca eklenecek:{" "}
                 {servicePriceCurrency === "USD"
-                  ? ((Number(selectedMaterial.selling_price || 0) * materialQty) / 34).toLocaleString("en-US", { style: "currency", currency: "USD" })
+                  ? ((Number(selectedMaterial.selling_price || 0) * materialQty) / (usdTryRate || 34)).toLocaleString("en-US", { style: "currency", currency: "USD" })
                   : (Number(selectedMaterial.selling_price || 0) * materialQty).toLocaleString("tr-TR", { style: "currency", currency: "TRY" })
                 }
               </p>
@@ -378,40 +395,19 @@ export function NewOrderClient({ customers, materials: initialMaterials }: { cus
         </div>
       </form>
 
-      {isMaterialModalOpen && (
-        <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/40 p-4">
-          <div className="w-full max-w-md rounded-2xl border-2 border-slate-200 bg-white p-6 shadow-2xl">
-            <div className="mb-5 flex items-center justify-between">
-              <h3 className="text-lg font-black text-slate-800">Yeni Ürün / Malzeme</h3>
-              <button type="button" onClick={() => setIsMaterialModalOpen(false)} className="flex h-9 w-9 items-center justify-center rounded-lg border-2 border-slate-200">
-                <X className="h-4 w-4" />
-              </button>
-            </div>
-            <form onSubmit={handleCreateMaterial} className="space-y-4">
-              <div>
-                <label className="text-xs font-black uppercase text-slate-500">Ürün adı *</label>
-                <input required value={newMaterialName} onChange={(e) => setNewMaterialName(e.target.value)} className="mt-1 h-11 w-full rounded-xl border-2 border-slate-200 px-4 text-sm font-semibold outline-none focus:border-cyan-500" />
-              </div>
-              <div className="grid grid-cols-2 gap-3">
-                <div>
-                  <label className="text-xs font-black uppercase text-slate-500">Başlangıç stoku</label>
-                  <input type="number" min="0" step="0.01" value={newMaterialStock} onChange={(e) => setNewMaterialStock(Number(e.target.value))} className="mt-1 h-11 w-full rounded-xl border-2 border-slate-200 px-4 text-sm font-semibold outline-none focus:border-cyan-500" />
-                </div>
-                <div>
-                  <label className="text-xs font-black uppercase text-slate-500">Satış fiyatı (TL)</label>
-                  <input type="number" min="0" step="0.01" value={newMaterialPrice} onChange={(e) => setNewMaterialPrice(Number(e.target.value))} className="mt-1 h-11 w-full rounded-xl border-2 border-slate-200 px-4 text-sm font-semibold outline-none focus:border-cyan-500" />
-                </div>
-              </div>
-              <div className="flex justify-end gap-2 pt-2">
-                <button type="button" onClick={() => setIsMaterialModalOpen(false)} className="h-11 rounded-xl border-2 border-slate-200 px-5 text-sm font-black text-slate-600">Vazgeç</button>
-                <button type="submit" disabled={materialSaving} className="h-11 rounded-xl bg-cyan-600 px-5 text-sm font-black text-white disabled:opacity-60">
-                  {materialSaving ? "Ekleniyor..." : "Ekle ve Seç"}
-                </button>
-              </div>
-            </form>
-          </div>
-        </div>
-      )}
+      <StockModal
+        isOpen={isMaterialModalOpen}
+        onClose={() => setIsMaterialModalOpen(false)}
+        material={null}
+        onSuccess={handleMaterialCreated}
+      />
+
+      <CustomerModal
+        isOpen={isCustomerModalOpen}
+        onClose={() => setIsCustomerModalOpen(false)}
+        customer={null}
+        onSuccess={handleCustomerCreated}
+      />
     </div>
   );
 }

@@ -9,12 +9,17 @@ import {
   Trash2, 
   AlertTriangle, 
   TrendingDown,
-  CheckCircle,
-  X
+  CheckCircle
 } from "lucide-react";
-import { saveMaterial, deleteMaterial, deleteAllMaterials } from "./actions";
+import { deleteMaterial, deleteAllMaterials } from "./actions";
 import { useRouter } from "next/navigation";
 import { isCriticalStock } from "@/lib/admin/stock";
+import { StockModal } from "@/components/admin/modals/StockModal";
+import {
+  formatElapsedSince,
+  formatMaterialDate,
+  getWarrantyStatus,
+} from "@/lib/admin/material-warranty";
 
 type Props = {
   materials: any[];
@@ -27,14 +32,10 @@ export function StocksClient({ materials }: Props) {
 
   // Modal and Form States
   const [isOpen, setIsOpen] = useState(false);
-  const [isEditMode, setIsEditMode] = useState(false);
+  const [selectedMaterial, setSelectedMaterial] = useState<any>(null);
   const [loading, setLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
   const [successMessage, setSuccessMessage] = useState("");
-
-  const [formId, setFormId] = useState("");
-  const [formName, setFormName] = useState("");
-  const [formQty, setFormQty] = useState(0);
 
   // Filter materials
   const filtered = useMemo(() => materials.filter((m) => {
@@ -52,49 +53,22 @@ export function StocksClient({ materials }: Props) {
   ).length, [materials]);
 
   const handleOpenAdd = () => {
-    setIsEditMode(false);
-    setFormId("");
-    setFormName("");
-    setFormQty(0);
+    setSelectedMaterial(null);
     setErrorMessage("");
     setSuccessMessage("");
     setIsOpen(true);
   };
 
   const handleOpenEdit = (m: any) => {
-    setIsEditMode(true);
-    setFormId(m.id);
-    setFormName(m.name);
-    setFormQty(Number(m.stock_quantity || 0));
+    setSelectedMaterial(m);
     setErrorMessage("");
     setSuccessMessage("");
     setIsOpen(true);
   };
 
-  const handleSave = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setLoading(true);
-    setErrorMessage("");
-    setSuccessMessage("");
-
-    const res = await saveMaterial({
-      id: formId || undefined,
-      name: formName,
-      stock_quantity: formQty,
-      min_stock_level: 0,
-      buying_price: 0,
-      selling_price: 0,
-      is_active: true,
-    });
-
-    if (res.success) {
-      setSuccessMessage(isEditMode ? "Malzeme güncellendi." : "Yeni malzeme eklendi.");
-      setIsOpen(false);
-      router.refresh();
-    } else {
-      setErrorMessage(res.error || "Malzeme kaydedilemedi.");
-    }
-    setLoading(false);
+  const handleMaterialSaved = () => {
+    setSuccessMessage(selectedMaterial ? "Malzeme güncellendi." : "Yeni malzeme eklendi.");
+    router.refresh();
   };
 
   const handleDelete = async (id: string) => {
@@ -234,6 +208,8 @@ export function StocksClient({ materials }: Props) {
               <thead>
                 <tr className="border-b border-slate-200 bg-slate-50 text-slate-500 font-black text-xs uppercase">
                   <th className="p-4">Ürün Adı</th>
+                  <th className="p-4">Satın Alma</th>
+                  <th className="p-4">Garanti</th>
                   <th className="p-4">Mevcut Stok</th>
                   <th className="p-4 text-right">İşlem</th>
                 </tr>
@@ -241,10 +217,43 @@ export function StocksClient({ materials }: Props) {
               <tbody className="divide-y divide-slate-100 font-medium">
                 {filtered.map((m) => {
                   const isLow = isCriticalStock(m.stock_quantity);
+                  const warrantyStatus = getWarrantyStatus({
+                    warrantyMonths: m.warranty_months,
+                    warrantyStartDate: m.purchase_date,
+                  });
                   return (
                     <tr key={m.id} className="hover:bg-slate-50/55">
                       <td className="p-4">
                         <span className="font-extrabold text-slate-800 block">{m.name}</span>
+                        <span className="mt-1 block text-xs text-slate-400">
+                          {[m.brand, m.model].filter(Boolean).join(" · ") || "Marka/model belirtilmedi"}
+                        </span>
+                      </td>
+                      <td className="p-4">
+                        <span className="block font-bold text-slate-700">{m.supplier || "Tedarikçi belirtilmedi"}</span>
+                        <span className="mt-1 block text-xs text-slate-500">
+                          {m.purchase_date
+                            ? `Alış: ${formatMaterialDate(m.purchase_date)} · ${formatElapsedSince(m.purchase_date)}`
+                            : "Alış tarihi belirtilmedi"}
+                        </span>
+                        <span className="block text-xs text-slate-500">
+                          {Number(m.buying_price || 0).toLocaleString("tr-TR", { style: "currency", currency: "TRY" })}
+                          {m.purchase_invoice_number ? ` · ${m.purchase_invoice_number}` : ""}
+                        </span>
+                      </td>
+                      <td className="p-4">
+                        <span className={`inline-flex rounded-full border px-2 py-1 text-[10px] font-black ${
+                          warrantyStatus.key === "active"
+                            ? "border-emerald-200 bg-emerald-50 text-emerald-700"
+                            : warrantyStatus.key === "expired"
+                              ? "border-red-200 bg-red-50 text-red-700"
+                              : "border-slate-200 bg-slate-50 text-slate-600"
+                        }`}>
+                          {warrantyStatus.label}
+                        </span>
+                        {warrantyStatus.detail && (
+                          <span className="mt-1 block text-[10px] font-semibold text-slate-500">{warrantyStatus.detail}</span>
+                        )}
                       </td>
                       <td className="p-4">
                         <span className={`text-base font-black ${isLow ? "text-rose-600" : "text-slate-800"}`}>
@@ -278,74 +287,12 @@ export function StocksClient({ materials }: Props) {
         </div>
       )}
 
-      {/* Modal Popup for Add / Edit Material */}
-      {isOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4">
-          <div className="bg-white border-2 border-slate-300 rounded-3xl p-6 md:p-8 max-w-md w-full shadow-2xl overflow-y-auto max-h-[90vh]">
-            <div className="flex items-center justify-between border-b border-slate-100 pb-4 mb-6">
-              <h3 className="text-xl font-black text-slate-800">
-                {isEditMode ? "Stoku Düzenle" : "Yeni Stok Ekle"}
-              </h3>
-              <button
-                onClick={() => setIsOpen(false)}
-                className="h-10 w-10 flex items-center justify-center rounded-xl border-2 border-slate-200 hover:bg-slate-50"
-              >
-                <X className="h-5 w-5 text-slate-500" />
-              </button>
-            </div>
-
-            {errorMessage && (
-              <div className="flex items-center gap-3 rounded-xl border border-red-200 bg-red-50 p-4 text-red-800 text-sm font-semibold mb-4">
-                <AlertTriangle className="h-5 w-5 text-red-600 shrink-0" />
-                <span>{errorMessage}</span>
-              </div>
-            )}
-
-            <form onSubmit={handleSave} className="space-y-4 text-left">
-              <div className="space-y-1.5">
-                <label className="text-xs font-black text-slate-500 uppercase">Ürün / Hizmet Adı *</label>
-                <input
-                  required
-                  type="text"
-                  value={formName}
-                  onChange={(e) => setFormName(e.target.value)}
-                  placeholder="Örn: 2MP Dış Ortam CCTV Kamera"
-                  className="h-11 w-full px-4 rounded-xl border-2 border-slate-200 bg-white text-sm font-semibold outline-none focus:border-cyan-500 transition-colors"
-                />
-              </div>
-
-              <div className="space-y-1.5">
-                <label className="text-xs font-black text-slate-500 uppercase">Mevcut Stok Adeti *</label>
-                <input
-                  required
-                  type="number"
-                  step="0.01"
-                  value={formQty}
-                  onChange={(e) => setFormQty(Number(e.target.value))}
-                  className="h-11 w-full px-4 rounded-xl border-2 border-slate-200 bg-white text-sm font-semibold outline-none focus:border-cyan-500 transition-colors"
-                />
-              </div>
-
-              <div className="flex justify-end gap-2 border-t border-slate-100 pt-4 mt-6">
-                <button
-                  type="button"
-                  onClick={() => setIsOpen(false)}
-                  className="h-11 px-5 rounded-xl border-2 border-slate-200 bg-white text-sm font-black text-slate-600 hover:bg-slate-50 transition-colors"
-                >
-                  Vazgeç
-                </button>
-                <button
-                  type="submit"
-                  disabled={loading}
-                  className="h-11 px-6 rounded-xl bg-cyan-600 border-2 border-cyan-700 text-white text-sm font-black hover:bg-cyan-700 transition-colors"
-                >
-                  {loading ? "Kaydediliyor..." : "Kaydet"}
-                </button>
-              </div>
-            </form>
-          </div>
-        </div>
-      )}
+      <StockModal
+        isOpen={isOpen}
+        onClose={() => setIsOpen(false)}
+        material={selectedMaterial}
+        onSuccess={handleMaterialSaved}
+      />
     </div>
   );
 }

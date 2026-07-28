@@ -1,12 +1,17 @@
 import Link from "next/link";
-import { Plus, RefreshCw } from "lucide-react";
+import { RefreshCw } from "lucide-react";
 import { AdminPageHeader } from "@/components/admin/AdminShell";
 import { ProtectedAdminPage } from "@/components/admin/ProtectedAdminPage";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { ProductList } from "@/components/admin/ProductList";
+import { InlineCreateModal } from "@/components/admin/InlineCreateModal";
+import { ResourceForm } from "@/components/admin/ResourceForm";
+import { getResourceByKey } from "@/lib/admin/resources";
 
 export default async function ProductsPage() {
   const supabase = await createSupabaseServerClient();
+  const productResource = getResourceByKey("products");
+  if (!productResource) throw new Error("Ürün kaynağı bulunamadı.");
 
   // Normal ürünler
   const { data: products } = await supabase
@@ -67,13 +72,14 @@ export default async function ProductsPage() {
               <RefreshCw className="h-4 w-4" />
               Oksid Sync
             </Link>
-            <Link
-              href="/admin/products/new"
-              className="inline-flex h-12 items-center gap-2 rounded-xl bg-cyan-600 border-2 border-cyan-700 px-6 text-base font-black text-white hover:bg-cyan-700 transition-colors"
+            <InlineCreateModal
+              title="Yeni Ürün Ekle"
+              description="Ürünü bu sayfadan ayrılmadan oluşturun."
+              buttonLabel="Yeni Ürün Ekle"
+              buttonClassName="inline-flex h-12 items-center gap-2 rounded-xl bg-cyan-600 border-2 border-cyan-700 px-6 text-base font-black text-white hover:bg-cyan-700 transition-colors"
             >
-              <Plus className="h-5 w-5" />
-              Yeni Ürün Ekle
-            </Link>
+              <ResourceForm resource={productResource} row={null} />
+            </InlineCreateModal>
           </div>
         }
       />

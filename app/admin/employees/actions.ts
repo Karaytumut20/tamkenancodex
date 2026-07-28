@@ -20,6 +20,7 @@ export type EmployeeInput = {
 // Save or Update Employee
 export async function saveEmployee(input: EmployeeInput) {
   const supabase = await createSupabaseServerClient();
+  let savedEmployee: Record<string, unknown> | null = null;
 
   try {
     if (input.id) {
@@ -44,6 +45,7 @@ export async function saveEmployee(input: EmployeeInput) {
         .single();
 
       if (error) throw new Error(error.message);
+      savedEmployee = data;
       await logActivity('UPDATE', 'employees', input.id, oldData, data);
     } else {
       const { data, error } = await supabase
@@ -63,12 +65,13 @@ export async function saveEmployee(input: EmployeeInput) {
         .single();
 
       if (error) throw new Error(error.message);
+      savedEmployee = data;
       await logActivity('INSERT', 'employees', data.id, null, data);
     }
 
     revalidatePath("/admin/employees");
     revalidatePath("/admin/calendar");
-    return { success: true };
+    return { success: true, employee: savedEmployee };
   } catch (err) {
     return { success: false, error: err instanceof Error ? err.message : "Personel kaydedilemedi." };
   }

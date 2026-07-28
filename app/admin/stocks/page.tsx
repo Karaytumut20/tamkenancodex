@@ -11,7 +11,7 @@ export default async function StocksPage() {
   // Fetch all active stock items
   const { data: materials } = await supabase
     .from("materials")
-    .select("id, name, stock_quantity, min_stock_level, is_active")
+    .select("*")
     .is("deleted_at", null)
     .order("name", { ascending: true });
 

@@ -42,6 +42,7 @@ export async function isPhoneUnique(phone: string, excludeId?: string): Promise<
 // Save or Update Customer
 export async function saveCustomer(input: CustomerInput) {
   const supabase = await createSupabaseServerClient();
+  let savedCustomer: Record<string, unknown> | null = null;
 
   try {
     const isUnique = await isPhoneUnique(input.phone, input.id);
@@ -76,6 +77,7 @@ export async function saveCustomer(input: CustomerInput) {
         .single();
 
       if (error) throw new Error(error.message);
+      savedCustomer = data;
       await logActivity('UPDATE', 'customers', input.id, oldData, data);
     } else {
       const { data, error } = await supabase
@@ -100,12 +102,14 @@ export async function saveCustomer(input: CustomerInput) {
         .single();
 
       if (error) throw new Error(error.message);
+      savedCustomer = data;
       await logActivity('INSERT', 'customers', data.id, null, data);
     }
 
     revalidatePath("/admin/customers");
     revalidatePath("/admin/calendar");
-    return { success: true };
+    revalidatePath("/admin");
+    return { success: true, customer: savedCustomer };
   } catch (err) {
     return { success: false, error: err instanceof Error ? err.message : "Müşteri kaydedilemedi." };
   }
@@ -127,6 +131,7 @@ export async function deleteCustomer(id: string) {
     await logActivity('UPDATE', 'customers', id, oldData, data);
 
     revalidatePath("/admin/customers");
+    revalidatePath("/admin");
     return { success: true };
   } catch (err) {
     return { success: false, error: err instanceof Error ? err.message : "Müşteri silinemedi." };

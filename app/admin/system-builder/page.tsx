@@ -1,11 +1,13 @@
 import Image from "next/image";
 import Link from "next/link";
-import { Edit, Plus, Search, Wrench } from "lucide-react";
+import { Edit, Search, Wrench } from "lucide-react";
 import { ConfirmDeleteButton } from "@/components/admin/ConfirmDeleteButton";
 import { ProtectedAdminPage } from "@/components/admin/ProtectedAdminPage";
 import { deleteResource } from "@/lib/admin/actions";
 import { getResourceRows } from "@/lib/admin/data";
 import { adminResources } from "@/lib/admin/resources";
+import { InlineCreateModal } from "@/components/admin/InlineCreateModal";
+import { ResourceForm } from "@/components/admin/ResourceForm";
 
 export const revalidate = 0;
 
@@ -22,9 +24,14 @@ export default async function SystemBuilderAdminPage({ searchParams }: { searchP
             <h1 className="text-2xl font-black text-slate-800">Kendi Sistemini Tasarla Yönetimi</h1>
             <p className="mt-1 text-sm font-semibold text-slate-500">Formun 4. adımında gösterilecek hizmetleri buradan yönetin.</p>
           </div>
-          <Link href="/admin/system-builder/new" className="inline-flex h-12 items-center gap-2 rounded-xl bg-cyan-600 px-5 font-black text-white transition hover:bg-cyan-700">
-            <Plus className="h-5 w-5" /> Yeni Hizmet Ekle
-          </Link>
+          <InlineCreateModal
+            title="Yeni Hizmet Ekle"
+            description="Hizmeti bu sayfadan ayrılmadan oluşturun."
+            buttonLabel="Yeni Hizmet Ekle"
+            buttonClassName="inline-flex h-12 items-center gap-2 rounded-xl bg-cyan-600 px-5 font-black text-white transition hover:bg-cyan-700"
+          >
+            <ResourceForm resource={resource} row={null} />
+          </InlineCreateModal>
         </div>
 
         <form className="relative mt-7 max-w-2xl">
@@ -46,8 +53,15 @@ export default async function SystemBuilderAdminPage({ searchParams }: { searchP
 
             return (
               <article key={String(service.id)} className="group overflow-hidden rounded-2xl border-2 border-slate-200 bg-white shadow-sm transition hover:-translate-y-0.5 hover:border-cyan-300 hover:shadow-md">
-                <div className="relative h-40 border-b border-slate-100 bg-slate-50">
-                  <Image src={image} alt={title} fill className="object-contain p-5 transition duration-300 group-hover:scale-105" unoptimized />
+                <div className="relative h-48 border-b border-slate-100 bg-slate-50 md:h-52">
+                  <Image
+                    src={image}
+                    alt={title}
+                    fill
+                    sizes="(min-width: 1280px) 33vw, (min-width: 640px) 50vw, 100vw"
+                    className="object-contain p-2 transition duration-300 group-hover:scale-105"
+                    unoptimized
+                  />
                   <span className={`absolute right-3 top-3 rounded-full border px-3 py-1 text-xs font-black ${active ? "border-emerald-200 bg-emerald-50 text-emerald-700" : "border-slate-200 bg-white text-slate-500"}`}>
                     {active ? "Aktif" : "Pasif"}
                   </span>

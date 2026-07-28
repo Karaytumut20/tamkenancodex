@@ -3,6 +3,7 @@
 import React, { useEffect, useRef, useState, useTransition } from "react";
 import Link from "next/link";
 import {
+  createQuickProductBrand,
   createQuickProductCategory,
   deleteQuickProductCategory,
   saveResource,
@@ -595,6 +596,120 @@ type ProductCategoryOption = {
   description?: string;
 };
 
+function ProductBrandField({
+  field,
+  row,
+}: {
+  field: AdminField;
+  row: Record<string, unknown> | null;
+}) {
+  const [options, setOptions] = useState(field.options ?? []);
+  const [selectedValue, setSelectedValue] = useState(row?.[field.name] ? String(row[field.name]) : "");
+  const [isOpen, setIsOpen] = useState(false);
+  const [name, setName] = useState("");
+  const [error, setError] = useState("");
+  const [isPending, startTransition] = useTransition();
+
+  const createBrand = () => {
+    setError("");
+    startTransition(async () => {
+      const result = await createQuickProductBrand({ name });
+      if (!result.success) {
+        setError(result.error);
+        return;
+      }
+
+      const option = { label: result.brand.name, value: result.brand.id };
+      setOptions((current) => (
+        [...current.filter((item) => item.value !== option.value), option]
+          .sort((a, b) => a.label.localeCompare(b.label, "tr"))
+      ));
+      setSelectedValue(option.value);
+      setName("");
+      setIsOpen(false);
+    });
+  };
+
+  return (
+    <div>
+      <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+        <label htmlFor="product-brand" className="text-base font-black text-slate-700">
+          {field.label}
+        </label>
+        <button
+          type="button"
+          onClick={() => {
+            setName("");
+            setError("");
+            setIsOpen(true);
+          }}
+          className="inline-flex h-10 items-center justify-center gap-2 rounded-xl border-2 border-cyan-600 bg-cyan-50 px-4 text-sm font-black text-cyan-700 hover:bg-cyan-100"
+        >
+          <Plus className="h-4 w-4" /> Marka Ekle
+        </button>
+      </div>
+      <select
+        id="product-brand"
+        name={field.name}
+        value={selectedValue}
+        onChange={(event) => setSelectedValue(event.target.value)}
+        required={field.required}
+        className="mt-2 h-14 w-full rounded-xl border-2 border-slate-200 bg-white px-4 text-base outline-none transition-colors focus:border-cyan-500 focus:ring-2 focus:ring-cyan-100"
+      >
+        <option value="">Seçiniz</option>
+        {options.map((option) => (
+          <option key={option.value} value={option.value}>{option.label}</option>
+        ))}
+      </select>
+
+      {isOpen && (
+        <div
+          className="fixed inset-0 z-[80] flex items-center justify-center bg-slate-950/60 p-4 backdrop-blur-sm"
+          onMouseDown={(event) => {
+            if (event.target === event.currentTarget) setIsOpen(false);
+          }}
+        >
+          <section role="dialog" aria-modal="true" aria-labelledby="quick-brand-title" className="w-full max-w-md rounded-2xl border-2 border-slate-200 bg-white p-6 shadow-2xl">
+            <div className="flex items-center justify-between">
+              <h3 id="quick-brand-title" className="text-xl font-black text-slate-900">Yeni Marka Ekle</h3>
+              <button type="button" onClick={() => setIsOpen(false)} aria-label="Marka penceresini kapat" className="rounded-lg p-2 text-slate-500 hover:bg-slate-100">
+                <X className="h-5 w-5" />
+              </button>
+            </div>
+            <div className="mt-5">
+              <label htmlFor="quick-brand-name" className="text-sm font-black text-slate-700">Marka Adı *</label>
+              <input
+                id="quick-brand-name"
+                value={name}
+                onChange={(event) => setName(event.target.value)}
+                onKeyDown={(event) => {
+                  if (event.key === "Enter") {
+                    event.preventDefault();
+                    if (!isPending && name.trim().length >= 2) createBrand();
+                  }
+                }}
+                className="mt-2 h-12 w-full rounded-xl border-2 border-slate-200 px-4 text-base outline-none focus:border-cyan-500"
+              />
+            </div>
+            {error && <p role="alert" className="mt-3 rounded-xl border border-red-200 bg-red-50 p-3 text-sm font-bold text-red-700">{error}</p>}
+            <div className="mt-5 flex justify-end gap-2">
+              <button type="button" onClick={() => setIsOpen(false)} className="h-11 rounded-xl bg-slate-100 px-5 text-sm font-black text-slate-700">Vazgeç</button>
+              <button
+                type="button"
+                onClick={createBrand}
+                disabled={isPending || name.trim().length < 2}
+                className="h-11 rounded-xl bg-cyan-600 px-5 text-sm font-black text-white disabled:opacity-50"
+              >
+                {isPending ? "Ekleniyor..." : "Ekle ve Seç"}
+              </button>
+            </div>
+          </section>
+        </div>
+      )}
+    </div>
+  );
+}
+
 function ProductCategoriesField({
   field,
   row,
@@ -1067,6 +1182,10 @@ function Field({ field, row }: { field: AdminField; row: Record<string, unknown>
 
   if (field.name === "categories_list" && field.type === "checkboxes") {
     return <ProductCategoriesField field={field} row={row} />;
+  }
+
+  if (field.name === "brand_id" && field.optionSource === "brands") {
+    return <ProductBrandField field={field} row={row} />;
   }
 
   if (field.type === "custom_list") {

@@ -26,6 +26,11 @@ import { addCustomerNote, deleteCustomer } from "../actions";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { customerWhatsappUrl, phoneCallUrl } from "@/lib/whatsapp";
+import {
+  formatElapsedSince,
+  formatMaterialDate,
+  getWarrantyStatus,
+} from "@/lib/admin/material-warranty";
 
 type Props = {
   customer: any;
@@ -299,23 +304,67 @@ export function CustomerProfileClient({
                     <tr className="border-b border-slate-200 bg-slate-50 text-slate-500 font-black text-xs uppercase">
                       <th className="p-3">Malzeme Adı</th>
                       <th className="p-3">Miktar</th>
+                      <th className="p-3">Satın Alma Kaydı</th>
                       <th className="p-3">Satış Fiyatı</th>
                       <th className="p-3">Garanti</th>
                       <th className="p-3">İş Emri</th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-slate-100 font-medium">
-                    {materials.map((m) => (
+                    {materials.map((m) => {
+                      const warrantyStatus = getWarrantyStatus({
+                        warrantyMonths: m.warranty_months,
+                        warrantyStartDate: m.warranty_start_date || m.purchase_date,
+                        warrantyEndDate: m.warranty_end_date,
+                      });
+
+                      return (
                       <tr key={m.id}>
-                        <td className="p-3 font-extrabold text-slate-800">{m.name}</td>
+                        <td className="p-3">
+                          <span className="block font-extrabold text-slate-800">{m.name}</span>
+                          <span className="mt-1 block text-[10px] text-slate-400">
+                            {[m.brand, m.model, m.serial_number ? `S/N: ${m.serial_number}` : null].filter(Boolean).join(" · ")}
+                          </span>
+                          <span className="block text-[10px] text-slate-400">Servise eklendi: {formatMaterialDate(m.created_at?.slice(0, 10))}</span>
+                        </td>
                         <td className="p-3">{Number(m.quantity)} {m.unit}</td>
+                        <td className="p-3">
+                          <span className="block font-bold text-slate-700">{m.supplier || "Tedarikçi belirtilmedi"}</span>
+                          <span className="mt-1 block text-[10px] text-slate-500">
+                            {m.purchase_date
+                              ? `Alış: ${formatMaterialDate(m.purchase_date)} · ${formatElapsedSince(m.purchase_date)}`
+                              : "Alış tarihi belirtilmedi"}
+                          </span>
+                          <span className="block text-[10px] text-slate-500">
+                            {Number(m.buying_price || 0).toLocaleString("tr-TR", { style: "currency", currency: "TRY" })}
+                            {m.purchase_invoice_number ? ` · ${m.purchase_invoice_number}` : ""}
+                          </span>
+                        </td>
                         <td className="p-3 font-bold text-slate-700">
                           {Number(m.total_selling_price || 0).toLocaleString("tr-TR", { style: "currency", currency: "TRY" })}
                         </td>
-                        <td className="p-3 text-slate-500">{m.warranty_months ? `${m.warranty_months} Ay` : "Yok"}</td>
-                        <td className="p-3 font-bold text-cyan-600">{m.service_order?.order_number || "Bilinmiyor"}</td>
+                        <td className="p-3">
+                          <span className={`inline-flex rounded-full border px-2 py-1 text-[10px] font-black ${
+                            warrantyStatus.key === "active"
+                              ? "border-emerald-200 bg-emerald-50 text-emerald-700"
+                              : warrantyStatus.key === "expired"
+                                ? "border-red-200 bg-red-50 text-red-700"
+                                : "border-slate-200 bg-slate-50 text-slate-600"
+                          }`}>
+                            {warrantyStatus.label}
+                          </span>
+                          {warrantyStatus.detail && (
+                            <span className="mt-1 block text-[10px] font-semibold text-slate-500">{warrantyStatus.detail}</span>
+                          )}
+                        </td>
+                        <td className="p-3">
+                          <Link href={`/admin/service-orders/${m.service_order_id}`} className="font-bold text-cyan-600 hover:text-cyan-700">
+                            {m.service_order?.order_number || "Bilinmiyor"}
+                          </Link>
+                        </td>
                       </tr>
-                    ))}
+                      );
+                    })}
                   </tbody>
                 </table>
               </div>

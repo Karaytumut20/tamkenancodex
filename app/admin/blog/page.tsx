@@ -1,10 +1,13 @@
 import Link from "next/link";
-import { Edit, Plus } from "lucide-react";
+import { Edit } from "lucide-react";
 import { AdminPageHeader } from "@/components/admin/AdminShell";
 import { ProtectedAdminPage } from "@/components/admin/ProtectedAdminPage";
 import { ConfirmDeleteButton } from "@/components/admin/ConfirmDeleteButton";
 import { deleteResource } from "@/lib/admin/actions";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
+import { InlineCreateModal } from "@/components/admin/InlineCreateModal";
+import { ResourceForm } from "@/components/admin/ResourceForm";
+import { adminResources } from "@/lib/admin/resources";
 
 export default async function BlogAdminPage() {
   const supabase = await createSupabaseServerClient();
@@ -27,13 +30,14 @@ export default async function BlogAdminPage() {
         title="📰 Blog Yazıları"
         description="Yazılarınızı buradan ekleyin veya düzenleyin."
         action={
-          <Link
-            href="/admin/blog/new"
-            className="inline-flex h-12 items-center gap-2 rounded-xl bg-cyan-600 border-2 border-cyan-700 px-6 text-base font-black text-white hover:bg-cyan-700 transition-colors"
+          <InlineCreateModal
+            title="Yeni Blog Yazısı Ekle"
+            description="Yazıyı bu sayfadan ayrılmadan oluşturun."
+            buttonLabel="Yeni Yazı Ekle"
+            buttonClassName="inline-flex h-12 items-center gap-2 rounded-xl border-2 border-cyan-700 bg-cyan-600 px-6 text-base font-black text-white hover:bg-cyan-700"
           >
-            <Plus className="h-5 w-5" />
-            Yeni Yazı Ekle
-          </Link>
+            <ResourceForm resource={adminResources.blog} row={null} />
+          </InlineCreateModal>
         }
       />
 

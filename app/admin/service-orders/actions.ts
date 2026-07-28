@@ -5,7 +5,9 @@ import fs from "node:fs";
 import path from "node:path";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { logActivity, generateServiceOrderNumber } from "@/lib/admin/service-system";
+import { getUsdTryRate } from "@/lib/admin/exchange-rate";
 import { toTurkeyDateKey } from "@/lib/admin/calendar-date";
+import { calculateWarrantyEndDate } from "@/lib/admin/material-warranty";
 
 export type ServiceOrderInput = {
   id?: string;
@@ -30,6 +32,7 @@ export type ServiceOrderInput = {
 // Recalculate financial fields for a service order
 export async function recalculateOrderTotals(orderId: string, supabaseClient?: any) {
   const supabase = supabaseClient || await createSupabaseServerClient();
+  const usdTryRate = (await getUsdTryRate())?.rate ?? 34;
 
   // 1. Get service order details
   const { data: order, error: orderErr } = await supabase
@@ -72,11 +75,9 @@ export async function recalculateOrderTotals(orderId: string, supabaseClient?: a
       if (payCurr === orderCurr) {
         totalPaid += Number(p.amount || 0);
       } else if (payCurr === 'USD' && orderCurr === 'TRY') {
-        // Convert USD payment to TRY for TRY order using a rate of 34
-        totalPaid += Number(p.amount || 0) * 34;
+        totalPaid += Number(p.amount || 0) * usdTryRate;
       } else if (payCurr === 'TRY' && orderCurr === 'USD') {
-        // Convert TRY payment to USD for USD order using a rate of 34
-        totalPaid += Number(p.amount || 0) / 34;
+        totalPaid += Number(p.amount || 0) / usdTryRate;
       } else {
         totalPaid += Number(p.amount || 0);
       }
@@ -100,7 +101,7 @@ export async function recalculateOrderTotals(orderId: string, supabaseClient?: a
   const taxRate = Number(order.tax_rate || 0);
 
   // If order currency is USD, materials selling price (stored in TRY) must be converted to USD for invoicing
-  const materialSellingInOrderCurrency = orderCurr === 'USD' ? (totalMaterialSelling / 34) : totalMaterialSelling;
+  const materialSellingInOrderCurrency = orderCurr === 'USD' ? (totalMaterialSelling / usdTryRate) : totalMaterialSelling;
 
   const taxableAmount = Math.max(0, materialSellingInOrderCurrency + laborPrice - discount);
   const taxAmount = taxableAmount * (taxRate / 100);
@@ -108,7 +109,7 @@ export async function recalculateOrderTotals(orderId: string, supabaseClient?: a
 
   // Net kâr = Genel toplam - toplam maliyet
   // If order currency is USD, total cost (stored in TRY) must be converted to USD to calculate net profit correctly
-  const netProfit = orderCurr === 'USD' ? (grandTotal - (totalCost / 34)) : (grandTotal - totalCost);
+  const netProfit = orderCurr === 'USD' ? (grandTotal - (totalCost / usdTryRate)) : (grandTotal - totalCost);
 
   // Update order with computed values
   const { data: updatedOrder, error: updateErr } = await supabase
@@ -229,6 +230,7 @@ export async function saveServiceOrder(input: ServiceOrderInput) {
     revalidatePath("/admin/service-orders");
     if (input.appointment_id) revalidatePath("/admin/calendar");
     revalidatePath(`/admin/customers/${input.customer_id}`);
+    revalidatePath("/admin");
     return { success: true, id: input.id };
   } catch (err) {
     return { success: false, error: err instanceof Error ? err.message : "İş emri kaydedilemedi." };
@@ -249,7 +251,11 @@ export async function addMaterialToOrder(
     quantity: number;
     buying_price: number;
     selling_price: number;
+    supplier?: string;
+    purchase_date?: string;
+    purchase_invoice_number?: string;
     warranty_months?: number;
+    warranty_start_date?: string;
     description?: string;
   }
 ) {
@@ -277,6 +283,9 @@ export async function addMaterialToOrder(
     const totalBuyingCost = input.quantity * input.buying_price;
     const totalSellingPrice = input.quantity * input.selling_price;
     const profit = totalSellingPrice - totalBuyingCost;
+    const warrantyMonths = Math.max(0, Math.trunc(Number(input.warranty_months || 0)));
+    const warrantyStartDate = input.warranty_start_date || input.purchase_date || null;
+    const warrantyEndDate = calculateWarrantyEndDate(warrantyStartDate, warrantyMonths);
 
     const { data: newMat, error } = await supabase
       .from('service_order_materials')
@@ -295,7 +304,12 @@ export async function addMaterialToOrder(
         selling_price: input.selling_price,
         total_selling_price: totalSellingPrice,
         profit,
-        warranty_months: input.warranty_months || 0,
+        supplier: input.supplier || null,
+        purchase_date: input.purchase_date || null,
+        purchase_invoice_number: input.purchase_invoice_number || null,
+        warranty_months: warrantyMonths,
+        warranty_start_date: warrantyStartDate,
+        warranty_end_date: warrantyEndDate,
         description: input.description || null,
       })
       .select()
@@ -310,6 +324,7 @@ export async function addMaterialToOrder(
     await logActivity('INSERT', 'service_order_materials', newMat.id, null, newMat);
 
     revalidatePath(`/admin/service-orders/${serviceOrderId}`);
+    revalidatePath("/admin");
     return { success: true };
   } catch (err) {
     return { success: false, error: err instanceof Error ? err.message : "Malzeme eklenemedi." };
@@ -337,6 +352,7 @@ export async function removeMaterialFromOrder(materialRecordId: string, serviceO
     await logActivity('DELETE', 'service_order_materials', materialRecordId, oldData, null);
 
     revalidatePath(`/admin/service-orders/${serviceOrderId}`);
+    revalidatePath("/admin");
     return { success: true };
   } catch (err) {
     return { success: false, error: err instanceof Error ? err.message : "Malzeme kaldırılamadı." };
@@ -384,6 +400,7 @@ export async function addPayment(input: {
     
     revalidatePath(`/admin/customers/${input.customer_id}`);
     revalidatePath('/admin/accounting');
+    revalidatePath('/admin');
     return { success: true };
   } catch (err) {
     return { success: false, error: err instanceof Error ? err.message : "Ödeme kaydedilemedi." };
@@ -428,6 +445,7 @@ export async function updatePayment(id: string, input: {
     await logActivity('UPDATE', 'payments', id, oldData, data);
     revalidatePath(`/admin/customers/${oldData.customer_id}`);
     revalidatePath('/admin/accounting');
+    revalidatePath('/admin');
     return { success: true };
   } catch (err) {
     return { success: false, error: err instanceof Error ? err.message : "Ödeme güncellenemedi." };
@@ -488,6 +506,7 @@ export async function deletePayment(id: string, serviceOrderId?: string | null, 
 
     if (customerId) revalidatePath(`/admin/customers/${customerId}`);
     revalidatePath('/admin/accounting');
+    revalidatePath('/admin');
     return { success: true };
   } catch (err) {
     return { success: false, error: err instanceof Error ? err.message : "Ödeme silinemedi." };
@@ -513,6 +532,7 @@ export async function deleteServiceOrder(id: string) {
     revalidatePath('/admin/service-orders');
     revalidatePath('/admin/accounting');
     if (oldData.customer_id) revalidatePath(`/admin/customers/${oldData.customer_id}`);
+    revalidatePath('/admin');
     return { success: true };
   } catch (err) {
     return { success: false, error: err instanceof Error ? err.message : "İş emri silinemedi." };
@@ -617,7 +637,7 @@ export async function createDirectServiceOrder(input: {
     if (input.material_id && input.material_quantity && input.material_quantity > 0) {
       const { data: material, error: materialError } = await supabase
         .from('materials')
-        .select('id, name, category, brand, model, stock_quantity, buying_price, selling_price')
+        .select('id, name, category, brand, model, stock_quantity, buying_price, selling_price, supplier, purchase_date, purchase_invoice_number, warranty_months')
         .eq('id', input.material_id)
         .eq('is_active', true)
         .is('deleted_at', null)
@@ -685,6 +705,11 @@ export async function createDirectServiceOrder(input: {
           quantity: input.material_quantity,
           buying_price: Number(selectedMaterial.buying_price || 0),
           selling_price: Number(selectedMaterial.selling_price || 0),
+          supplier: selectedMaterial.supplier || undefined,
+          purchase_date: selectedMaterial.purchase_date || undefined,
+          purchase_invoice_number: selectedMaterial.purchase_invoice_number || undefined,
+          warranty_months: Number(selectedMaterial.warranty_months || 0),
+          warranty_start_date: selectedMaterial.purchase_date || undefined,
           description: "Hızlı satış ekranından eklendi.",
         });
         if (!materialResult.success) throw new Error(materialResult.error || "Malzeme iş emrine eklenemedi.");
@@ -715,6 +740,7 @@ export async function createDirectServiceOrder(input: {
     
     revalidatePath("/admin/service-orders");
     if (appointmentId) revalidatePath("/admin/calendar");
+    revalidatePath("/admin");
     
     return { success: true, order_id: orderData.id };
   } catch (err) {

@@ -44,7 +44,7 @@ export default async function AdminDashboardPage() {
     todayAppointments: 0,
     tomorrowAppointments: 0,
     weeklyCompleted: 0,
-    pendingOrders: 0,
+    totalOrders: 0,
     collectionPending: 0,
     totalCustomers: 0,
     monthlyCiro: 0,
@@ -58,6 +58,8 @@ export default async function AdminDashboardPage() {
     usdCollected: 0,
     usdReceivable: 0,
     usdCost: 0,
+    usdTryRate: 34,
+    usdTryRateDate: null as string | null,
     lowStockCount: 0,
   };
   
@@ -102,7 +104,9 @@ export default async function AdminDashboardPage() {
       .select("id, appointment_date, start_time, service_type, status, customer:customer_id(name)")
       .lt("appointment_date", todayStr)
       .is("deleted_at", null)
-      .not("status", "in", '("İşlem Tamamlandı", "İptal Edildi", "Tahsilat Bekleniyor")')
+      .neq("status", "İşlem Tamamlandı")
+      .neq("status", "İptal Edildi")
+      .neq("status", "Tahsilat Bekleniyor")
       .order("appointment_date", { ascending: true });
     if (delayed) delayedJobs = delayed;
 
@@ -119,7 +123,7 @@ export default async function AdminDashboardPage() {
       unpaidOrders.forEach((o) => {
         const remaining = Number(o.grand_total) - Number(o.paid_amount);
         const currency = o.labor_price_currency || 'TRY';
-        const remainingTRY = currency === 'USD' ? remaining * 34 : remaining;
+        const remainingTRY = currency === 'USD' ? remaining * serviceStats.usdTryRate : remaining;
 
         if (remainingTRY > 0.01 && o.customer) {
           const cust = (Array.isArray(o.customer) ? o.customer[0] : o.customer) as any;
@@ -247,8 +251,8 @@ export default async function AdminDashboardPage() {
             <p className="text-2xl font-black text-emerald-600 mt-1">{serviceStats.weeklyCompleted}</p>
           </div>
           <div className="rounded-xl bg-white border-2 border-slate-200 p-4 text-center shadow-sm">
-            <p className="text-[10px] font-black text-slate-400 uppercase">Bekleyen İş</p>
-            <p className="text-2xl font-black text-amber-500 mt-1">{serviceStats.pendingOrders}</p>
+            <p className="text-[10px] font-black text-slate-400 uppercase">Toplam İş Emri</p>
+            <p className="text-2xl font-black text-amber-500 mt-1">{serviceStats.totalOrders}</p>
           </div>
           <div className="rounded-xl bg-white border-2 border-slate-200 p-4 text-center shadow-sm">
             <p className="text-[10px] font-black text-slate-400 uppercase">Tahsilat Bekleyen</p>
@@ -288,6 +292,10 @@ export default async function AdminDashboardPage() {
           <div className="rounded-3xl border-2 border-amber-200 bg-amber-50/10 p-5 shadow-sm space-y-4">
             <h3 className="text-sm font-black text-amber-800 uppercase tracking-wider flex items-center gap-2 pb-2 border-b border-amber-100">
               <span className="text-base">🇺🇸</span> Amerikan Doları (USD) Kasası
+              <span className="ml-auto rounded-lg border border-amber-200 bg-white px-2 py-1 text-[10px] font-black normal-case text-amber-800">
+                1 USD = {serviceStats.usdTryRate.toLocaleString("tr-TR", { minimumFractionDigits: 4, maximumFractionDigits: 4 })} TL
+                {serviceStats.usdTryRateDate ? ` · TCMB ${serviceStats.usdTryRateDate}` : ""}
+              </span>
             </h3>
             <div className="grid gap-3 grid-cols-2">
               {[

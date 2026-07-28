@@ -25,6 +25,7 @@ import {
   BarChart3,
   Receipt,
   Building2,
+  DollarSign,
 } from "lucide-react";
 import { signOutAdmin } from "@/lib/admin/actions";
 import type { AdminProfile } from "@/lib/admin/auth";
@@ -55,9 +56,15 @@ const navItems = [
 export function AdminShell({
   children,
   profile,
+  usdTryRate,
 }: {
   children: React.ReactNode;
   profile: AdminProfile;
+  usdTryRate: {
+    rate: number;
+    date: string;
+    source: "TCMB";
+  } | null;
 }) {
   const pathname = usePathname();
   const router = useRouter();
@@ -136,9 +143,25 @@ export function AdminShell({
               >
                 <Menu className="h-6 w-6 text-slate-700" />
               </button>
-              <h1 className="text-xl font-black text-slate-800 lg:text-2xl">PrimeSec Yönetim</h1>
+              <h1 className="hidden text-xl font-black text-slate-800 sm:block lg:text-2xl">PrimeSec Yönetim</h1>
             </div>
-            <p className="hidden sm:block text-sm font-bold text-slate-500">{profile.full_name ?? "Yönetici"}</p>
+            <div className="flex items-center gap-2 sm:gap-3">
+              <div
+                className="flex h-10 items-center gap-1.5 rounded-xl border border-amber-200 bg-amber-50 px-2.5 text-xs font-black text-amber-900 sm:px-3"
+                title={usdTryRate ? `TCMB satış kuru · ${usdTryRate.date}` : "Güncel TCMB kuru alınamadı"}
+              >
+                <DollarSign className="h-4 w-4 text-amber-600" />
+                {usdTryRate ? (
+                  <>
+                    <span>1 USD = ₺{usdTryRate.rate.toLocaleString("tr-TR", { minimumFractionDigits: 4, maximumFractionDigits: 4 })}</span>
+                    <span className="hidden text-[10px] text-amber-700 xl:inline">TCMB · {usdTryRate.date}</span>
+                  </>
+                ) : (
+                  <span>USD kuru alınamadı</span>
+                )}
+              </div>
+              <p className="hidden text-sm font-bold text-slate-500 sm:block">{profile.full_name ?? "Yönetici"}</p>
+            </div>
           </div>
         </div>
 

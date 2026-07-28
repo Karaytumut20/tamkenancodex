@@ -22,6 +22,7 @@ import {
   ExternalLink,
   Printer,
   MessageCircle,
+  UserPlus,
 } from "lucide-react";
 import { 
   saveServiceOrder, 
@@ -36,7 +37,15 @@ import {
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { toCalendarDateKey } from "@/lib/admin/calendar-date";
+import {
+  calculateWarrantyEndDate,
+  formatElapsedSince,
+  formatMaterialDate,
+  getWarrantyStatus,
+} from "@/lib/admin/material-warranty";
 import { customerWhatsappUrl, phoneCallUrl } from "@/lib/whatsapp";
+import { StockModal } from "@/components/admin/modals/StockModal";
+import { EmployeeModal } from "@/components/admin/modals/EmployeeModal";
 
 type Props = {
   order: any;
@@ -47,6 +56,11 @@ type Props = {
   files: any[];
   logs: any[];
   currentUserRole: string;
+  usdTryRate: {
+    rate: number;
+    date: string;
+    source: "TCMB";
+  } | null;
 };
 
 export function ServiceOrderClient({
@@ -58,12 +72,17 @@ export function ServiceOrderClient({
   files,
   logs,
   currentUserRole,
+  usdTryRate,
 }: Props) {
   const router = useRouter();
   const [activeTab, setActiveTab] = useState("genel");
   const [loading, setLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
   const [successMessage, setSuccessMessage] = useState("");
+  const [stockMaterials, setStockMaterials] = useState(materialsInStock);
+  const [employeeOptions, setEmployeeOptions] = useState(employees);
+  const [isStockModalOpen, setIsStockModalOpen] = useState(false);
+  const [isEmployeeModalOpen, setIsEmployeeModalOpen] = useState(false);
 
   // Check if role is service_staff (who shouldn't see costs and profits)
   const isServiceStaff = currentUserRole === "service_staff";
@@ -93,7 +112,11 @@ export function ServiceOrderClient({
   const [matQty, setMatQty] = useState(1);
   const [matBuying, setMatBuying] = useState(0);
   const [matSelling, setMatSelling] = useState(0);
+  const [matSupplier, setMatSupplier] = useState("");
+  const [matPurchaseDate, setMatPurchaseDate] = useState("");
+  const [matPurchaseInvoice, setMatPurchaseInvoice] = useState("");
   const [matWarranty, setMatWarranty] = useState(0);
+  const [matWarrantyStartDate, setMatWarrantyStartDate] = useState("");
   const [matDesc, setMatDesc] = useState("");
 
   // Form states - New Payment
@@ -104,6 +127,7 @@ export function ServiceOrderClient({
   const [payEmployeeId, setPayEmployeeId] = useState("");
   const [payDesc, setPayDesc] = useState("");
   const [payCurrency, setPayCurrency] = useState<'TRY' | 'USD'>(order.labor_price_currency || 'TRY');
+  const [payInFull, setPayInFull] = useState(false);
 
   // Form states - File Upload
   const [fileType, setFileType] = useState<any>("before_photo");
@@ -118,13 +142,28 @@ export function ServiceOrderClient({
   const profitMargin = totalBilled > 0 ? (netProfit / totalBilled) * 100 : 0;
 
   const orderCurrency = order.labor_price_currency || 'TRY';
+  const effectiveUsdTryRate = usdTryRate?.rate ?? 34;
+  const formattedUsdTryRate = usdTryRate?.rate.toLocaleString("tr-TR", {
+    minimumFractionDigits: 4,
+    maximumFractionDigits: 4,
+  });
+  const maxPaymentAmount =
+    payCurrency === orderCurrency
+      ? remainingBalance
+      : payCurrency === 'USD'
+        ? remainingBalance / effectiveUsdTryRate
+        : remainingBalance * effectiveUsdTryRate;
   const formatOrderMoney = (value: number) => {
     return orderCurrency === 'USD'
       ? value.toLocaleString("en-US", { style: "currency", currency: "USD" })
       : value.toLocaleString("tr-TR", { style: "currency", currency: "TRY" });
   };
   const matSellingSum = orderMaterials.reduce((sum, m) => sum + Number(m.total_selling_price || 0), 0);
-  const matSellingConverted = order.labor_price_currency === 'USD' ? (matSellingSum / 34) : matSellingSum;
+  const matSellingConverted = order.labor_price_currency === 'USD' ? (matSellingSum / effectiveUsdTryRate) : matSellingSum;
+  const warrantyPreviewEndDate = calculateWarrantyEndDate(
+    matWarrantyStartDate || matPurchaseDate,
+    matWarranty,
+  );
 
   // Handle stock selection
   const handleStockChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
@@ -137,9 +176,14 @@ export function ServiceOrderClient({
       setMatModel("");
       setMatBuying(0);
       setMatSelling(0);
+      setMatSupplier("");
+      setMatPurchaseDate("");
+      setMatPurchaseInvoice("");
+      setMatWarranty(0);
+      setMatWarrantyStartDate("");
       return;
     }
-    const found = materialsInStock.find((m) => m.id === id);
+    const found = stockMaterials.find((m) => m.id === id);
     if (found) {
       setMatName(found.name);
       setMatCategory(found.category || "");
@@ -147,7 +191,49 @@ export function ServiceOrderClient({
       setMatModel(found.model || "");
       setMatBuying(Number(found.buying_price || 0));
       setMatSelling(Number(found.selling_price || 0));
+      setMatSupplier(found.supplier || "");
+      setMatPurchaseDate(found.purchase_date || "");
+      setMatPurchaseInvoice(found.purchase_invoice_number || "");
+      setMatWarranty(Number(found.warranty_months || 0));
+      setMatWarrantyStartDate(found.purchase_date || "");
     }
+  };
+
+  const handleStockCreated = (savedMaterial?: any) => {
+    if (!savedMaterial?.id) {
+      router.refresh();
+      return;
+    }
+
+    setStockMaterials((current) => (
+      [...current.filter((material) => material.id !== savedMaterial.id), savedMaterial]
+        .sort((a, b) => String(a.name).localeCompare(String(b.name), "tr"))
+    ));
+    setSelectedStockId(savedMaterial.id);
+    setMatName(savedMaterial.name || "");
+    setMatCategory(savedMaterial.category || "");
+    setMatBrand(savedMaterial.brand || "");
+    setMatModel(savedMaterial.model || "");
+    setMatBuying(Number(savedMaterial.buying_price || 0));
+    setMatSelling(Number(savedMaterial.selling_price || 0));
+    setMatSupplier(savedMaterial.supplier || "");
+    setMatPurchaseDate(savedMaterial.purchase_date || "");
+    setMatPurchaseInvoice(savedMaterial.purchase_invoice_number || "");
+    setMatWarranty(Number(savedMaterial.warranty_months || 0));
+    setMatWarrantyStartDate(savedMaterial.purchase_date || "");
+  };
+
+  const handleEmployeeCreated = (savedEmployee?: any) => {
+    if (!savedEmployee?.id) {
+      router.refresh();
+      return;
+    }
+
+    setEmployeeOptions((current) => (
+      [...current.filter((employee) => employee.id !== savedEmployee.id), savedEmployee]
+        .sort((a, b) => String(a.full_name).localeCompare(String(b.full_name), "tr"))
+    ));
+    setPayEmployeeId(savedEmployee.id);
   };
 
   // Handle General Form Submit
@@ -202,7 +288,11 @@ export function ServiceOrderClient({
       quantity: matQty,
       buying_price: matBuying,
       selling_price: matSelling,
+      supplier: matSupplier,
+      purchase_date: matPurchaseDate,
+      purchase_invoice_number: matPurchaseInvoice,
       warranty_months: matWarranty,
+      warranty_start_date: matWarrantyStartDate,
       description: matDesc,
     });
 
@@ -218,7 +308,11 @@ export function ServiceOrderClient({
       setMatQty(1);
       setMatBuying(0);
       setMatSelling(0);
+      setMatSupplier("");
+      setMatPurchaseDate("");
+      setMatPurchaseInvoice("");
       setMatWarranty(0);
+      setMatWarrantyStartDate("");
       setMatDesc("");
       router.refresh();
     } else {
@@ -265,6 +359,7 @@ export function ServiceOrderClient({
     if (res.success) {
       setSuccessMessage("Tahsilat kaydı başarıyla eklendi.");
       setPayAmount(0);
+      setPayInFull(false);
       setPayTxNum("");
       setPayDesc("");
       setPayCurrency(order.labor_price_currency || 'TRY');
@@ -579,7 +674,7 @@ export function ServiceOrderClient({
                                 : 'border-slate-200 bg-white text-slate-600 hover:bg-slate-50'
                             }`}
                           >
-                            $ USD
+                            $ USD{formattedUsdTryRate ? ` · ₺${formattedUsdTryRate}` : ""}
                           </button>
                         </div>
                       </div>
@@ -590,7 +685,11 @@ export function ServiceOrderClient({
                         className="h-11 w-full px-4 rounded-xl border-2 border-slate-200 bg-white text-sm font-semibold outline-none focus:border-cyan-500 transition-colors"
                       />
                       {laborPriceCurrency === 'USD' && (
-                        <p className="mt-1 text-[10px] font-bold text-amber-600">$ USD cinsinden işçilik ücreti.</p>
+                        <p className="mt-1 text-[10px] font-bold text-amber-700">
+                          {usdTryRate
+                            ? `TCMB satış kuru · ${usdTryRate.date}`
+                            : "Güncel TCMB kuru alınamadı; USD tutarı kaydedilebilir."}
+                        </p>
                       )}
                     </div>
 
@@ -706,33 +805,70 @@ export function ServiceOrderClient({
                       </tr>
                     </thead>
                     <tbody className="divide-y divide-slate-100 font-medium">
-                      {orderMaterials.map((m) => (
+                      {orderMaterials.map((m) => {
+                        const warrantyStatus = getWarrantyStatus({
+                          warrantyMonths: m.warranty_months,
+                          warrantyStartDate: m.warranty_start_date || m.purchase_date,
+                          warrantyEndDate: m.warranty_end_date,
+                        });
+
+                        return (
                         <tr key={m.id}>
                           <td className="p-3">
                             <span className="font-extrabold text-slate-800 block">{m.name}</span>
                             <span className="block text-[10px] text-slate-400">{m.brand} {m.model} {m.serial_number ? `(S/N: ${m.serial_number})` : ""}</span>
+                            {m.supplier && (
+                              <span className="mt-1 block text-[10px] font-bold text-cyan-700">Tedarikçi: {m.supplier}</span>
+                            )}
                           </td>
                           <td className="p-3">{Number(m.quantity)} {m.unit}</td>
                           {!isServiceStaff && (
                             <td className="p-3 text-slate-500">
-                              {Number(m.buying_price || 0).toLocaleString("tr-TR", { style: "currency", currency: "TRY" })}
+                              <span className="block font-bold">
+                                {Number(m.buying_price || 0).toLocaleString("tr-TR", { style: "currency", currency: "TRY" })}
+                              </span>
+                              {m.purchase_date && (
+                                <span className="mt-1 block text-[10px]">
+                                  Alış: {formatMaterialDate(m.purchase_date)}
+                                  {formatElapsedSince(m.purchase_date) ? ` · ${formatElapsedSince(m.purchase_date)}` : ""}
+                                </span>
+                              )}
+                              {m.purchase_invoice_number && (
+                                <span className="block text-[10px]">Belge: {m.purchase_invoice_number}</span>
+                              )}
                             </td>
                           )}
                           <td className="p-3 font-bold text-slate-700">
                             {order.labor_price_currency === 'USD'
-                              ? (Number(m.selling_price || 0) / 34).toLocaleString("en-US", { style: "currency", currency: "USD" })
+                              ? (Number(m.selling_price || 0) / effectiveUsdTryRate).toLocaleString("en-US", { style: "currency", currency: "USD" })
                               : Number(m.selling_price || 0).toLocaleString("tr-TR", { style: "currency", currency: "TRY" })
                             }
                           </td>
                           {!isServiceStaff && (
                             <td className="p-3 text-emerald-600 font-bold">
                               {order.labor_price_currency === 'USD'
-                                ? (Number(m.profit || 0) / 34).toLocaleString("en-US", { style: "currency", currency: "USD" })
+                                ? (Number(m.profit || 0) / effectiveUsdTryRate).toLocaleString("en-US", { style: "currency", currency: "USD" })
                                 : Number(m.profit || 0).toLocaleString("tr-TR", { style: "currency", currency: "TRY" })
                               }
                             </td>
                           )}
-                          <td className="p-3 text-slate-500">{m.warranty_months ? `${m.warranty_months} Ay` : "Yok"}</td>
+                          <td className="p-3">
+                            <span className={`inline-flex rounded-full border px-2 py-1 text-[10px] font-black ${
+                              warrantyStatus.key === "active"
+                                ? "border-emerald-200 bg-emerald-50 text-emerald-700"
+                                : warrantyStatus.key === "expired"
+                                  ? "border-red-200 bg-red-50 text-red-700"
+                                  : "border-slate-200 bg-slate-50 text-slate-600"
+                            }`}>
+                              {warrantyStatus.label}
+                            </span>
+                            {warrantyStatus.detail && (
+                              <span className="mt-1 block text-[10px] font-semibold text-slate-500">{warrantyStatus.detail}</span>
+                            )}
+                            {m.warranty_start_date && (
+                              <span className="block text-[10px] text-slate-400">Başlangıç: {formatMaterialDate(m.warranty_start_date)}</span>
+                            )}
+                          </td>
                           <td className="p-3 text-right">
                             <button
                               type="button"
@@ -743,7 +879,8 @@ export function ServiceOrderClient({
                             </button>
                           </td>
                         </tr>
-                      ))}
+                        );
+                      })}
                     </tbody>
                   </table>
                 </div>
@@ -756,19 +893,27 @@ export function ServiceOrderClient({
                   
                   {/* Stock card selector */}
                   <div className="space-y-1.5">
-                    <label className="text-xs font-black text-slate-500 uppercase">Stoktan Malzeme Seç (İsteğe Bağlı)</label>
+                    <label htmlFor="order-stock-material" className="text-xs font-black text-slate-500 uppercase">Stoktan Malzeme Seç (İsteğe Bağlı)</label>
                     <select
+                      id="order-stock-material"
                       value={selectedStockId}
                       onChange={handleStockChange}
                       className="h-11 w-full px-3 rounded-xl border-2 border-slate-200 bg-white text-sm font-semibold outline-none focus:border-cyan-500 transition-colors"
                     >
                       <option value="">-- Yeni / Kayıt Dışı Malzeme --</option>
-                      {materialsInStock.map((m) => (
+                      {stockMaterials.map((m) => (
                         <option key={m.id} value={m.id}>
                           {m.name} {m.brand ? `[${m.brand}]` : ""} (Stok: {Number(m.stock_quantity)} adet)
                         </option>
                       ))}
                     </select>
+                    <button
+                      type="button"
+                      onClick={() => setIsStockModalOpen(true)}
+                      className="mt-2 inline-flex items-center gap-1.5 text-xs font-black text-cyan-700 hover:text-cyan-800"
+                    >
+                      <Plus className="h-4 w-4" /> Malzeme stokta yoksa buradan ekle
+                    </button>
                   </div>
 
                   <div className="grid gap-4 sm:grid-cols-3">
@@ -839,6 +984,52 @@ export function ServiceOrderClient({
                     </div>
                   </div>
 
+                  <div className="rounded-2xl border border-cyan-100 bg-cyan-50/40 p-4">
+                    <div className="mb-3">
+                      <h5 className="text-sm font-black text-slate-800">Satın Alma Kaydı</h5>
+                      <p className="mt-1 text-xs font-semibold text-slate-500">
+                        Tedarikçi, alış tarihi ve belge numarası isteğe bağlıdır. Bu bilgiler bu müşterinin servis kaydında sabit kalır.
+                      </p>
+                    </div>
+                    <div className="grid gap-4 sm:grid-cols-3">
+                      <div className="space-y-1.5">
+                        <label htmlFor="order-material-supplier" className="text-xs font-black text-slate-500 uppercase">Tedarikçi Firma</label>
+                        <input
+                          id="order-material-supplier"
+                          type="text"
+                          value={matSupplier}
+                          onChange={(e) => setMatSupplier(e.target.value)}
+                          placeholder="Ürünü aldığınız firma"
+                          className="h-11 w-full rounded-xl border-2 border-slate-200 bg-white px-4 text-sm font-semibold outline-none transition-colors focus:border-cyan-500"
+                        />
+                      </div>
+                      <div className="space-y-1.5">
+                        <label htmlFor="order-material-purchase-date" className="text-xs font-black text-slate-500 uppercase">Alış Tarihi</label>
+                        <input
+                          id="order-material-purchase-date"
+                          type="date"
+                          value={matPurchaseDate}
+                          onChange={(e) => {
+                            setMatPurchaseDate(e.target.value);
+                            if (!matWarrantyStartDate) setMatWarrantyStartDate(e.target.value);
+                          }}
+                          className="h-11 w-full rounded-xl border-2 border-slate-200 bg-white px-4 text-sm font-semibold outline-none transition-colors focus:border-cyan-500"
+                        />
+                      </div>
+                      <div className="space-y-1.5">
+                        <label htmlFor="order-material-invoice" className="text-xs font-black text-slate-500 uppercase">Fatura / İrsaliye No</label>
+                        <input
+                          id="order-material-invoice"
+                          type="text"
+                          value={matPurchaseInvoice}
+                          onChange={(e) => setMatPurchaseInvoice(e.target.value)}
+                          placeholder="İsteğe bağlı"
+                          className="h-11 w-full rounded-xl border-2 border-slate-200 bg-white px-4 text-sm font-semibold outline-none transition-colors focus:border-cyan-500"
+                        />
+                      </div>
+                    </div>
+                  </div>
+
                   <div className="grid gap-4 sm:grid-cols-4">
                     <div className="space-y-1.5">
                       <label className="text-xs font-black text-slate-500 uppercase">Kullanılan Miktar</label>
@@ -889,14 +1080,36 @@ export function ServiceOrderClient({
                     )}
 
                     <div className="space-y-1.5">
-                      <label className="text-xs font-black text-slate-500 uppercase">Garanti Süresi (Ay)</label>
+                      <label htmlFor="order-material-warranty-months" className="text-xs font-black text-slate-500 uppercase">Garanti Süresi (Ay)</label>
                       <input
+                        id="order-material-warranty-months"
                         type="number"
+                        min="0"
+                        step="1"
                         value={matWarranty}
                         onChange={(e) => setMatWarranty(Number(e.target.value))}
                         className="h-11 w-full px-4 rounded-xl border-2 border-slate-200 bg-white text-sm font-semibold outline-none focus:border-cyan-500 transition-colors"
                       />
                     </div>
+                  </div>
+
+                  <div className="space-y-1.5">
+                    <label htmlFor="order-material-warranty-start" className="text-xs font-black text-slate-500 uppercase">Garanti Başlangıç Tarihi</label>
+                    <input
+                      id="order-material-warranty-start"
+                      type="date"
+                      value={matWarrantyStartDate}
+                      onChange={(e) => setMatWarrantyStartDate(e.target.value)}
+                      className="h-11 w-full rounded-xl border-2 border-slate-200 bg-white px-4 text-sm font-semibold outline-none transition-colors focus:border-cyan-500 sm:max-w-xs"
+                    />
+                    <p className="text-[11px] font-semibold text-slate-400">
+                      Boş bırakırsanız alış tarihi garanti başlangıcı olarak kullanılır. Garanti bitiş tarihi otomatik hesaplanır.
+                    </p>
+                    {warrantyPreviewEndDate && (
+                      <p className="text-xs font-black text-emerald-700">
+                        Hesaplanan garanti bitişi: {formatMaterialDate(warrantyPreviewEndDate)}
+                      </p>
+                    )}
                   </div>
 
                   <div className="space-y-1.5">
@@ -994,23 +1207,11 @@ export function ServiceOrderClient({
                       </div>
                       
                       <div className="space-y-1.5">
-                        <label className="text-xs font-black text-slate-500 uppercase">Alınan Tutar (Maks: {remainingBalance}) *</label>
-                        <input
-                          required
-                          type="number"
-                          step="0.01"
-                          max={remainingBalance}
-                          value={payAmount}
-                          onChange={(e) => setPayAmount(Number(e.target.value))}
-                          className="h-11 w-full px-4 rounded-xl border-2 border-slate-200 bg-white text-sm font-semibold outline-none focus:border-cyan-500 transition-colors"
-                        />
-                      </div>
-
-                      <div className="space-y-1.5">
                         <label className="text-xs font-black text-slate-500 uppercase">Para Birimi *</label>
                         <div className="flex gap-2">
                           <button
                             type="button"
+                            disabled={payInFull}
                             onClick={() => setPayCurrency('TRY')}
                             className={`flex-1 h-11 rounded-xl border-2 text-sm font-black transition-all ${
                               payCurrency === 'TRY'
@@ -1022,6 +1223,7 @@ export function ServiceOrderClient({
                           </button>
                           <button
                             type="button"
+                            disabled={payInFull}
                             onClick={() => setPayCurrency('USD')}
                             className={`flex-1 h-11 rounded-xl border-2 text-sm font-black transition-all ${
                               payCurrency === 'USD'
@@ -1029,9 +1231,14 @@ export function ServiceOrderClient({
                                 : 'border-slate-200 bg-white text-slate-600 hover:bg-slate-50'
                             }`}
                           >
-                            $ USD
+                            $ USD{formattedUsdTryRate ? ` · ₺${formattedUsdTryRate}` : ""}
                           </button>
                         </div>
+                        <p className="mt-1 text-[10px] font-bold text-amber-700">
+                          {usdTryRate
+                            ? `TCMB satış kuru · ${usdTryRate.date}`
+                            : "Güncel TCMB kuru alınamadı."}
+                        </p>
                       </div>
 
                       <div className="space-y-1.5">
@@ -1051,19 +1258,77 @@ export function ServiceOrderClient({
                       </div>
                     </div>
 
+                    <div className="grid gap-4 rounded-xl border-2 border-emerald-200 bg-emerald-50 p-4 sm:grid-cols-[minmax(0,1fr)_auto] sm:items-end">
+                      <div className="space-y-1.5">
+                        <label className="text-xs font-black uppercase text-emerald-800">
+                          Tahsil Edeceğim Tutar ({payCurrency})
+                        </label>
+                        <input
+                          required
+                          type="number"
+                          min="0.01"
+                          step="0.01"
+                          max={maxPaymentAmount}
+                          value={payAmount}
+                          disabled={payInFull}
+                          onChange={(e) => {
+                            setPayInFull(false);
+                            setPayAmount(Number(e.target.value));
+                          }}
+                          placeholder="Alacağınız tutarı yazın"
+                          className="h-11 w-full rounded-xl border-2 border-emerald-200 bg-white px-4 text-sm font-black text-slate-800 outline-none transition-colors focus:border-emerald-500 disabled:bg-emerald-100 disabled:text-emerald-900"
+                        />
+                        <p className="text-[10px] font-bold text-emerald-700">
+                          En fazla {maxPaymentAmount.toLocaleString("tr-TR", { maximumFractionDigits: 2 })} {payCurrency} tahsil edilebilir.
+                        </p>
+                      </div>
+
+                      <label className="flex h-11 cursor-pointer items-center gap-3 rounded-xl border-2 border-emerald-300 bg-white px-4 text-sm font-black text-emerald-800">
+                        <input
+                          type="checkbox"
+                          checked={payInFull}
+                          onChange={(e) => {
+                            const checked = e.target.checked;
+                            setPayInFull(checked);
+                            setPayCurrency(orderCurrency);
+                            setPayAmount(checked ? remainingBalance : 0);
+                            if (checked && !payDesc) {
+                              setPayDesc("Tutarın tamamı tahsil edildi");
+                            }
+                          }}
+                          className="h-5 w-5 rounded border-emerald-300 accent-emerald-600"
+                        />
+                        <span>
+                          Maks. tutar alındı
+                          <span className="ml-2 text-xs font-bold text-emerald-700">
+                            ({formatOrderMoney(remainingBalance)})
+                          </span>
+                        </span>
+                        <CheckCircle2 className="h-5 w-5 text-emerald-600" />
+                      </label>
+                    </div>
+
                     <div className="grid gap-4 sm:grid-cols-2">
                       <div className="space-y-1.5">
-                        <label className="text-xs font-black text-slate-500 uppercase">Ödemeyi Alan Personel</label>
+                        <label htmlFor="payment-employee" className="text-xs font-black text-slate-500 uppercase">Ödemeyi Alan Personel</label>
                         <select
+                          id="payment-employee"
                           value={payEmployeeId}
                           onChange={(e) => setPayEmployeeId(e.target.value)}
                           className="h-11 w-full px-3 rounded-xl border-2 border-slate-200 bg-white text-sm font-semibold outline-none focus:border-cyan-500 transition-colors"
                         >
                           <option value="">-- Seçiniz --</option>
-                          {employees.map((emp) => (
+                          {employeeOptions.map((emp) => (
                             <option key={emp.id} value={emp.id}>{emp.full_name}</option>
                           ))}
                         </select>
+                        <button
+                          type="button"
+                          onClick={() => setIsEmployeeModalOpen(true)}
+                          className="mt-2 inline-flex items-center gap-1.5 text-xs font-black text-cyan-700 hover:text-cyan-800"
+                        >
+                          <UserPlus className="h-4 w-4" /> Personel listede yoksa buradan ekle
+                        </button>
                       </div>
 
                       <div className="space-y-1.5">
@@ -1347,8 +1612,8 @@ export function ServiceOrderClient({
                 </tr>
               ) : (
                 orderMaterials.map((m) => {
-                  const unitPrice = order.labor_price_currency === 'USD' ? (Number(m.selling_price || 0) / 34) : Number(m.selling_price || 0);
-                  const totalPrice = order.labor_price_currency === 'USD' ? (Number(m.total_selling_price || 0) / 34) : Number(m.total_selling_price || 0);
+                  const unitPrice = order.labor_price_currency === 'USD' ? (Number(m.selling_price || 0) / effectiveUsdTryRate) : Number(m.selling_price || 0);
+                  const totalPrice = order.labor_price_currency === 'USD' ? (Number(m.total_selling_price || 0) / effectiveUsdTryRate) : Number(m.total_selling_price || 0);
                   return (
                     <tr key={m.id}>
                       <td className="p-3">
@@ -1490,6 +1755,18 @@ export function ServiceOrderClient({
           <p>Primesec Bilişim Güvenlik Sistemleri Tic. Ltd. Şti. | Bu belge elektronik olarak üretilmiştir.</p>
         </div>
       </div>
+
+      <StockModal
+        isOpen={isStockModalOpen}
+        onClose={() => setIsStockModalOpen(false)}
+        material={null}
+        onSuccess={handleStockCreated}
+      />
+      <EmployeeModal
+        isOpen={isEmployeeModalOpen}
+        onClose={() => setIsEmployeeModalOpen(false)}
+        onSuccess={handleEmployeeCreated}
+      />
     </div>
   );
 }

@@ -1,6 +1,7 @@
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { isCriticalStock } from "@/lib/admin/stock";
 import { toTurkeyDateKey } from "@/lib/admin/calendar-date";
+import { getUsdTryRate } from "@/lib/admin/exchange-rate";
 
 // -------------------------------------------------------------
 // TYPES
@@ -106,6 +107,9 @@ export type Material = {
   buying_price: number;
   selling_price: number;
   supplier: string | null;
+  purchase_date: string | null;
+  purchase_invoice_number: string | null;
+  warranty_months: number;
   location: string | null;
   description: string | null;
   is_active: boolean;
@@ -266,10 +270,10 @@ export async function getServiceDashboardStatsSequential() {
     .eq('status', 'Tamamlandı')
     .gte('finished_at', startOfWeek.toISOString());
 
-  const { count: pendingOrders } = await supabase
+  const { count: totalOrders } = await supabase
     .from('service_orders')
     .select('id', { count: 'exact', head: true })
-    .in('status', ['Taslak', 'İşlem Başladı', 'Malzeme Bekleniyor']);
+    .is('deleted_at', null);
 
   const { count: collectionPending } = await supabase
     .from('appointments')
@@ -323,7 +327,7 @@ export async function getServiceDashboardStatsSequential() {
     todayAppointments: todayAppointments || 0,
     tomorrowAppointments: tomorrowAppointments || 0,
     weeklyCompleted: weeklyCompleted || 0,
-    pendingOrders: pendingOrders || 0,
+    totalOrders: totalOrders || 0,
     collectionPending: collectionPending || 0,
     totalCustomers: totalCustomers || 0,
     monthlyCiro: trySales + (usdSales * 34),
@@ -345,25 +349,47 @@ export async function getServiceDashboardStatsSequential() {
 // implementation paid one network round trip after another.
 export async function getServiceDashboardStats() {
   const supabase = await createSupabaseServerClient();
+  const usdTryRateData = await getUsdTryRate();
+  const usdTryRate = usdTryRateData?.rate ?? 34;
   const today = new Date();
   const todayStr = toTurkeyDateKey(today);
   const tomorrow = new Date(today);
   tomorrow.setDate(tomorrow.getDate() + 1);
-  const startOfWeek = new Date(today);
-  startOfWeek.setDate(startOfWeek.getDate() - startOfWeek.getDay() + 1);
-  startOfWeek.setHours(0, 0, 0, 0);
+  const [year, month, day] = todayStr.split("-").map(Number);
+  const turkeyCalendarDay = new Date(Date.UTC(year, month - 1, day));
+  const daysSinceMonday = (turkeyCalendarDay.getUTCDay() + 6) % 7;
+  const weekStartDay = new Date(turkeyCalendarDay);
+  weekStartDay.setUTCDate(weekStartDay.getUTCDate() - daysSinceMonday);
+  const nextWeekStartDay = new Date(weekStartDay);
+  nextWeekStartDay.setUTCDate(nextWeekStartDay.getUTCDate() + 7);
+  const toDateKey = (value: Date) =>
+    `${value.getUTCFullYear()}-${String(value.getUTCMonth() + 1).padStart(2, "0")}-${String(value.getUTCDate()).padStart(2, "0")}`;
+  const weekStart = `${toDateKey(weekStartDay)}T00:00:00+03:00`;
+  const nextWeekStart = `${toDateKey(nextWeekStartDay)}T00:00:00+03:00`;
 
-  const [todayRes, tomorrowRes, weeklyRes, pendingRes, collectionRes, customersRes, activeOrdersRes, materialsRes] =
+  const [todayRes, tomorrowRes, weeklyRes, totalOrdersRes, customersRes, activeOrdersRes, materialsRes] =
     await Promise.all([
-      supabase.from('appointments').select('id', { count: 'exact', head: true }).eq('appointment_date', todayStr),
-      supabase.from('appointments').select('id', { count: 'exact', head: true }).eq('appointment_date', toTurkeyDateKey(tomorrow)),
-      supabase.from('service_orders').select('id', { count: 'exact', head: true }).eq('status', 'Tamamlandı').gte('finished_at', startOfWeek.toISOString()),
-      supabase.from('service_orders').select('id', { count: 'exact', head: true }).in('status', ['Taslak', 'İşlem Başladı', 'Malzeme Bekleniyor']),
-      supabase.from('appointments').select('id', { count: 'exact', head: true }).eq('status', 'Tahsilat Bekleniyor'),
-      supabase.from('customers').select('id', { count: 'exact', head: true }).eq('is_active', true),
+      supabase.from('appointments').select('id', { count: 'exact', head: true }).eq('appointment_date', todayStr).is('deleted_at', null),
+      supabase.from('appointments').select('id', { count: 'exact', head: true }).eq('appointment_date', toTurkeyDateKey(tomorrow)).is('deleted_at', null),
+      supabase.from('service_orders').select('id', { count: 'exact', head: true }).eq('status', 'Tamamlandı').gte('finished_at', weekStart).lt('finished_at', nextWeekStart).is('deleted_at', null),
+      supabase.from('service_orders').select('id', { count: 'exact', head: true }).is('deleted_at', null),
+      supabase.from('customers').select('id', { count: 'exact', head: true }).is('deleted_at', null),
       supabase.from('service_orders').select('grand_total, paid_amount, total_cost, net_profit, labor_price_currency').is('deleted_at', null),
-      supabase.from('materials').select('stock_quantity, min_stock_level').eq('is_active', true),
+      supabase.from('materials').select('stock_quantity, min_stock_level').eq('is_active', true).is('deleted_at', null),
     ]);
+
+  const queryError = [
+    todayRes,
+    tomorrowRes,
+    weeklyRes,
+    totalOrdersRes,
+    customersRes,
+    activeOrdersRes,
+    materialsRes,
+  ].find((result) => result.error)?.error;
+  if (queryError) {
+    throw new Error(`Dashboard istatistikleri alınamadı: ${queryError.message}`);
+  }
 
   let trySales = 0, tryCollected = 0, tryCost = 0, tryProfit = 0;
   let usdSales = 0, usdCollected = 0, usdCost = 0, usdProfit = 0;
@@ -378,7 +404,7 @@ export async function getServiceDashboardStats() {
     if (currency === 'USD') {
       usdSales += grandTotal;
       usdCollected += paidAmount;
-      usdCost += totalCost / 34;
+      usdCost += totalCost / usdTryRate;
       usdProfit += profit;
     } else {
       trySales += grandTotal;
@@ -390,17 +416,20 @@ export async function getServiceDashboardStats() {
 
   const tryReceivable = Math.max(0, trySales - tryCollected);
   const usdReceivable = Math.max(0, usdSales - usdCollected);
+  const collectionPending = (activeOrdersRes.data ?? []).filter(
+    (row) => Number(row.grand_total || 0) - Number(row.paid_amount || 0) > 0.01
+  ).length;
 
   return {
     todayAppointments: todayRes.count ?? 0,
     tomorrowAppointments: tomorrowRes.count ?? 0,
     weeklyCompleted: weeklyRes.count ?? 0,
-    pendingOrders: pendingRes.count ?? 0,
-    collectionPending: collectionRes.count ?? 0,
+    totalOrders: totalOrdersRes.count ?? 0,
+    collectionPending,
     totalCustomers: customersRes.count ?? 0,
-    monthlyCiro: trySales + (usdSales * 34),
-    monthlyCost: tryCost + (usdCost * 34),
-    monthlyProfit: tryProfit + (usdProfit * 34),
+    monthlyCiro: trySales + (usdSales * usdTryRate),
+    monthlyCost: tryCost + (usdCost * usdTryRate),
+    monthlyProfit: tryProfit + (usdProfit * usdTryRate),
     trySales,
     tryCollected,
     tryReceivable,
@@ -409,6 +438,8 @@ export async function getServiceDashboardStats() {
     usdCollected,
     usdReceivable,
     usdCost,
+    usdTryRate,
+    usdTryRateDate: usdTryRateData?.date ?? null,
     lowStockCount: (materialsRes.data ?? []).filter((row) => isCriticalStock(row.stock_quantity)).length,
   };
 }

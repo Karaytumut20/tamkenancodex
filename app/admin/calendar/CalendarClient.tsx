@@ -21,6 +21,7 @@ import {
 import { saveAppointment, updateAppointmentDate, deleteAppointment, createQuickCustomer } from "./actions";
 import { isDateKeyOnOrAfter, toCalendarDateKey } from "@/lib/admin/calendar-date";
 import { customerWhatsappUrl, phoneCallUrl } from "@/lib/whatsapp";
+import { EmployeeModal } from "@/components/admin/modals/EmployeeModal";
 
 type DBAppointment = {
   id: string;
@@ -42,6 +43,8 @@ type DBAppointment = {
   internal_notes: string | null;
   customer_notes: string | null;
   reminder_time: string;
+  collection_amount: number;
+  collection_currency: 'TRY' | 'USD';
   customer?: { name: string; phone: string; city: string; district: string; address: string };
   employee?: { full_name: string };
   assistant?: { full_name: string };
@@ -88,9 +91,10 @@ const STATUS_COLORS: Record<string, { bg: string; text: string; border: string }
   "Tahsilat Bekleniyor": { bg: "bg-rose-50", text: "text-rose-700", border: "border-rose-300" }
 };
 
-export function CalendarClient({ initialAppointments, customers: initialCustomers, employees }: Props) {
+export function CalendarClient({ initialAppointments, customers: initialCustomers, employees: initialEmployees }: Props) {
   const [appointments, setAppointments] = useState<DBAppointment[]>(initialAppointments);
   const [customers, setCustomers] = useState<DBCustomer[]>(initialCustomers);
+  const [employees, setEmployees] = useState<DBEmployee[]>(initialEmployees);
   const [view, setView] = useState<'month' | 'week' | 'day' | 'list'>('month');
   const [currentDate, setCurrentDate] = useState<Date>(new Date());
   
@@ -98,6 +102,7 @@ export function CalendarClient({ initialAppointments, customers: initialCustomer
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingApp, setEditingApp] = useState<Partial<DBAppointment> | null>(null);
   const [isQuickCustomerOpen, setIsQuickCustomerOpen] = useState(false);
+  const [isQuickEmployeeOpen, setIsQuickEmployeeOpen] = useState(false);
   const [popupDate, setPopupDate] = useState<string | null>(null);
   
   // Feedback state
@@ -113,6 +118,15 @@ export function CalendarClient({ initialAppointments, customers: initialCustomer
 
   // Drag states
   const [draggedAppId, setDraggedAppId] = useState<string | null>(null);
+
+  const handleQuickEmployeeCreated = (savedEmployee?: DBEmployee) => {
+    if (!savedEmployee?.id) return;
+    setEmployees((current) => (
+      [...current.filter((employee) => employee.id !== savedEmployee.id), savedEmployee]
+        .sort((a, b) => a.full_name.localeCompare(b.full_name, "tr"))
+    ));
+    setEditingApp((current) => current ? { ...current, employee_id: savedEmployee.id } : current);
+  };
 
   // -------------------------------------------------------------
   // DATE CALCULATION FUNCTIONS (Turkish standard Monday-start)
@@ -240,7 +254,9 @@ export function CalendarClient({ initialAppointments, customers: initialCustomer
       priority: "normal",
       status: "Planlandı",
       service_type: "CCTV Kamera Kurulumu",
-      reminder_time: "30_min"
+      reminder_time: "30_min",
+      collection_amount: 0,
+      collection_currency: "TRY"
     });
     setIsModalOpen(true);
   };
@@ -818,6 +834,51 @@ export function CalendarClient({ initialAppointments, customers: initialCustomer
                 </div>
               </div>
 
+              {/* Randevu sırasında belirlenen tahsilat tutarı */}
+              <div className="rounded-2xl border-2 border-emerald-100 bg-emerald-50/60 p-4">
+                <div className="grid gap-4 sm:grid-cols-[1fr_140px]">
+                  <div>
+                    <label htmlFor="appointment-collection-amount" className="block text-sm font-black text-slate-700">
+                      Alınacak Tutar
+                    </label>
+                    <input
+                      id="appointment-collection-amount"
+                      type="number"
+                      min="0"
+                      step="0.01"
+                      inputMode="decimal"
+                      placeholder="Örn: 5000,00"
+                      value={editingApp.collection_amount ?? ""}
+                      onChange={(e) => setEditingApp(prev => prev ? {
+                        ...prev,
+                        collection_amount: e.target.value === "" ? 0 : Number(e.target.value)
+                      } : null)}
+                      className="mt-2 w-full rounded-xl border-2 border-emerald-200 bg-white px-4 h-12 text-sm outline-none focus:border-emerald-500 font-bold"
+                    />
+                  </div>
+                  <div>
+                    <label htmlFor="appointment-collection-currency" className="block text-sm font-black text-slate-700">
+                      Para Birimi
+                    </label>
+                    <select
+                      id="appointment-collection-currency"
+                      value={editingApp.collection_currency || "TRY"}
+                      onChange={(e) => setEditingApp(prev => prev ? {
+                        ...prev,
+                        collection_currency: e.target.value as 'TRY' | 'USD'
+                      } : null)}
+                      className="mt-2 w-full rounded-xl border-2 border-emerald-200 bg-white px-4 h-12 text-sm outline-none focus:border-emerald-500 font-bold"
+                    >
+                      <option value="TRY">₺ TL</option>
+                      <option value="USD">$ USD</option>
+                    </select>
+                  </div>
+                </div>
+                <p className="mt-2 text-xs font-semibold text-emerald-700">
+                  Kaydedildiğinde iş emrine aktarılır ve muhasebede bekleyen tahsilat olarak görünür.
+                </p>
+              </div>
+
               {/* Personel Atamaları */}
               <div className="grid gap-4 sm:grid-cols-2">
                 <div>
@@ -832,6 +893,13 @@ export function CalendarClient({ initialAppointments, customers: initialCustomer
                       <option key={emp.id} value={emp.id}>{emp.full_name} ({emp.role_title || 'Usta'})</option>
                     ))}
                   </select>
+                  <button
+                    type="button"
+                    onClick={() => setIsQuickEmployeeOpen(true)}
+                    className="mt-2 inline-flex items-center gap-1 text-xs font-black text-cyan-700 hover:text-cyan-800"
+                  >
+                    <Plus className="h-3.5 w-3.5" /> Personel listede yoksa buradan ekle
+                  </button>
                 </div>
                 <div>
                   <label className="block text-sm font-black text-slate-700">Yardımcı Personel</label>
@@ -1197,6 +1265,12 @@ export function CalendarClient({ initialAppointments, customers: initialCustomer
           </div>
         </div>
       )}
+
+      <EmployeeModal
+        isOpen={isQuickEmployeeOpen}
+        onClose={() => setIsQuickEmployeeOpen(false)}
+        onSuccess={handleQuickEmployeeCreated}
+      />
     </div>
   );
 }

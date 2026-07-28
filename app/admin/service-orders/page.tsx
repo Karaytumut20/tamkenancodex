@@ -1,9 +1,11 @@
 import Link from "next/link";
-import { Search, Plus, CheckCircle2, AlertTriangle, Clock } from "lucide-react";
+import { Search, CheckCircle2, AlertTriangle, Clock } from "lucide-react";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { ProtectedAdminPage } from "@/components/admin/ProtectedAdminPage";
 import { AdminPageHeader } from "@/components/admin/AdminShell";
 import { ServiceOrdersListClient } from "./ServiceOrdersListClient";
+import { ServiceOrderCreateButton } from "@/components/admin/ServiceOrderCreateButton";
+import { getUsdTryRate } from "@/lib/admin/exchange-rate";
 
 export const dynamic = "force-dynamic";
 
@@ -32,7 +34,22 @@ export default async function ServiceOrdersPage({ searchParams }: { searchParams
     query = query.eq("status", statusFilter);
   }
 
-  const { data: rawOrders } = await query;
+  const [
+    { data: rawOrders },
+    { data: quickCustomers },
+    { data: quickMaterials },
+    usdTryRate,
+  ] = await Promise.all([
+    query,
+    supabase.from("customers").select("id, name, phone").is("deleted_at", null).order("name"),
+    supabase
+      .from("materials")
+      .select("id, name, stock_quantity, selling_price")
+      .is("deleted_at", null)
+      .eq("is_active", true)
+      .order("name"),
+    getUsdTryRate(),
+  ]);
   let orders = rawOrders || [];
 
   // Client-side text search
@@ -86,12 +103,11 @@ export default async function ServiceOrdersPage({ searchParams }: { searchParams
         title="🛠️ İş Emirleri & Servis Takibi"
         description="Müşteri şikayetleri, kullanılan malzemeler, işçilik maliyeti ve tahsilat takibini yapın."
         action={
-          <Link
-            href="/admin/service-orders/new"
-            className="inline-flex h-12 items-center gap-2 rounded-xl bg-cyan-600 border-2 border-cyan-700 px-6 text-base font-black text-white hover:bg-cyan-700 transition-colors"
-          >
-            <Plus className="h-5 w-5" /> Yeni İş Emri Oluştur
-          </Link>
+          <ServiceOrderCreateButton
+            customers={quickCustomers || []}
+            materials={quickMaterials || []}
+            usdTryRate={usdTryRate?.rate ?? null}
+          />
         }
       />
 

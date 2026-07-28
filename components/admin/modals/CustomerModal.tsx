@@ -12,18 +12,18 @@ export function CustomerModal({
   isOpen: boolean;
   onClose: () => void;
   customer: any;
-  onSuccess: () => void;
+  onSuccess: (savedCustomer?: any) => void;
 }) {
   const [formData, setFormData] = useState<any>({});
   const [loading, setLoading] = useState(false);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
 
   useEffect(() => {
-    if (customer) {
-      setFormData(customer);
-      setErrorMsg(null);
-    }
-  }, [customer]);
+    if (!isOpen) return;
+    setFormData(customer ?? { type: "bireysel" });
+    setErrorMsg(null);
+    setLoading(false);
+  }, [customer, isOpen]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -32,7 +32,7 @@ export function CustomerModal({
 
     const res = await saveCustomer(formData);
     if (res.success) {
-      onSuccess();
+      onSuccess(res.customer);
       onClose();
     } else {
       setErrorMsg(res.error || "Bir hata oluştu.");
@@ -68,8 +68,9 @@ export function CustomerModal({
       <form onSubmit={handleSubmit} className="space-y-4">
         <div className="grid gap-4 sm:grid-cols-2">
           <div>
-            <label className="block text-sm font-black text-slate-700">Müşteri Adı / Ünvanı *</label>
+            <label htmlFor="customer-name" className="block text-sm font-black text-slate-700">Müşteri Adı / Ünvanı *</label>
             <input
+              id="customer-name"
               type="text"
               required
               value={formData.name || ""}
@@ -78,8 +79,9 @@ export function CustomerModal({
             />
           </div>
           <div>
-            <label className="block text-sm font-black text-slate-700">Tür *</label>
+            <label htmlFor="customer-type" className="block text-sm font-black text-slate-700">Tür *</label>
             <select
+              id="customer-type"
               required
               value={formData.type || "bireysel"}
               onChange={(e) => setFormData({ ...formData, type: e.target.value })}
@@ -93,8 +95,9 @@ export function CustomerModal({
 
         <div className="grid gap-4 sm:grid-cols-2">
           <div>
-            <label className="block text-sm font-black text-slate-700">Telefon *</label>
+            <label htmlFor="customer-phone" className="block text-sm font-black text-slate-700">Telefon *</label>
             <input
+              id="customer-phone"
               type="text"
               required
               value={formData.phone || ""}
@@ -103,8 +106,9 @@ export function CustomerModal({
             />
           </div>
           <div>
-            <label className="block text-sm font-black text-slate-700">E-posta</label>
+            <label htmlFor="customer-email" className="block text-sm font-black text-slate-700">E-posta</label>
             <input
+              id="customer-email"
               type="email"
               value={formData.email || ""}
               onChange={(e) => setFormData({ ...formData, email: e.target.value })}
@@ -114,8 +118,9 @@ export function CustomerModal({
         </div>
 
         <div>
-          <label className="block text-sm font-black text-slate-700">Adres</label>
+          <label htmlFor="customer-address" className="block text-sm font-black text-slate-700">Adres</label>
           <textarea
+            id="customer-address"
             value={formData.address || ""}
             onChange={(e) => setFormData({ ...formData, address: e.target.value })}
             className="mt-2 w-full rounded-xl border-2 border-slate-200 bg-white p-4 h-24 text-sm outline-none focus:border-cyan-500 font-bold resize-none"

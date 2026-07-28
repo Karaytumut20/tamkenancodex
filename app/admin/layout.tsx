@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { AdminLayoutClient } from "@/components/admin/AdminLayoutClient";
 import { getCurrentAdmin } from "@/lib/admin/auth";
+import { getUsdTryRate } from "@/lib/admin/exchange-rate";
 
 export const dynamic = "force-dynamic";
 
@@ -18,6 +19,14 @@ export const metadata: Metadata = {
 };
 
 export default async function AdminLayout({ children }: { children: React.ReactNode }) {
-  const admin = await getCurrentAdmin();
-  return <AdminLayoutClient profile={admin?.profile ?? null}>{children}</AdminLayoutClient>;
+  const [admin, usdTryRate] = await Promise.all([
+    getCurrentAdmin(),
+    getUsdTryRate(),
+  ]);
+
+  return (
+    <AdminLayoutClient profile={admin?.profile ?? null} usdTryRate={usdTryRate}>
+      {children}
+    </AdminLayoutClient>
+  );
 }

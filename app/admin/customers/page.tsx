@@ -1,8 +1,9 @@
 import Link from "next/link";
-import { Plus, Search, User, Building, MapPin, Phone, ArrowRight, UserCheck } from "lucide-react";
+import { Search, User, Building, MapPin, Phone, ArrowRight, UserCheck } from "lucide-react";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { ProtectedAdminPage } from "@/components/admin/ProtectedAdminPage";
 import { AdminPageHeader } from "@/components/admin/AdminShell";
+import { QuickCustomerButton } from "@/components/admin/QuickCustomerButton";
 
 export const dynamic = "force-dynamic";
 
@@ -35,14 +36,7 @@ export default async function CustomersPage({ searchParams }: { searchParams: Se
       <AdminPageHeader
         title="👥 Müşteri Yönetimi"
         description="Bireysel ve kurumsal müşterilerinizi buradan kaydedin ve takibini yapın."
-        action={
-          <Link
-            href="/admin/customers/new"
-            className="inline-flex h-12 items-center gap-2 rounded-xl bg-cyan-600 border-2 border-cyan-700 px-6 text-base font-black text-white hover:bg-cyan-700 transition-colors"
-          >
-            <Plus className="h-5 w-5" /> Yeni Müşteri Ekle
-          </Link>
-        }
+        action={<QuickCustomerButton />}
       />
 
       {/* Filter and Search Bar */}
@@ -94,12 +88,7 @@ export default async function CustomersPage({ searchParams }: { searchParams: Se
           <p className="mt-2 text-sm font-semibold text-slate-400">
             Arama kriterlerinize uygun kayıt bulunamadı veya henüz hiç müşteri eklenmedi.
           </p>
-          <Link
-            href="/admin/customers/new"
-            className="mt-5 inline-flex h-11 items-center gap-2 rounded-xl bg-cyan-600 text-white px-5 text-sm font-black hover:bg-cyan-700 transition-colors"
-          >
-            İlk Müşteriyi Ekle
-          </Link>
+          <QuickCustomerButton label="İlk Müşteriyi Ekle" compact />
         </div>
       ) : (
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">

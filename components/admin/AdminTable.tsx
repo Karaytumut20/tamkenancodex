@@ -1,16 +1,19 @@
 import Link from "next/link";
-import { Edit, Plus } from "lucide-react";
+import { Edit } from "lucide-react";
 import { ConfirmDeleteButton } from "@/components/admin/ConfirmDeleteButton";
 import type { AdminResource } from "@/lib/admin/resources";
 import { deleteResource } from "@/lib/admin/actions";
 import { formatAdminValue } from "@/lib/admin/format";
+import { InlineCreateModal } from "@/components/admin/InlineCreateModal";
 
 export function AdminTable({
   resource,
   rows,
+  createForm,
 }: {
   resource: AdminResource;
   rows: Record<string, unknown>[];
+  createForm?: React.ReactNode;
 }) {
   return (
     <div className="overflow-hidden rounded-lg border border-slate-200 bg-white shadow-sm">
@@ -19,11 +22,13 @@ export function AdminTable({
           <p className="text-sm font-extrabold">{rows.length} kayıt</p>
           <p className="text-xs text-ink-muted">Arama yaparak kayıtları kolayca bulun.</p>
         </div>
-        {resource.canCreate ? (
-          <Link href={`${resource.path}/new`} className="inline-flex h-10 items-center gap-2 rounded-lg primesec-navy-action px-4 text-sm font-bold text-white">
-            <Plus className="h-4 w-4" />
-            Yeni Ekle
-          </Link>
+        {resource.canCreate && createForm ? (
+          <InlineCreateModal
+            title={`${resource.title} Ekle`}
+            description={`${resource.title} kaydını bu sayfadan ayrılmadan oluşturun.`}
+          >
+            {createForm}
+          </InlineCreateModal>
         ) : null}
       </div>
       <div className="overflow-x-auto">

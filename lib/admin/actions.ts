@@ -193,10 +193,76 @@ export type QuickProductCategoryMutationResult =
   | { success: true; category?: { id: string; name: string; description: string } }
   | { success: false; error: string };
 
+export type QuickProductBrandResult =
+  | { success: true; brand: { id: string; name: string } }
+  | { success: false; error: string };
+
 function revalidateProductCategoryPaths() {
   revalidatePath("/admin/categories");
   revalidatePath("/admin/products");
   revalidatePath("/urunler");
+}
+
+export async function createQuickProductBrand(input: { name: string }): Promise<QuickProductBrandResult> {
+  await requireAdmin(getResourceByKey("brands")?.roles);
+  const name = typeof input?.name === "string" ? input.name.trim().replace(/\s+/g, " ") : "";
+  if (name.length < 2) return { success: false, error: "Marka adı en az 2 karakter olmalıdır." };
+  if (name.length > 120) return { success: false, error: "Marka adı en fazla 120 karakter olabilir." };
+
+  const supabase = await createSupabaseServerClient();
+  const { data: brands, error: lookupError } = await supabase
+    .from("brands")
+    .select("id, name, is_active");
+
+  if (lookupError) return { success: false, error: "Marka listesi kontrol edilemedi." };
+
+  const normalizedName = name.toLocaleLowerCase("tr-TR");
+  const existingBrand = brands?.find(
+    (brand) => String(brand.name).trim().toLocaleLowerCase("tr-TR") === normalizedName
+  );
+
+  if (existingBrand) {
+    if (!existingBrand.is_active) {
+      const { error: activateError } = await supabase
+        .from("brands")
+        .update({ is_active: true })
+        .eq("id", existingBrand.id);
+      if (activateError) return { success: false, error: "Mevcut marka etkinleştirilemedi." };
+    }
+    revalidatePath("/admin/brands");
+    revalidatePath("/admin/products");
+    return {
+      success: true,
+      brand: { id: String(existingBrand.id), name: String(existingBrand.name) },
+    };
+  }
+
+  const slug = await makeUniqueSlug({
+    supabase,
+    table: "brands",
+    baseSlug: slugify(name),
+    id: null,
+  });
+  const { data, error } = await supabase
+    .from("brands")
+    .insert({
+      name,
+      slug,
+      is_active: true,
+      is_featured: false,
+      sort_order: 0,
+    })
+    .select("id, name")
+    .single();
+
+  if (error || !data) return { success: false, error: "Marka eklenemedi." };
+
+  revalidatePath("/admin/brands");
+  revalidatePath("/admin/products");
+  return {
+    success: true,
+    brand: { id: String(data.id), name: String(data.name) },
+  };
 }
 
 function normalizeQuickCategoryInput(input: { name?: string; description?: string }) {

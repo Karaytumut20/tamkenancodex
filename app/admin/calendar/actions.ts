@@ -3,6 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { checkEmployeeConflict, logActivity, generateServiceOrderNumber } from "@/lib/admin/service-system";
+import { recalculateOrderTotals } from "@/app/admin/service-orders/actions";
 
 export type AppointmentInput = {
   id?: string;
@@ -24,6 +25,8 @@ export type AppointmentInput = {
   internal_notes?: string;
   customer_notes?: string;
   reminder_time?: string;
+  collection_amount?: number;
+  collection_currency?: 'TRY' | 'USD';
 };
 
 // Create or update appointment
@@ -31,6 +34,12 @@ export async function saveAppointment(input: AppointmentInput) {
   const supabase = await createSupabaseServerClient();
 
   try {
+    const collectionAmount = Number(input.collection_amount || 0);
+    const collectionCurrency = input.collection_currency === 'USD' ? 'USD' : 'TRY';
+    if (!Number.isFinite(collectionAmount) || collectionAmount < 0) {
+      return { success: false, error: "Alınacak tutar sıfırdan küçük olamaz." };
+    }
+
     // 1. Conflict checking
     if (input.employee_id) {
       const conflict = await checkEmployeeConflict(
@@ -73,6 +82,8 @@ export async function saveAppointment(input: AppointmentInput) {
           internal_notes: input.internal_notes || null,
           customer_notes: input.customer_notes || null,
           reminder_time: input.reminder_time || '30_min',
+          collection_amount: collectionAmount,
+          collection_currency: collectionCurrency,
           updated_at: new Date().toISOString(),
         })
         .eq('id', input.id)
@@ -81,9 +92,19 @@ export async function saveAppointment(input: AppointmentInput) {
 
       if (error) throw new Error(error.message);
 
-      // Handle service order automatic creation if status changes to completed/started
-      if (input.status === 'İşlem Başladı' || input.status === 'İşlem Tamamlandı') {
-        await ensureServiceOrderExists(input.id, input.customer_id);
+      const collectionChanged =
+        Number(oldData?.collection_amount || 0) !== collectionAmount ||
+        (oldData?.collection_currency || 'TRY') !== collectionCurrency;
+      const customerChanged = oldData?.customer_id !== input.customer_id;
+
+      // An entered amount immediately becomes an expected collection in accounting.
+      if (collectionAmount > 0 || collectionChanged || input.status === 'İşlem Başladı' || input.status === 'İşlem Tamamlandı') {
+        await ensureServiceOrderExists(input.id, input.customer_id, {
+          collectionAmount,
+          collectionCurrency,
+          syncCollection: collectionChanged,
+          syncCustomer: customerChanged,
+        });
       }
 
       await logActivity('UPDATE', 'appointments', input.id, oldData, data);
@@ -109,14 +130,21 @@ export async function saveAppointment(input: AppointmentInput) {
           internal_notes: input.internal_notes || null,
           customer_notes: input.customer_notes || null,
           reminder_time: input.reminder_time || '30_min',
+          collection_amount: collectionAmount,
+          collection_currency: collectionCurrency,
         })
         .select()
         .single();
 
       if (error) throw new Error(error.message);
 
-      if (input.status === 'İşlem Başladı' || input.status === 'İşlem Tamamlandı') {
-        await ensureServiceOrderExists(data.id, input.customer_id);
+      if (collectionAmount > 0 || input.status === 'İşlem Başladı' || input.status === 'İşlem Tamamlandı') {
+        await ensureServiceOrderExists(data.id, input.customer_id, {
+          collectionAmount,
+          collectionCurrency,
+          syncCollection: collectionAmount > 0,
+          syncCustomer: false,
+        });
       }
 
       await logActivity('INSERT', 'appointments', data.id, null, data);
@@ -131,22 +159,73 @@ export async function saveAppointment(input: AppointmentInput) {
 }
 
 // Ensure job/service order exists
-async function ensureServiceOrderExists(appointmentId: string, customerId: string) {
+async function ensureServiceOrderExists(
+  appointmentId: string,
+  customerId: string,
+  options?: {
+    collectionAmount: number;
+    collectionCurrency: 'TRY' | 'USD';
+    syncCollection: boolean;
+    syncCustomer: boolean;
+  }
+) {
   const supabase = await createSupabaseServerClient();
-  const { data: existing } = await supabase
+  const { data: existing, error: existingError } = await supabase
     .from('service_orders')
     .select('id')
     .eq('appointment_id', appointmentId)
     .maybeSingle();
 
-  if (!existing) {
+  if (existingError) throw new Error(existingError.message);
+
+  let orderId = existing?.id;
+  let shouldRecalculate = false;
+
+  if (!orderId) {
     const orderNumber = await generateServiceOrderNumber();
-    await supabase.from('service_orders').insert({
-      order_number: orderNumber,
-      appointment_id: appointmentId,
-      customer_id: customerId,
-      status: 'İşlem Başladı',
-    });
+    const applyCollection = (options?.collectionAmount || 0) > 0;
+    const initialCollectionAmount = options?.collectionAmount || 0;
+    const initialCollectionCurrency = options?.collectionCurrency || 'TRY';
+    const { data, error } = await supabase
+      .from('service_orders')
+      .insert({
+        order_number: orderNumber,
+        appointment_id: appointmentId,
+        customer_id: customerId,
+        status: 'Taslak',
+        ...(applyCollection ? {
+          labor_price: initialCollectionAmount,
+          labor_price_currency: initialCollectionCurrency,
+        } : {}),
+      })
+      .select('id')
+      .single();
+
+    if (error) throw new Error(error.message);
+    orderId = data.id;
+    shouldRecalculate = applyCollection;
+  } else if (options?.syncCollection || options?.syncCustomer) {
+    const { error } = await supabase
+      .from('service_orders')
+      .update({
+        customer_id: customerId,
+        ...(options.syncCollection ? {
+          labor_price: options.collectionAmount,
+          labor_price_currency: options.collectionCurrency,
+        } : {}),
+        updated_at: new Date().toISOString(),
+      })
+      .eq('id', orderId);
+
+    if (error) throw new Error(error.message);
+    shouldRecalculate = options.syncCollection;
+  }
+
+  if (shouldRecalculate && orderId) {
+    const totalsResult = await recalculateOrderTotals(orderId, supabase);
+    if (!totalsResult.success) {
+      throw new Error(totalsResult.error || "Alınacak tutar iş emrine aktarılamadı.");
+    }
   }
 }
 
@@ -186,6 +265,7 @@ export async function updateAppointmentDate(id: string, newDate: string) {
 
     await logActivity('UPDATE', 'appointments', id, oldData, data);
     revalidatePath("/admin/calendar");
+    revalidatePath("/admin");
     return { success: true };
   } catch (err) {
     return { success: false, error: err instanceof Error ? err.message : "Tarih güncellenemedi." };
@@ -211,6 +291,9 @@ export async function deleteAppointment(id: string) {
 
     await logActivity('UPDATE', 'appointments', id, oldData, data);
     revalidatePath("/admin/calendar");
+    revalidatePath("/admin");
+    revalidatePath("/admin/accounting");
+    revalidatePath("/admin/service-orders");
     return { success: true };
   } catch (err) {
     return { success: false, error: err instanceof Error ? err.message : "Silme işlemi başarısız." };
