@@ -23,17 +23,11 @@ import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { TodayProgramList, UpcomingAppointmentsList, DelayedJobsList } from "@/components/admin/dashboard/DashboardAppointmentsList";
 import { DashboardStocksList } from "@/components/admin/dashboard/DashboardStocksList";
 import { DashboardCustomersList } from "@/components/admin/dashboard/DashboardCustomersList";
+import { FinancialOverview } from "@/components/admin/FinancialOverview";
 import { isCriticalStock } from "@/lib/admin/stock";
 import { toTurkeyDateKey } from "@/lib/admin/calendar-date";
 
 export const dynamic = "force-dynamic";
-
-const moneyTRY = (value: number) => value.toLocaleString("tr-TR", { style: "currency", currency: "TRY" });
-const moneyUSD = (value: number) => value.toLocaleString("en-US", { style: "currency", currency: "USD" });
-
-function formatMoney(value: number, currency: string = "TRY") {
-  return currency === "USD" ? moneyUSD(value) : moneyTRY(value);
-}
 
 export default async function AdminDashboardPage() {
   const supabase = await createSupabaseServerClient();
@@ -72,6 +66,8 @@ export default async function AdminDashboardPage() {
   let recentLogs: any[] = [];
   let allCustomers: any[] = [];
   let allEmployees: any[] = [];
+  let financialOrders: any[] = [];
+  let financialPayments: any[] = [];
 
   const todayStr = toTurkeyDateKey();
 
@@ -111,11 +107,21 @@ export default async function AdminDashboardPage() {
     if (delayed) delayedJobs = delayed;
 
     // 4. Get collection pending customers
-    const { data: unpaidOrders } = await supabase
-      .from("service_orders")
-      .select("id, order_number, grand_total, paid_amount, labor_price_currency, customer:customer_id(id, name, phone)")
-      .is("deleted_at", null)
-      .order("created_at", { ascending: false });
+    const [{ data: unpaidOrders }, { data: paymentRows }] = await Promise.all([
+      supabase
+        .from("service_orders")
+        .select("id, order_number, created_at, grand_total, paid_amount, total_cost, labor_price_currency, customer:customer_id(id, name, phone)")
+        .is("deleted_at", null)
+        .order("created_at", { ascending: false }),
+      supabase
+        .from("payments")
+        .select("service_order_id, payment_date, amount, currency")
+        .order("payment_date", { ascending: false })
+        .limit(5000),
+    ]);
+
+    financialOrders = unpaidOrders || [];
+    financialPayments = paymentRows || [];
     
     if (unpaidOrders) {
       // Aggregate unpaid by customer to get top debtor customers (Consolidated in TRY)
@@ -264,56 +270,11 @@ export default async function AdminDashboardPage() {
           </div>
         </div>
 
-        {/* Financial Overview - Premium TRY & USD Cashbox (Synced with Accounting) */}
-        <div className="grid gap-6 md:grid-cols-2">
-          {/* TRY Summary Block */}
-          <div className="rounded-3xl border-2 border-slate-200 bg-white p-5 shadow-sm space-y-4">
-            <h3 className="text-sm font-black text-slate-800 uppercase tracking-wider flex items-center gap-2 pb-2 border-b border-slate-100">
-              <span className="text-base">🇹🇷</span> Türk Lirası (TL) Kasası
-            </h3>
-            <div className="grid gap-3 grid-cols-2">
-              {[
-                ["Faturalanan", serviceStats.trySales, "text-slate-900", "TRY"],
-                ["Tahsil Edilen", serviceStats.tryCollected, "text-emerald-700", "TRY"],
-                ["Kalan Alacak", serviceStats.tryReceivable, "text-rose-700", "TRY"],
-                ["Toplam Maliyet", serviceStats.tryCost, "text-amber-700", "TRY"],
-              ].map(([label, value, color, curr]) => (
-                <div key={String(label)} className="bg-slate-50/55 p-3.5 rounded-xl border border-slate-100">
-                  <p className="text-[10px] font-black uppercase text-slate-400">{label}</p>
-                  <p className={`mt-1 text-lg font-black ${color}`}>
-                    {formatMoney(Number(value), String(curr))}
-                  </p>
-                </div>
-              ))}
-            </div>
-          </div>
-
-          {/* USD Summary Block */}
-          <div className="rounded-3xl border-2 border-amber-200 bg-amber-50/10 p-5 shadow-sm space-y-4">
-            <h3 className="text-sm font-black text-amber-800 uppercase tracking-wider flex items-center gap-2 pb-2 border-b border-amber-100">
-              <span className="text-base">🇺🇸</span> Amerikan Doları (USD) Kasası
-              <span className="ml-auto rounded-lg border border-amber-200 bg-white px-2 py-1 text-[10px] font-black normal-case text-amber-800">
-                1 USD = {serviceStats.usdTryRate.toLocaleString("tr-TR", { minimumFractionDigits: 4, maximumFractionDigits: 4 })} TL
-                {serviceStats.usdTryRateDate ? ` · TCMB ${serviceStats.usdTryRateDate}` : ""}
-              </span>
-            </h3>
-            <div className="grid gap-3 grid-cols-2">
-              {[
-                ["Faturalanan", serviceStats.usdSales, "text-slate-900", "USD"],
-                ["Tahsil Edilen", serviceStats.usdCollected, "text-emerald-700", "USD"],
-                ["Kalan Alacak", serviceStats.usdReceivable, "text-rose-700", "USD"],
-                ["Toplam Maliyet", serviceStats.usdCost, "text-amber-700", "USD"],
-              ].map(([label, value, color, curr]) => (
-                <div key={String(label)} className="bg-amber-50/30 p-3.5 rounded-xl border border-amber-100/50">
-                  <p className="text-[10px] font-black uppercase text-slate-400">{label}</p>
-                  <p className={`mt-1 text-lg font-black ${color}`}>
-                    {formatMoney(Number(value), String(curr))}
-                  </p>
-                </div>
-              ))}
-            </div>
-          </div>
-        </div>
+        <FinancialOverview
+          orders={financialOrders}
+          payments={financialPayments}
+          usdTryRate={serviceStats.usdTryRate}
+        />
 
         {/* Low Stock Banner Alert */}
         {serviceStats.lowStockCount > 0 && (

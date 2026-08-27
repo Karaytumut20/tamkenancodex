@@ -2,7 +2,7 @@ import { PageHero } from "@/components/templates/PageHero";
 import { ProductGrid } from "@/components/products/ProductGrid";
 import { Container } from "@/components/ui/Container";
 import { buildMetadata } from "@/lib/seo";
-import { getProducts, getOksidProducts } from "@/lib/db";
+import { getActiveProductCategoryNames, getProducts, getOksidProducts } from "@/lib/db";
 
 export const revalidate = 3600;
 
@@ -56,17 +56,8 @@ export default async function ProductsPage() {
       : [],
   }));
 
-  const categories = Array.from(new Set(gridProducts.map((p) => p.category)));
   const brands = Array.from(new Set(gridProducts.map((p) => p.brand)));
-
-  // Alt kategorileri Oksid ürünlerinden çıkar
-  const subCategories = Array.from(
-    new Set(
-      oksidProducts
-        .map((p) => p.categoryAlt)
-        .filter(Boolean) as string[]
-    )
-  ).sort((a, b) => a.localeCompare(b, "tr"));
+  const categories = await getActiveProductCategoryNames();
 
   return (
     <>
@@ -82,7 +73,6 @@ export default async function ProductsPage() {
               initialProducts={gridProducts as any}
               initialCategories={categories}
               initialBrands={brands}
-              initialSubCategories={subCategories}
             />
           </Suspense>
         </Container>

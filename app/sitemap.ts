@@ -3,6 +3,7 @@ import { siteConfig } from "@/data/site";
 import { resolveCanonicalUrl } from "@/lib/seo";
 import {
   getProducts,
+  getOksidProducts,
   getServices,
   getBlogPosts,
   getServiceAreas,
@@ -42,8 +43,9 @@ function isIndexableEntry(entry: any, path: string) {
 }
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  const [products, services, posts, locations, corporate] = await Promise.all([
+  const [products, oksidProducts, services, posts, locations, corporate] = await Promise.all([
     getProducts(),
+    getOksidProducts(),
     getServices(),
     getBlogPosts(),
     getServiceAreas(),
@@ -65,6 +67,20 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
 
     products
       .filter((p: any) => isIndexableEntry(p, `urunler/${p.slug}`))
+      .forEach((p: any) =>
+        paths.push({
+          url: `urunler/${p.slug}`,
+          priority: 0.8,
+          changeFrequency: "weekly",
+        }),
+      );
+
+    // XML ile içe aktarılan katalog ürünleri de herkese açık ve kanonik ürün
+    // sayfalarına sahiptir. Bunlar site haritasında olmadığında Google onları
+    // yalnızca iç bağlantılardan keşfeder; özellikle büyük kataloglarda bu,
+    // taramanın uzun süre ertelenmesine neden olabilir.
+    oksidProducts
+      .filter((p: any) => p.isActive !== false && p.slug)
       .forEach((p: any) =>
         paths.push({
           url: `urunler/${p.slug}`,

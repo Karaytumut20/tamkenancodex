@@ -607,7 +607,6 @@ async function OksidProductPage({ product, productWhatsApp }: { product: OksidPr
   );
   const ilgiliUrunler = (ayniKategori.length > 0 ? ayniKategori : tumUrunler.filter((item: any) => item.slug !== product.slug)).slice(0, 4);
 
-  const stokVar = typeof product.stokAdet === "number" ? product.stokAdet > 0 : null;
   const attributeEntries = (items: unknown): [string, string][] => Array.isArray(items)
     ? items
         .filter((item: any) => item?.active !== false && item?.title && item?.description)
@@ -619,28 +618,10 @@ async function OksidProductPage({ product, productWhatsApp }: { product: OksidPr
   const whatsappMesaj = `Merhaba, ${product.name} ürünü hakkında bilgi almak istiyorum. Ürün Kodu: ${product.code}`;
   const whatsappUrl = buildWhatsAppUrl(whatsappMesaj, productWhatsApp);
 
-  const schema = {
-    "@context": "https://schema.org",
-    "@type": "Product",
-    name: product.name,
-    sku: product.code,
-    brand: { "@type": "Brand", name: product.brand },
-    image: product.image,
-    url: `${siteConfig.siteUrl}/urunler/${product.slug}`,
-    ...(stokVar === null ? {} : { offers: {
-      "@type": "Offer",
-      availability: stokVar
-        ? "https://schema.org/InStock"
-        : "https://schema.org/OutOfStock",
-      priceCurrency: "TRY",
-    }}),
-  };
-
   return (
     <div className="overflow-x-hidden">
       <JsonLd
         data={[
-          schema,
           breadcrumbSchema([
             { name: "Ana Sayfa", url: "/" },
             { name: "Ürünler", url: "/urunler" },

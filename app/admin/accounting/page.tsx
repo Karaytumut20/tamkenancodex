@@ -1,6 +1,7 @@
 import { AdminPageHeader } from "@/components/admin/AdminShell";
 import { ProtectedAdminPage } from "@/components/admin/ProtectedAdminPage";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
+import { getUsdTryRate } from "@/lib/admin/exchange-rate";
 import { AccountingClient } from "./AccountingClient";
 
 export const dynamic = "force-dynamic";
@@ -21,15 +22,28 @@ export default async function AccountingPage() {
     .order("name", { ascending: true })
     .limit(1000);
 
-  const [ { data: orders }, { data: customers } ] = await Promise.all([
+  const paymentsPromise = supabase
+    .from("payments")
+    .select("service_order_id, payment_date, amount, currency")
+    .order("payment_date", { ascending: false })
+    .limit(5000);
+
+  const [ { data: orders }, { data: customers }, { data: payments }, usdTryRate ] = await Promise.all([
     ordersPromise,
-    customersPromise
+    customersPromise,
+    paymentsPromise,
+    getUsdTryRate(),
   ]);
 
   return (
     <ProtectedAdminPage>
       <AdminPageHeader title="📊 Muhasebe & Tahsilat Paneli" description="İş emirleri, maliyetler, tahsilatlar ve müşteri cari durumlarını kolayca yönetin." />
-      <AccountingClient orders={orders || []} customers={customers || []} />
+      <AccountingClient
+        orders={orders || []}
+        customers={customers || []}
+        payments={payments || []}
+        usdTryRate={usdTryRate?.rate ?? 34}
+      />
     </ProtectedAdminPage>
   );
 }

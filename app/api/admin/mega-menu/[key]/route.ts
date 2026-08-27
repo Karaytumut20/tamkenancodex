@@ -12,6 +12,33 @@ function getSupabaseAdmin() {
   return createClient(env.url, key, { auth: { persistSession: false, autoRefreshToken: false } });
 }
 
+/**
+ * Mega menü ve ana sayfa kartları farklı kaynaklarda tutuluyor. Aynı içeriği
+ * güvenli biçimde eşleştirebilmek için URL'leri ve başlıkları normalize ederiz.
+ */
+function normalizeMatchValue(value: unknown) {
+  return String(value ?? "")
+    .trim()
+    .toLocaleLowerCase("tr-TR")
+    .normalize("NFD")
+    .replace(/\p{Diacritic}/gu, "")
+    .replace(/\/+$/, "");
+}
+
+function normalizeInternalPath(value: unknown) {
+  const rawValue = String(value ?? "").trim();
+  if (!rawValue) return "";
+
+  try {
+    const pathname = /^https?:\/\//i.test(rawValue)
+      ? new URL(rawValue).pathname
+      : rawValue.split(/[?#]/, 1)[0];
+    return normalizeMatchValue(pathname.startsWith("/") ? pathname : `/${pathname}`);
+  } catch {
+    return normalizeMatchValue(rawValue);
+  }
+}
+
 export async function POST(
   req: NextRequest,
   { params }: { params: Promise<{ key: string }> },
@@ -27,7 +54,7 @@ export async function POST(
   const body = await req.json();
   const { section, personas, items, servicePage } = body as {
     section: Record<string, unknown>;
-    personas: Record<string, unknown>[];
+    personas?: Record<string, unknown>[];
     items: Record<string, unknown>[];
     servicePage?: {
       title: string;
@@ -121,21 +148,34 @@ export async function POST(
         source_id: it.source_id ?? null,
       }));
 
-      const keepItemIds = itemRows.filter((i) => i.id).map((i) => i.id);
+      // Önce yeni/güncel kayıtları yaz. Yazma başarısızsa eski kayıtları silme.
+      const { error: itemErr } = await supabase
+        .from("mega_menu_items")
+        .upsert(itemRows, { onConflict: "id" });
+      if (itemErr) {
+        console.error("Items upsert error:", itemErr);
+        return NextResponse.json({ error: "Menü ürünleri kaydedilemedi: " + itemErr.message }, { status: 500 });
+      }
+
+      const keepItemIds = itemRows.map((i) => i.id);
       if (keepItemIds.length > 0) {
-        await supabase
+        const { error: itemDeleteErr } = await supabase
           .from("mega_menu_items")
           .delete()
           .eq("section_id", sectionId)
           .not("id", "in", `(${keepItemIds.join(",")})`);
+        if (itemDeleteErr) {
+          console.error("Removed item synchronization error:", itemDeleteErr);
+          return NextResponse.json({ error: "Menü ürünleri eşitlenemedi: " + itemDeleteErr.message }, { status: 500 });
+        }
       } else {
-        await supabase.from("mega_menu_items").delete().eq("section_id", sectionId);
+        const { error: itemDeleteErr } = await supabase.from("mega_menu_items").delete().eq("section_id", sectionId);
+        if (itemDeleteErr) {
+          console.error("Item cleanup error:", itemDeleteErr);
+          return NextResponse.json({ error: "Menü ürünleri eşitlenemedi: " + itemDeleteErr.message }, { status: 500 });
+        }
       }
 
-      const { error: itemErr } = await supabase
-        .from("mega_menu_items")
-        .upsert(itemRows, { onConflict: "id" });
-      if (itemErr) console.error("Items upsert error:", itemErr);
     }
 
     // 4. Save Service Page if provided
@@ -171,6 +211,64 @@ export async function POST(
         if (serviceErr) {
           console.error("Service page upsert error:", serviceErr);
           return NextResponse.json({ error: "Service page save failed: " + serviceErr.message }, { status: 500 });
+        }
+      }
+    }
+
+    // Mega menüdeki görsellerin ana sayfadaki eş kartlara da yansımasını sağla.
+    // Eşleştirme önce bağlantı URL'siyle, URL farklıysa kart başlığıyla yapılır.
+    const imageUpdates = new Map<string, string>();
+    const { data: homepageCards, error: homepageCardsError } = await supabase
+      .from("homepage_services")
+      .select("id, title, link");
+
+    if (homepageCardsError) {
+      console.error("Homepage service cards read error:", homepageCardsError);
+    } else {
+      const cards = homepageCards || [];
+      const homepagePathForSection = normalizeInternalPath(`/${key}`);
+      const sectionTitles = new Set([
+        normalizeMatchValue(section.title),
+        normalizeMatchValue(servicePage?.title),
+        normalizeMatchValue(servicePage?.hero_title),
+      ].filter(Boolean));
+
+      for (const item of items || []) {
+        const imageUrl = String(item.image_url ?? "").trim();
+        if (!imageUrl) continue;
+
+        const itemPath = normalizeInternalPath(item.href);
+        const itemTitle = normalizeMatchValue(item.title);
+        for (const card of cards) {
+          if (
+            (itemPath && itemPath === normalizeInternalPath(card.link)) ||
+            (itemTitle && itemTitle === normalizeMatchValue(card.title))
+          ) {
+            imageUpdates.set(card.id, imageUrl);
+          }
+        }
+      }
+
+      // Hizmet sayfası kahraman görseli de ana sayfadaki o hizmet kartına yansır.
+      const heroImageUrl = String(servicePage?.image_url ?? "").trim();
+      if (heroImageUrl) {
+        for (const card of cards) {
+          if (
+            normalizeInternalPath(card.link) === homepagePathForSection ||
+            sectionTitles.has(normalizeMatchValue(card.title))
+          ) {
+            imageUpdates.set(card.id, heroImageUrl);
+          }
+        }
+      }
+
+      for (const [id, image] of imageUpdates) {
+        const { error: homepageImageError } = await supabase
+          .from("homepage_services")
+          .update({ image })
+          .eq("id", id);
+        if (homepageImageError) {
+          console.error("Homepage service card image sync error:", homepageImageError);
         }
       }
     }
@@ -226,6 +324,7 @@ export async function POST(
 
     // 5. Revalidate public pages
     revalidatePath("/", "layout");
+    revalidatePath("/");
     revalidatePath(`/${key}`);
 
     return NextResponse.json({ success: true, sectionId });

@@ -36,7 +36,7 @@ export default async function MegaMenuDetailPage({
   }
 
   // Build product list for the product picker
-  const allProducts = [
+  const productCandidates = [
     ...dbProducts.map((p) => ({
       id: p.id,
       slug: p.slug,
@@ -54,6 +54,13 @@ export default async function MegaMenuDetailPage({
       image: (p.resimler && p.resimler.length > 0 ? p.resimler[0] : null) || p.image || "/images/alarm-sistemi.svg",
     })),
   ];
+  const allProducts = Array.from(
+    new Map(
+      productCandidates
+        .filter((product) => product.slug)
+        .map((product) => [product.slug, product]),
+    ).values(),
+  );
 
   return (
     <ProtectedAdminPage>

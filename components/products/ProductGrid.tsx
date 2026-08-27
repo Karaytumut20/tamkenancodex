@@ -58,8 +58,11 @@ export function ProductGrid({
       .sort((a, b) => a.localeCompare(b, "tr"));
   }, [productsList]);
 
-  // Unified Categories list (consisting of subcategories and fallback category names)
+  // Kategori seçenekleri yönetim panelindeki ürün kategorilerinden gelir.
+  // Eski/statik kullanımda yalnızca geriye dönük uyumluluk için ürün verisinden türetilir.
   const allSubCategories = useMemo(() => {
+    if (initialCategories) return categoriesList;
+
     const fromProps = subCategoriesList;
     const fromProducts = productsList.flatMap((p: any) =>
       p.categoryAlt ? [p.categoryAlt] : (p.category ? [p.category] : [])
@@ -67,7 +70,7 @@ export function ProductGrid({
     return Array.from(new Set([...fromProps, ...fromProducts])).sort((a, b) =>
       a.localeCompare(b, "tr")
     );
-  }, [subCategoriesList, productsList]);
+  }, [categoriesList, initialCategories, subCategoriesList, productsList]);
 
   const filtered = useMemo(() => {
     const normalizedQuery = query.trim().toLowerCase();
@@ -85,8 +88,9 @@ export function ProductGrid({
       ].join(" ").toLowerCase();
 
       const matchesQuery = !normalizedQuery || searchable.includes(normalizedQuery);
-      const productCatValue = product.categoryAlt || product.category || "";
-      const matchesCategory = category === ALL || productCatValue === category;
+      const matchesCategory = category === ALL ||
+        product.category === category ||
+        (product.tags || []).includes(category);
       const matchesBrand = brand === ALL || product.brand === brand;
       const matchesUsage = usage === ALL || (product.usage || []).includes(usage);
       const matchesTag = tag === ALL || (product.tags || []).includes(tag);

@@ -1,7 +1,7 @@
 import { cache } from "react";
 import { createClient } from "@supabase/supabase-js";
 import { requireSupabasePublicEnv } from "@/lib/supabase/env";
-import { products as staticProducts, type Product } from "@/data/products";
+import { products as staticProducts, productCategories, type Product } from "@/data/products";
 import { services as staticServices, type ServicePage } from "@/data/services";
 import { blogPosts as staticBlogPosts, type BlogPost } from "@/data/blog";
 import { locations as staticLocations } from "@/data/locations";
@@ -317,6 +317,30 @@ export const getSiteContentBlock = cache(async function getSiteContentBlock(
 // ─────────────────────────────────────────────────────────────────────────────
 // PRODUCTS
 // ─────────────────────────────────────────────────────────────────────────────
+
+/** Tek ürün kategori kaynağı: yönetim panelindeki aktif ürün kategorileri. */
+export const getActiveProductCategoryNames = cache(async function getActiveProductCategoryNames(): Promise<string[]> {
+  try {
+    const supabase = getSupabase();
+    if (!supabase) return productCategories;
+
+    const { data, error } = await supabase
+      .from("categories")
+      .select("name")
+      .eq("type", "product")
+      .eq("is_active", true)
+      .order("sort_order", { ascending: true })
+      .order("name", { ascending: true });
+
+    if (error || !data) return productCategories;
+    return data
+      .map((category: any) => String(category.name || "").trim())
+      .filter(Boolean);
+  } catch (err) {
+    console.error("Error in getActiveProductCategoryNames:", err);
+    return productCategories;
+  }
+});
 
 export const getProducts = cache(async function getProducts(): Promise<any[]> {
   try {

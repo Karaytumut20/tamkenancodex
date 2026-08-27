@@ -366,6 +366,7 @@ export function MegaMenuEditor({ menuKey, initialData, allProducts, initialServi
   // Product picker state
   const [productSearch, setProductSearch] = useState("");
   const [showProductPicker, setShowProductPicker] = useState(false);
+  const [replacingItemIndex, setReplacingItemIndex] = useState<number | null>(null);
 
   // Service page specific states
   const [serviceRelatedProductIds, setServiceRelatedProductIds] = useState<string[]>(
@@ -421,6 +422,7 @@ export function MegaMenuEditor({ menuKey, initialData, allProducts, initialServi
     setItems((prev) => [
       ...prev,
       {
+        id: crypto.randomUUID(),
         title: "",
         href: "/",
         image_url: "/images/alarm-sistemi.svg",
@@ -454,6 +456,7 @@ export function MegaMenuEditor({ menuKey, initialData, allProducts, initialServi
     setItems((prev) => [
       ...prev,
       {
+        id: crypto.randomUUID(),
         title: product.name,
         href,
         image_url: product.image,
@@ -462,6 +465,27 @@ export function MegaMenuEditor({ menuKey, initialData, allProducts, initialServi
         source_id: product.slug,
       },
     ]);
+  }
+
+  function replaceItemWithProduct(
+    index: number,
+    product: { slug: string; name: string; category: string; image: string },
+  ) {
+    setItems((prev) => prev.map((item, itemIndex) => (
+      itemIndex === index
+        ? {
+            ...item,
+            title: product.name,
+            href: `/urunler/${product.slug}`,
+            image_url: product.image,
+            source_type: "product",
+            source_id: product.slug,
+          }
+        : item
+    )));
+    setReplacingItemIndex(null);
+    setShowProductPicker(false);
+    setProductSearch("");
   }
 
   // ── Save ─────────────────────────────────────────────────────
@@ -484,7 +508,6 @@ export function MegaMenuEditor({ menuKey, initialData, allProducts, initialServi
             insight_body: section.insight_body,
             is_active: section.is_active,
           },
-          personas: [], // We pass empty array to wipe any existing personas
           items: items.map((it, idx) => ({ ...it, sort_order: idx })),
           servicePage: hasServiceData ? {
             title: serviceTitle,
@@ -648,13 +671,18 @@ export function MegaMenuEditor({ menuKey, initialData, allProducts, initialServi
               </div>
               <div className="flex gap-2">
                 <button
-                  onClick={() => setShowProductPicker((v) => !v)}
+                  type="button"
+                  onClick={() => {
+                    setReplacingItemIndex(null);
+                    setShowProductPicker((value) => !value);
+                  }}
                   className="inline-flex items-center gap-1.5 rounded-xl border-2 border-slate-200 bg-white px-3 py-2 text-sm font-black text-slate-600 hover:border-cyan-400 hover:text-cyan-600 transition-colors"
                 >
                   <Package className="h-4 w-4" /> Üründen Ekle
                   {showProductPicker ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
                 </button>
                 <button
+                  type="button"
                   onClick={addCustomItem}
                   className="inline-flex items-center gap-1.5 rounded-xl border-2 border-dashed border-slate-300 bg-white px-3 py-2 text-sm font-black text-slate-600 hover:border-cyan-400 hover:text-cyan-600 transition-colors"
                 >
@@ -667,7 +695,9 @@ export function MegaMenuEditor({ menuKey, initialData, allProducts, initialServi
             {showProductPicker && (
               <div className="mb-4 rounded-xl border-2 border-cyan-200 bg-cyan-50 p-4">
                 <p className="mb-2 text-sm font-black text-cyan-800">
-                  Mevcut ürünlerden seçin (checkbox ile menüye ekleyin):
+                  {replacingItemIndex === null
+                    ? "Mevcut ürünlerden seçin (checkbox ile menüye ekleyin):"
+                    : `“${items[replacingItemIndex]?.title || "Menü ürünü"}” yerine kullanılacak ürünü seçin:`}
                 </p>
                 <input
                   value={productSearch}
@@ -678,6 +708,25 @@ export function MegaMenuEditor({ menuKey, initialData, allProducts, initialServi
                 <div className="max-h-96 overflow-y-auto space-y-1 pr-1">
                   {filteredProducts.map((p) => {
                     const added = addedSlugs.has(p.slug);
+                    if (replacingItemIndex !== null) {
+                      const isCurrent = items[replacingItemIndex]?.source_id === p.slug;
+                      return (
+                        <button
+                          type="button"
+                          key={p.slug}
+                          onClick={() => replaceItemWithProduct(replacingItemIndex, p)}
+                          disabled={isCurrent}
+                          className={`flex w-full items-center gap-3 rounded-lg px-3 py-2 text-left transition-colors ${isCurrent ? "cursor-not-allowed bg-cyan-100 opacity-60" : "bg-white hover:bg-cyan-100"}`}
+                        >
+                          <Package className="h-4 w-4 shrink-0 text-cyan-600" />
+                          <div className="min-w-0 flex-1">
+                            <span className="block truncate text-sm font-bold text-slate-800">{p.name}</span>
+                            <span className="block truncate text-xs text-slate-400">{p.category} · {p.brand}</span>
+                          </div>
+                          <span className="text-xs font-black text-cyan-700">{isCurrent ? "Mevcut" : "Seç"}</span>
+                        </button>
+                      );
+                    }
                     return (
                       <label
                         key={p.slug}
@@ -738,6 +787,7 @@ export function MegaMenuEditor({ menuKey, initialData, allProducts, initialServi
                     </div>
                     <div className="flex items-center gap-1">
                       <button
+                        type="button"
                         onClick={() => moveItem(idx, -1)}
                         disabled={idx === 0}
                         className="p-1.5 text-slate-400 hover:text-slate-700 disabled:opacity-30 rounded-lg"
@@ -746,6 +796,7 @@ export function MegaMenuEditor({ menuKey, initialData, allProducts, initialServi
                         <ChevronUp className="h-4 w-4" />
                       </button>
                       <button
+                        type="button"
                         onClick={() => moveItem(idx, 1)}
                         disabled={idx === items.length - 1}
                         className="p-1.5 text-slate-400 hover:text-slate-700 disabled:opacity-30 rounded-lg"
@@ -754,6 +805,19 @@ export function MegaMenuEditor({ menuKey, initialData, allProducts, initialServi
                         <ChevronDown className="h-4 w-4" />
                       </button>
                       <button
+                        type="button"
+                        onClick={() => {
+                          setReplacingItemIndex(idx);
+                          setShowProductPicker(true);
+                          setProductSearch("");
+                        }}
+                        className="inline-flex items-center gap-1 rounded-lg px-2 py-1.5 text-xs font-black text-cyan-700 hover:bg-cyan-50"
+                        title="Bu menü kaydındaki ürünü değiştir"
+                      >
+                        <Package className="h-4 w-4" /> Değiştir
+                      </button>
+                      <button
+                        type="button"
                         onClick={() => removeItem(idx)}
                         className="p-1.5 text-red-400 hover:bg-red-50 rounded-lg transition-colors"
                       >
