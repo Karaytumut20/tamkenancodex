@@ -2,7 +2,7 @@ import { PageHero } from "@/components/templates/PageHero";
 import { ProductGrid } from "@/components/products/ProductGrid";
 import { Container } from "@/components/ui/Container";
 import { buildMetadata } from "@/lib/seo";
-import { getActiveProductCategoryNames, getProducts, getOksidProducts } from "@/lib/db";
+import { getProducts, getOksidProducts } from "@/lib/db";
 
 export const revalidate = 3600;
 
@@ -14,6 +14,27 @@ export const metadata = buildMetadata({
 });
 
 import { Suspense } from "react";
+
+function categoryKey(value: string) {
+  return value
+    .trim()
+    .toLocaleLowerCase("tr-TR")
+    .normalize("NFD")
+    .replace(/\p{Diacritic}/gu, "")
+    .replace(/\s+/g, " ");
+}
+
+function uniqueCategories(values: string[]) {
+  const seen = new Set<string>();
+  return values
+    .map((value) => value.trim())
+    .filter((value) => {
+      if (!value || seen.has(categoryKey(value))) return false;
+      seen.add(categoryKey(value));
+      return true;
+    })
+    .sort((a, b) => a.localeCompare(b, "tr"));
+}
 
 export default async function ProductsPage() {
   // Her iki kaynaktan da ürünleri çek ve birleştir
@@ -57,7 +78,11 @@ export default async function ProductsPage() {
   }));
 
   const brands = Array.from(new Set(gridProducts.map((p) => p.brand)));
-  const categories = await getActiveProductCategoryNames();
+  // Oksid'den gelen tüm alt kategorileri göster; sadece aynı kategorinin yazım
+  // farkıyla oluşan tekrarlarını kaldır.
+  const categories = uniqueCategories(
+    gridProducts.map((product) => product.categoryAlt || product.category)
+  );
 
   return (
     <>
@@ -73,6 +98,7 @@ export default async function ProductsPage() {
               initialProducts={gridProducts as any}
               initialCategories={categories}
               initialBrands={brands}
+              initialSubCategories={categories}
             />
           </Suspense>
         </Container>

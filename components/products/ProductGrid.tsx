@@ -9,6 +9,15 @@ import { brands as staticBrands, productCategories as staticCategories, products
 const ALL = "Tümü";
 const PAGE_SIZE = 24;
 
+function categoryKey(value: unknown) {
+  return String(value ?? "")
+    .trim()
+    .toLocaleLowerCase("tr-TR")
+    .normalize("NFD")
+    .replace(/\p{Diacritic}/gu, "")
+    .replace(/\s+/g, " ");
+}
+
 interface ProductGridProps {
   initialProducts?: Product[];
   initialBrands?: string[];
@@ -58,8 +67,7 @@ export function ProductGrid({
       .sort((a, b) => a.localeCompare(b, "tr"));
   }, [productsList]);
 
-  // Kategori seçenekleri yönetim panelindeki ürün kategorilerinden gelir.
-  // Eski/statik kullanımda yalnızca geriye dönük uyumluluk için ürün verisinden türetilir.
+  // Sunucudan gelen kategori listesi tüm Oksid kategorilerini içerir ve tekildir.
   const allSubCategories = useMemo(() => {
     if (initialCategories) return categoriesList;
 
@@ -89,8 +97,8 @@ export function ProductGrid({
 
       const matchesQuery = !normalizedQuery || searchable.includes(normalizedQuery);
       const matchesCategory = category === ALL ||
-        product.category === category ||
-        (product.tags || []).includes(category);
+        categoryKey(product.categoryAlt || product.category) === categoryKey(category) ||
+        (product.tags || []).some((item: string) => categoryKey(item) === categoryKey(category));
       const matchesBrand = brand === ALL || product.brand === brand;
       const matchesUsage = usage === ALL || (product.usage || []).includes(usage);
       const matchesTag = tag === ALL || (product.tags || []).includes(tag);

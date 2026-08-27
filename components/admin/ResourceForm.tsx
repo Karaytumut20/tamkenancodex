@@ -1,6 +1,16 @@
 import { ResourceFormClient } from "@/components/admin/ResourceFormClient";
 import type { AdminResource } from "@/lib/admin/resources";
+import { getOksidProducts } from "@/lib/db";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
+
+function categoryKey(value: string) {
+  return value
+    .trim()
+    .toLocaleLowerCase("tr-TR")
+    .normalize("NFD")
+    .replace(/\p{Diacritic}/gu, "")
+    .replace(/\s+/g, " ");
+}
 
 async function getMenuParentOptions() {
   try {
@@ -44,21 +54,36 @@ async function getBrandOptions() {
 async function getProductCategoryOptions() {
   try {
     const supabase = await createSupabaseServerClient();
-    const { data, error } = await supabase
-      .from("categories")
-      .select("id, name, description")
-      .eq("type", "product")
-      .eq("is_active", true)
-      .order("sort_order", { ascending: true })
-      .order("name", { ascending: true });
+    const [{ data, error }, oksidProducts] = await Promise.all([
+      supabase
+        .from("categories")
+        .select("id, name, description")
+        .eq("type", "product")
+        .eq("is_active", true)
+        .order("sort_order", { ascending: true })
+        .order("name", { ascending: true }),
+      getOksidProducts(),
+    ]);
 
     if (error) return [];
-    return (data ?? []).map((item) => ({
+    const managedOptions = (data ?? []).map((item) => ({
       id: String(item.id),
       label: String(item.name),
       value: String(item.name),
       description: typeof item.description === "string" ? item.description : "",
     }));
+    const seen = new Set(managedOptions.map((option) => categoryKey(option.value)));
+    const oksidOptions = oksidProducts
+      .map((product) => String(product.categoryAlt || product.category || "").trim())
+      .filter((name) => {
+        if (!name || seen.has(categoryKey(name))) return false;
+        seen.add(categoryKey(name));
+        return true;
+      })
+      .map((name) => ({ label: name, value: name }));
+
+    return [...managedOptions, ...oksidOptions]
+      .sort((a, b) => a.label.localeCompare(b.label, "tr"));
   } catch {
     return [];
   }

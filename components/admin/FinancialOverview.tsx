@@ -75,11 +75,12 @@ export function FinancialOverview({ orders, payments, usdTryRate }: Props) {
       const grandTotal = Number(order.grand_total || 0);
       const paidAmount = Number(order.paid_amount || 0);
 
-      // Tüm kutular seçilen aya göre hesaplanır; genel toplam kullanılmaz.
+      // Kalan alacak devreden güncel bakiyedir; ay filtresinden etkilenmez.
+      result[currency.toLowerCase() as "try" | "usd"].receivable += Math.max(0, grandTotal - paidAmount);
+
       if (monthKey(order.created_at) !== selectedMonth) continue;
 
       result[currency.toLowerCase() as "try" | "usd"].sales += grandTotal;
-      result[currency.toLowerCase() as "try" | "usd"].receivable += Math.max(0, grandTotal - paidAmount);
       const totalCost = Number(order.total_cost || 0);
       result[currency.toLowerCase() as "try" | "usd"].cost +=
         currency === "USD" ? totalCost / safeUsdTryRate : totalCost;
@@ -128,9 +129,17 @@ export function FinancialOverview({ orders, payments, usdTryRate }: Props) {
         </h3>
         <div className="grid grid-cols-2 gap-3">
           {cards.map(([label, value, color]) => {
+            const isReceivable = label === "Kalan Alacak";
             return (
               <div key={label} className={`rounded-xl border p-3.5 ${isUsd ? "border-amber-100/50 bg-amber-50/30" : "border-slate-100 bg-slate-50/55"}`}>
-                <p className="text-[10px] font-black uppercase text-slate-400">{label}</p>
+                <div className="flex flex-wrap items-center justify-between gap-1">
+                  <p className="text-[10px] font-black uppercase text-slate-400">{label}</p>
+                  {isReceivable && (
+                    <span className="rounded-full bg-white px-1.5 py-0.5 text-[8px] font-black uppercase text-rose-500 ring-1 ring-rose-100">
+                      Devreden bakiye
+                    </span>
+                  )}
+                </div>
                 <p className={`mt-1 text-lg font-black ${color}`}>
                   {formatMoney(Number(value), currency)}
                 </p>
@@ -148,7 +157,7 @@ export function FinancialOverview({ orders, payments, usdTryRate }: Props) {
         <div>
           <p className="text-sm font-black text-slate-800">Aylık Finans Özeti</p>
           <p className="mt-0.5 text-xs font-semibold text-slate-500">
-            Faturalanan, tahsil edilen, kalan alacak ve maliyet: {selectedPeriodLabel}.
+            Faturalanan, tahsil edilen ve maliyet: {selectedPeriodLabel}. Kalan alacak devreden güncel bakiyedir.
           </p>
         </div>
         <label className="flex shrink-0 items-center gap-2 text-xs font-black text-slate-600">
