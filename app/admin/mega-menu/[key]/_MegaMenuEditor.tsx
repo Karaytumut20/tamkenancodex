@@ -43,6 +43,10 @@ type Props = {
   initialServiceData: any; // Can be null
 };
 
+function textValue(value: unknown) {
+  return typeof value === "string" ? value : "";
+}
+
 // Sub-component for list builders
 function StringListBuilder({
   items,
@@ -326,24 +330,24 @@ export function MegaMenuEditor({ menuKey, initialData, allProducts, initialServi
   const [items, setItems] = useState<MegaItem[]>(
     initialData.items.map((i) => ({
       ...i,
-      image_url: (i as any).image_url ?? (i as any).image ?? "",
+      image_url: textValue((i as any).image_url ?? (i as any).image),
     })),
   );
 
   // Service Page state
   const [hasServiceData, setHasServiceData] = useState(!!initialServiceData);
-  const [serviceTitle, setServiceTitle] = useState(initialServiceData?.title ?? "");
-  const [serviceHeroTitle, setServiceHeroTitle] = useState(initialServiceData?.hero_title ?? "");
-  const [serviceHeroImage, setServiceHeroImage] = useState(initialServiceData?.image_url ?? "");
-  const [serviceHeroDescription, setServiceHeroDescription] = useState(initialServiceData?.hero_description ?? "");
-  const [serviceIntroTitle, setServiceIntroTitle] = useState(initialServiceData?.intro_title ?? "");
-  const [serviceIntroContent, setServiceIntroContent] = useState(initialServiceData?.intro_content ?? "");
+  const [serviceTitle, setServiceTitle] = useState(textValue(initialServiceData?.title));
+  const [serviceHeroTitle, setServiceHeroTitle] = useState(textValue(initialServiceData?.hero_title));
+  const [serviceHeroImage, setServiceHeroImage] = useState(textValue(initialServiceData?.image_url));
+  const [serviceHeroDescription, setServiceHeroDescription] = useState(textValue(initialServiceData?.hero_description));
+  const [serviceIntroTitle, setServiceIntroTitle] = useState(textValue(initialServiceData?.intro_title));
+  const [serviceIntroContent, setServiceIntroContent] = useState(textValue(initialServiceData?.intro_content));
   const [serviceAdvantages, setServiceAdvantages] = useState<{ title: string; description: string }[]>(
     Array.isArray(initialServiceData?.advantages)
       ? initialServiceData.advantages.map((adv: any) =>
           typeof adv === "string"
             ? { title: adv, description: "" }
-            : { title: adv?.title || "", description: adv?.description || "" }
+            : { title: textValue(adv?.title), description: textValue(adv?.description) }
         )
       : []
   );
@@ -352,15 +356,22 @@ export function MegaMenuEditor({ menuKey, initialData, allProducts, initialServi
       ? initialServiceData.usage_areas.map((item: any) =>
           typeof item === "string"
             ? { title: item, description: "" }
-            : { title: item?.title || "", description: item?.description || "" }
+            : { title: textValue(item?.title), description: textValue(item?.description) }
         )
       : []
   );
   const [serviceProcessSteps, setServiceProcessSteps] = useState<string[]>(
-    Array.isArray(initialServiceData?.process_steps) ? initialServiceData.process_steps : []
+    Array.isArray(initialServiceData?.process_steps)
+      ? initialServiceData.process_steps.map(textValue)
+      : []
   );
   const [serviceFaqs, setServiceFaqs] = useState<{ question: string; answer: string }[]>(
-    Array.isArray(initialServiceData?.faqs) ? initialServiceData.faqs : []
+    Array.isArray(initialServiceData?.faqs)
+      ? initialServiceData.faqs.map((faq: any) => ({
+          question: textValue(faq?.question),
+          answer: textValue(faq?.answer),
+        }))
+      : []
   );
 
   // Product picker state
@@ -493,7 +504,7 @@ export function MegaMenuEditor({ menuKey, initialData, allProducts, initialServi
     setError(null);
     setSaved(false);
 
-    if (hasServiceData && (!serviceTitle.trim() || !serviceHeroTitle.trim())) {
+    if (hasServiceData && (!textValue(serviceTitle).trim() || !textValue(serviceHeroTitle).trim())) {
       setError("Hizmet sayfası için Sayfa Başlığı ve Hero Başlığı (H1) zorunludur.");
       return;
     }
@@ -516,10 +527,12 @@ export function MegaMenuEditor({ menuKey, initialData, allProducts, initialServi
             image_url: serviceHeroImage,
             intro_title: serviceIntroTitle,
             intro_content: serviceIntroContent,
-            advantages: serviceAdvantages.filter(item => item.title.trim() !== ""),
-            usage_areas: serviceUsageAreas.filter(item => item.title.trim() !== ""),
-            process_steps: serviceProcessSteps.filter(item => item.trim() !== ""),
-            faqs: serviceFaqs.filter(faq => faq.question.trim() !== "" || faq.answer.trim() !== ""),
+            advantages: serviceAdvantages.filter((item) => textValue(item.title).trim() !== ""),
+            usage_areas: serviceUsageAreas.filter((item) => textValue(item.title).trim() !== ""),
+            process_steps: serviceProcessSteps.filter((item) => textValue(item).trim() !== ""),
+            faqs: serviceFaqs.filter((faq) =>
+              textValue(faq.question).trim() !== "" || textValue(faq.answer).trim() !== ""
+            ),
             related_product_ids: serviceRelatedProductIds,
             deep_dive: serviceDeepDive,
           } : null
